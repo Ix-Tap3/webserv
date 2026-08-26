@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <iostream>
+#include "includes/JsonLexer.hpp"
 
 int	main( int ac, char **av )
 {
@@ -19,5 +20,14 @@ int	main( int ac, char **av )
 		std::cerr << "Error: please use: ./webserv <configuration_file>." << std::endl;
 		return 1;
 	}
-	std::cout << av[1] << std::endl;
+
+	try
+	{
+		std::string	filename(av[1]);
+		JsonLexer	lexer(filename);
+		std::cout << "lexer build !" << std::endl;
+		std::cout << lexer << std::endl;
+	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
+
+	return 0;
 }

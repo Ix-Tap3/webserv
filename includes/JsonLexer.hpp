@@ -6,12 +6,13 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/26 17:26:33 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/26 17:32:17 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 # include <vector>
+# include <exception>
 # include "JsonToken.hpp"
 
 class JsonLexer
@@ -28,10 +29,25 @@ private:
 	Token		lexNumber( void );
 	Token		lexSymbol( void );
 	Token		lexKeyword( void );
-	std::string	fileToString( std::string &filename );
+
+	class JsonLexerException:	public std::exception
+	{
+	private:
+		std::string	_msg;
+
+	public:
+		JsonLexerException	( std::string msg );
+		~JsonLexerException	( void );
+
+		const char	*what( void ) const throw();
+	};
 
 public:
 	JsonLexer	( std::string &fileName );
 
+	std::string	getSrc( void ) const;
+
 	std::vector<Token>	tokenize();
 };
+
+std::ostream	&operator<<	( std::ostream &out, const JsonLexer &lex );

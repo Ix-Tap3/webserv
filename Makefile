@@ -4,7 +4,7 @@ NAME = webserv
 CC = c++
 FLAGS = -Wall -Werror -Wextra -std=c++98 -g
 SRCS_DIR = srcs
-SRCS = main.cpp
+SRCS = main.cpp $(SRCS_DIR)/JsonLexer.cpp
 OBJS_DIR = objs
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 

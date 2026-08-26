@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:01:04 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/26 17:05:11 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/26 18:07:17 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,15 @@ enum TokenType
 	TOKEN_END
 };
 
+struct TokenPos
+{
+	std::size_t	col;
+	std::size_t	line;
+};
+
 struct Token
 {
 	TokenType	type;
 	std::string	value;
-	std::size_t	pos;
+	TokenPos	pos;
 };
