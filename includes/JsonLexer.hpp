@@ -24,7 +24,7 @@ private:
 	bool		isEnd( void ) const;
 	char		peek( void ) const;
 	char		advance( void );
-	void		skipWhiteSpaces( void );
+	void		skipWhiteSpace( void );
 	Token		lexString( void );
 	Token		lexNumber( void );
 	Token		lexSymbol( void );

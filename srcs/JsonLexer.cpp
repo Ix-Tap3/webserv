@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <fstream>
+#include <cctype>
 #include "../includes/JsonLexer.hpp"
 
 static bool	checkFileExtension( std::string &filename, std::string extension)
@@ -48,12 +49,38 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0)
 }
 
 // Member functions
+bool	JsonLexer::isEnd( void ) const { return this->_pos >= this->_input.length(); }
+
+char	JsonLexer::peek( void ) const
+{
+	if (this->isEnd())
+		return '\0';
+	return this->_input[this->_pos];
+}
+
+char	JsonLexer::advance( void )
+{
+	if (this->isEnd())
+		return '\0';
+	std::size_t	idx = this->_pos;
+	this->_pos++;
+	return this->_input[idx];
+}
+
+void	JsonLexer::skipWhiteSpace( void )
+{
+	if (this->isEnd())
+		return;
+	while (!this->isEnd() && std::isspace(this->_input[this->_pos]))
+		this->_pos++;
+}
 
 // --- Exceptions
 JsonLexer::JsonLexerException::JsonLexerException	( std::string msg )
 {
 	this->_msg = "JsonLexer Error: " + msg;
 }
+
 JsonLexer::JsonLexerException::~JsonLexerException	( void ) { }
 
 const char	*JsonLexer::JsonLexerException::what( void ) const throw() { return this->_msg.c_str(); }
