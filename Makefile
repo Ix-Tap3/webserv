@@ -6,7 +6,7 @@ FLAGS = -Wall -Werror -Wextra -std=c++98 -g
 SRCS_DIR = srcs
 SRCS = main.cpp
 OBJS_DIR = objs
-OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
+OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
 #==================================== COLORS ====================================#
 
@@ -52,13 +52,14 @@ $(NAME): $(OBJS)
 	@$(CC) $(OBJS) -o $(NAME)
 	@printf "$(PRIMARY)%s Ready !$(RESET)\n" "$(NAME)"
 
-$(OBJS_DIR)/%.o: %.c
+$(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	@printf "\r$(ACCENT)Compiling object: %s$(RESET)$(ESC)[K" "$<"
+	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"
+	@rm -rf $(OBJS_DIR)
 	@printf "\r$(PRIMARY)$(NAME) objects cleaned!$(RESET)$(ESC)[K\n"
 
 fclean: header clean
