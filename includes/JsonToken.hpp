@@ -1,23 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   JsonToken.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/26 17:01:16 by pcaplat          ###   ########.fr       */
+/*   Created: 2026/08/26 17:01:04 by pcaplat           #+#    #+#             */
+/*   Updated: 2026/08/26 17:05:11 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream>
+#pragma once
+# include <string>
+# include <cstdlib>
 
-int	main( int ac, char **av )
+enum TokenType
 {
-	if (ac != 2)
-	{
-		std::cerr << "Error: please use: ./webserv <configuration_file>." << std::endl;
-		return 1;
-	}
-	std::cout << av[1] << std::endl;
-}
+	TOKEN_LBRACE,
+	TOKEN_RBRACE,
+	TOKEN_LBRACKET,
+	TOKEN_RBRACKET,
+	TOKEN_COLON,
+	TOKEN_COMMA,
+	TOKEN_BOOL,
+	TOKEN_NUMBER,
+	TOKEN_STRING,
+	TOKEN_NULL,
+	TOKEN_END
+};
+
+struct Token
+{
+	TokenType	type;
+	std::string	value;
+	std::size_t	pos;
+};
