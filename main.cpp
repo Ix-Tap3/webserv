@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/26 17:01:16 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/27 17:10:28 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	main( int ac, char **av )
 		JsonLexer	lexer(filename);
 		std::cout << "lexer build !" << std::endl;
 		std::cout << lexer << std::endl;
+		std::vector<Token>	token_list = lexer.tokenize();
+		displayTokenList(token_list);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
 	return 0;

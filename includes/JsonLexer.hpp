@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/26 17:32:17 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/27 16:57:09 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,18 @@ private:
 		const char	*what( void ) const throw();
 	};
 
+	class JsonSyntaxException:	public std::exception
+	{
+	private:
+		std::string	_msg;
+
+	public:
+		JsonSyntaxException		( std::string mdg );
+		~JsonSyntaxException	( void );
+
+		const char	*what( void ) const throw();
+	};
+
 public:
 	JsonLexer	( std::string &fileName );
 
@@ -50,4 +62,7 @@ public:
 	std::vector<Token>	tokenize();
 };
 
+// --- Debug (REMOVE BEFORE PUSH)
+
+void	displayTokenList( std::vector<Token> &tokenList );
 std::ostream	&operator<<	( std::ostream &out, const JsonLexer &lex );
