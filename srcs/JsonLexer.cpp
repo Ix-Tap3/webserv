@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 18:32:20 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/27 18:39:02 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,55 +261,6 @@ std::ostream	&operator<<	( std::ostream &out, const JsonLexer &lex )
 	return out;
 }
 
-// void	displayTokenList( std::vector<Token> &tokenList )
-// {
-// 	if (tokenList.empty())
-// 		return ;
-//
-// 	for (std::vector<Token>::iterator it = tokenList.begin(); it != tokenList.end(); it++)
-// 	{
-// 		switch (it->type)
-// 		{
-// 			case TOKEN_LBRACE:
-// 				std::cout << "LBRACE";
-// 				break ;
-// 			case TOKEN_RBRACE:
-// 				std::cout << "RBRACE";
-// 				break ;
-// 			case TOKEN_LBRACKET:
-// 				std::cout << "LBRACKET";
-// 				break ;
-// 			case TOKEN_RBRACKET:
-// 				std::cout << "RBRACKET";
-// 				break ;
-// 			case TOKEN_COLON:
-// 				std::cout << "COLON";
-// 				break ;
-// 			case TOKEN_COMMA:
-// 				std::cout << "COMMA";
-// 				break ;
-// 			case TOKEN_BOOL:
-// 				std::cout << "BOOL";
-// 				break ;
-// 			case TOKEN_NULL:
-// 				std::cout << "NULL";
-// 				break ;
-// 			case TOKEN_STRING:
-// 				std::cout << "STRING";
-// 				break ;
-// 			case TOKEN_NUMBER:
-// 				std::cout << "NUMBER";
-// 				break ;
-// 			case TOKEN_END:
-// 				std::cout << "END";
-// 				break ;
-// 		}
-// 		if (it != tokenList.end() - 1)
-// 			std::cout << ", ";
-// 	}
-// 	std::cout << std::endl;
-// }
-
 void	displayTokenList( std::vector<Token> &tokenList )
 {
 	if (tokenList.empty())
@@ -320,34 +271,34 @@ void	displayTokenList( std::vector<Token> &tokenList )
 		switch (it->type)
 		{
 			case TOKEN_LBRACE:
-				std::cout << "LBRACE: " << it->value;
+				std::cout << "LBRACE";
 				break ;
 			case TOKEN_RBRACE:
-				std::cout << "RBRACE: " << it->value;
+				std::cout << "RBRACE";
 				break ;
 			case TOKEN_LBRACKET:
-				std::cout << "LBRACKET: " << it->value;
+				std::cout << "LBRACKET";
 				break ;
 			case TOKEN_RBRACKET:
-				std::cout << "RBRACKET: " << it->value;
+				std::cout << "RBRACKET";
 				break ;
 			case TOKEN_COLON:
-				std::cout << "COLON: " << it->value;
+				std::cout << "COLON";
 				break ;
 			case TOKEN_COMMA:
-				std::cout << "COMMA: " << it->value;
+				std::cout << "COMMA";
 				break ;
 			case TOKEN_BOOL:
-				std::cout << "BOOL: " << it->value;
+				std::cout << "BOOL";
 				break ;
 			case TOKEN_NULL:
-				std::cout << "NULL: " << it->value;
+				std::cout << "NULL";
 				break ;
 			case TOKEN_STRING:
-				std::cout << "STRING: " << it->value;
+				std::cout << "STRING";
 				break ;
 			case TOKEN_NUMBER:
-				std::cout << "NUMBER: " << it->value;
+				std::cout << "NUMBER";
 				break ;
 			case TOKEN_END:
 				std::cout << "END";
@@ -358,3 +309,52 @@ void	displayTokenList( std::vector<Token> &tokenList )
 	}
 	std::cout << std::endl;
 }
+
+// void	displayTokenList( std::vector<Token> &tokenList )
+// {
+// 	if (tokenList.empty())
+// 		return ;
+//
+// 	for (std::vector<Token>::iterator it = tokenList.begin(); it != tokenList.end(); it++)
+// 	{
+// 		switch (it->type)
+// 		{
+// 			case TOKEN_LBRACE:
+// 				std::cout << "LBRACE: " << it->value;
+// 				break ;
+// 			case TOKEN_RBRACE:
+// 				std::cout << "RBRACE: " << it->value;
+// 				break ;
+// 			case TOKEN_LBRACKET:
+// 				std::cout << "LBRACKET: " << it->value;
+// 				break ;
+// 			case TOKEN_RBRACKET:
+// 				std::cout << "RBRACKET: " << it->value;
+// 				break ;
+// 			case TOKEN_COLON:
+// 				std::cout << "COLON: " << it->value;
+// 				break ;
+// 			case TOKEN_COMMA:
+// 				std::cout << "COMMA: " << it->value;
+// 				break ;
+// 			case TOKEN_BOOL:
+// 				std::cout << "BOOL: " << it->value;
+// 				break ;
+// 			case TOKEN_NULL:
+// 				std::cout << "NULL: " << it->value;
+// 				break ;
+// 			case TOKEN_STRING:
+// 				std::cout << "STRING: " << it->value;
+// 				break ;
+// 			case TOKEN_NUMBER:
+// 				std::cout << "NUMBER: " << it->value;
+// 				break ;
+// 			case TOKEN_END:
+// 				std::cout << "END";
+// 				break ;
+// 		}
+// 		if (it != tokenList.end() - 1)
+// 			std::cout << ", ";
+// 	}
+// 	std::cout << std::endl;
+// }

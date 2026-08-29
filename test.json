@@ -1,5 +1,9 @@
 [
 	{
-		"port": a8080
+		"name": "IncredibleServer",
+		"port": 8080,
+		"cgi": {
+			"php": [ "GET", "POST", "askjdhgba" ]
+		}
 	}
 ]
