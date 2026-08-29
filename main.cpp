@@ -34,7 +34,14 @@ int	main( int ac, char **av )
 		displayTokenList(token_list);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
-	JsonValue	num( JSON_NUMBER );
+	try
+	{
+		JsonValue	num(12);
+		JsonValue	str("hello there!");
+
+		std::cout << num.getInt() << " " << *str.getString() << std::endl;
+	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
+
 
 	return 0;
 }

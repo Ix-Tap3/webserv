@@ -14,6 +14,7 @@
 #include <exception>
 #include <float.h>
 #include <stdexcept>
+#include <iostream>
 #include "../../includes/json/JsonValue.hpp"
 
 JsonValue::JsonValue	( void ): _type(JSON_NULL) { }
@@ -21,6 +22,7 @@ JsonValue::JsonValue	( int n ): _type(JSON_NUMBER) { this->number = static_cast<
 JsonValue::JsonValue	( float n ): _type(JSON_NUMBER) { this->number = static_cast<double>(n); }
 JsonValue::JsonValue	( bool value ): _type(JSON_BOOL) { this->boolValue = value; }
 JsonValue::JsonValue	( std::string &string ): _type(JSON_STRING) { this->str = new std::string(string); }
+JsonValue::JsonValue	( const char *string ): _type(JSON_STRING) { this->str = new std::string(string); }
 JsonValue::JsonValue	( std::vector<JsonValue> &array ): _type(JSON_ARRAY) { this->arr = new std::vector<JsonValue>(array); }
 JsonValue::JsonValue	( std::map<std::string, JsonValue> &map ): _type(JSON_OBJECT)
 { 

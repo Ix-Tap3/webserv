@@ -40,6 +40,7 @@ public:
 	JsonValue	( float f );
 	JsonValue	( bool value );
 	JsonValue	( std::string &string );
+	JsonValue	( const char *string );
 	JsonValue	( std::vector<JsonValue> &array );
 	JsonValue	( std::map<std::string, JsonValue> &map );
 	JsonValue	( const JsonValue &other );
