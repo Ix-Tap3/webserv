@@ -6,12 +6,12 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 17:10:28 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 11:34:10 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
-#include "includes/JsonLexer.hpp"
+#include "includes/json/JsonLexer.hpp"
 
 int	main( int ac, char **av )
 {

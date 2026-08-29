@@ -6,14 +6,14 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 18:39:02 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 11:33:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fstream>
 #include <iostream>
 #include <cctype>
-#include "../includes/JsonLexer.hpp"
+#include "../../includes/json/JsonLexer.hpp"
 
 static bool	checkFileExtension( std::string &filename, std::string extension)
 {
