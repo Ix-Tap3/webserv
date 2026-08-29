@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 14:22:12 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 14:26:15 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ public:
 
 	void	setValue( bool value );
 	void	setValue( double number );
-	void	setValue( std::string &str );
-	void	setValue( std::vector<JsonValue> &arr );
-	void	setValue( std::map<std::string, JsonValue *> &obj );
+	void	setValue( std::string *str );
+	void	setValue( std::vector<JsonValue> *arr );
+	void	setValue( std::map<std::string, JsonValue *> *obj );
 };
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value );

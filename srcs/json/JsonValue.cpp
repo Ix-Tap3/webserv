@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:51:21 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 14:22:37 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 14:26:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,9 +123,9 @@ std::map<std::string, JsonValue *>	*JsonValue::getObject( void ) const
 
 void	JsonValue::setValue( bool value ) { this->boolValue = value; }
 void	JsonValue::setValue( double number ) { this->number = number; }
-void	JsonValue::setValue( std::string &str ) { this->str = &str; }
-void	JsonValue::setValue( std::vector<JsonValue> &arr ) { this->arr = &arr; }
-void	JsonValue::setValue( std::map<std::string, JsonValue *> &obj ) { this->obj = &obj; }
+void	JsonValue::setValue( std::string *str ) { this->str = str; }
+void	JsonValue::setValue( std::vector<JsonValue> *arr ) { this->arr = arr; }
+void	JsonValue::setValue( std::map<std::string, JsonValue *> *obj ) { this->obj = obj; }
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value )
 {
