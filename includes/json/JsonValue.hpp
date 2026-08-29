@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 14:26:15 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 15:44:28 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,11 @@ private:
 		double								number;
 		std::string							*str;
 		std::vector<JsonValue>				*arr;
-		std::map<std::string, JsonValue *>	*obj;
+		std::map<std::string, JsonValue>	*obj;
 	};
+
+	void	clear( void );
+	void	copyFrom( const JsonValue &other );
 
 public:
 	JsonValue	( void );
@@ -38,7 +41,7 @@ public:
 	JsonValue	( bool value );
 	JsonValue	( std::string &string );
 	JsonValue	( std::vector<JsonValue> &array );
-	JsonValue	( std::map<std::string, JsonValue *> &map );
+	JsonValue	( std::map<std::string, JsonValue> &map );
 	JsonValue	( const JsonValue &other );
 	~JsonValue	( void );
 
@@ -51,13 +54,13 @@ public:
 	bool								getBool( void ) const;
 	std::string							*getString( void ) const;
 	std::vector<JsonValue>				*getArray( void ) const;
-	std::map<std::string, JsonValue *>	*getObject( void ) const;
+	std::map<std::string, JsonValue>	*getObject( void ) const;
 
 	void	setValue( bool value );
 	void	setValue( double number );
 	void	setValue( std::string *str );
 	void	setValue( std::vector<JsonValue> *arr );
-	void	setValue( std::map<std::string, JsonValue *> *obj );
+	void	setValue( std::map<std::string, JsonValue> *obj );
 };
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value );
