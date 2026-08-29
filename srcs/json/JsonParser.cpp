@@ -6,12 +6,13 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 22:02:54 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 23:48:34 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 #include "../../includes/json/JsonParser.hpp"
 
 JsonParser::JsonParser	( std::vector<Token> &tokenList ): _tokenList(tokenList), _pos(0) { }
@@ -56,18 +57,30 @@ static std::string	strTokenType( TokenType type )
 	return std::string();
 }
 
+static std::string	getUnexpectedTokenError(const Token &token, std::size_t pos)
+{
+	std::stringstream	ss;
+
+	ss << "Unexpected " << strTokenType(token.type) << " token, value: <" << token.value << "> at index: " << pos;
+
+	return ss.str();
+}
+
 Token	JsonParser::expect( TokenType type )
 {
 	Token	current = this->peek();
 
 	if (current.type != type)
 	{
-		std::string	msg("Unexpected " + strTokenType(current.type) + " token, value: <"
-				  + current.value + "> at index: ");
-		std::stringstream	ss;
+		std::string	msg = getUnexpectedTokenError(current, this->_pos);
 
-		ss << this->_pos << ", expected " << strTokenType(type) << " token";
-		msg.append(ss.str());
+		msg += ", expected " + strTokenType(type) + " token";
+		// std::string	msg("Unexpected " + strTokenType(current.type) + " token, value: <"
+		// 		  + current.value + "> at index: ");
+		// std::stringstream	ss;
+		//
+		// ss << this->_pos << ", expected " << strTokenType(type) << " token";
+		// msg.append(ss.str());
 		throw JsonParseException(msg);
 	}
 	return this->advance();
@@ -87,12 +100,116 @@ Token	JsonParser::advance( void )
 
 JsonValue	JsonParser::parse( void )
 {
-	Token		token;
-	JsonValue	value;
+	JsonValue	root = this->parseValue();
+	this->expect(TOKEN_END);
+	return root;
+}
 
-	token = expect(TOKEN_COLON);
+JsonValue	JsonParser::parseValue( void )
+{
+	Token	current;
 
-	return value;
+	current = this->peek();
+	switch (current.type)
+	{
+		case TOKEN_LBRACE:
+			return this->parseObject();
+		case TOKEN_LBRACKET:
+			return this->parseArray();
+		case TOKEN_STRING:
+			return this->parseString();
+		case TOKEN_NUMBER:
+			return this->parseNumber();
+		case TOKEN_BOOL:
+			return this->parseBool();
+		case TOKEN_NULL:
+			return this->parseNull();
+		default:
+			throw JsonParseException(getUnexpectedTokenError(current, this->_pos));
+	}
+}
+
+JsonValue	JsonParser::parseObject( void )
+{
+	this->expect(TOKEN_LBRACE);
+
+	bool								empty = false;
+	std::map<std::string, JsonValue>	map;
+
+	if (this->check(TOKEN_RBRACE))
+		empty = true;
+	while (true && !empty)
+	{
+		std::string	key = expect(TOKEN_STRING).value;
+		expect(TOKEN_COLON);
+		if (map.count(key) > 0)
+			throw JsonParseException("Invalid duplicated key " + key );
+		map[key] = this->parseValue();
+		if (!this->check(TOKEN_COMMA))
+			break ;
+		this->advance();
+	}
+	this->expect(TOKEN_RBRACE);
+	return JsonValue(map);
+}
+
+JsonValue	JsonParser::parseArray( void )
+{
+	this->expect(TOKEN_LBRACKET);
+
+	bool					empty = false;
+	std::vector<JsonValue>	arr;
+
+	if (this->check(TOKEN_RBRACKET))
+		empty = true;
+	while (true && !empty)
+	{
+		JsonValue	value = this->parseValue();
+
+		arr.push_back(value);
+		if (!this->check(TOKEN_COMMA))
+			break ;
+		this->advance();
+	}
+	this->expect(TOKEN_RBRACKET);
+	return JsonValue(arr);
+}
+
+JsonValue	JsonParser::parseNumber( void )
+{
+	Token	tok = this->expect(TOKEN_NUMBER);
+
+	const char	*str = tok.value.c_str();
+	char		*end;
+	double		res = std::strtod(str, &end);
+
+	if (end == str || *end != '\0')
+		throw	JsonParseException("Invalid number format: " + tok.value);
+
+	return JsonValue(res);
+}
+
+JsonValue	JsonParser::parseString( void )
+{
+	std::string	str(this->expect(TOKEN_STRING).value);
+
+	return JsonValue(str);
+}
+
+JsonValue	JsonParser::parseBool( void )
+{
+	Token	tok = this->expect(TOKEN_BOOL);
+
+	if (tok.value == "true")
+		return JsonValue(true);
+	return JsonValue(false);
+}
+
+JsonValue	JsonParser::parseNull( void )
+{
+	this->expect(TOKEN_NULL);
+
+	return JsonValue();
 }
 
 // --- Exceptions

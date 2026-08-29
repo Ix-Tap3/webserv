@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:51:21 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 17:54:02 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 23:37:43 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 JsonValue::JsonValue	( void ): _type(JSON_NULL) { }
 JsonValue::JsonValue	( int n ): _type(JSON_NUMBER) { this->number = static_cast<double>(n); }
 JsonValue::JsonValue	( float n ): _type(JSON_NUMBER) { this->number = static_cast<double>(n); }
+JsonValue::JsonValue	( double d): _type(JSON_NUMBER) { this->number = d; }
 JsonValue::JsonValue	( bool value ): _type(JSON_BOOL) { this->boolValue = value; }
 JsonValue::JsonValue	( std::string &string ): _type(JSON_STRING) { this->str = new std::string(string); }
 JsonValue::JsonValue	( const char *string ): _type(JSON_STRING) { this->str = new std::string(string); }

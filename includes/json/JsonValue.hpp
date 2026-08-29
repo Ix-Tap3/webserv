@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 15:44:28 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/29 23:36:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ public:
 	JsonValue	( void );
 	JsonValue	( int n );
 	JsonValue	( float f );
+	JsonValue	( double d );
 	JsonValue	( bool value );
 	JsonValue	( std::string &string );
 	JsonValue	( const char *string );
