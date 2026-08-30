@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 23:48:34 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 13:27:57 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,3 +223,70 @@ const char	*JsonParser::JsonParseException::what( void ) const throw()
 	return this->_msg.c_str();
 }
 
+// --- Debug section Remove before push
+static void	printIndent( int depth )
+{
+    for (int i = 0; i < depth; i++)
+        std::cout << "  ";
+}
+
+static void	debugJsonTree( const JsonValue &value, int depth )
+{
+    switch (value.getType())
+    {
+        case JSON_OBJECT:
+        {
+            std::cout << "{" << std::endl;
+            std::map<std::string, JsonValue> *obj = value.getObject();
+            std::map<std::string, JsonValue>::iterator it = obj->begin();
+            std::map<std::string, JsonValue>::iterator end = obj->end();
+            while (it != end)
+            {
+                printIndent(depth + 1);
+                std::cout << "\"" << it->first << "\": ";
+                debugJsonTree(it->second, depth + 1);
+                ++it;
+                if (it != end)
+                    std::cout << ",";
+                std::cout << std::endl;
+            }
+            printIndent(depth);
+            std::cout << "}";
+            break ;
+        }
+        case JSON_ARRAY:
+        {
+            std::cout << "[" << std::endl;
+            std::vector<JsonValue> *arr = value.getArray();
+            for (std::size_t i = 0; i < arr->size(); i++)
+            {
+                printIndent(depth + 1);
+                debugJsonTree((*arr)[i], depth + 1);
+                if (i + 1 < arr->size())
+                    std::cout << ",";
+                std::cout << std::endl;
+            }
+            printIndent(depth);
+            std::cout << "]";
+            break ;
+        }
+        case JSON_STRING:
+            std::cout << "\"" << *value.getString() << "\"";
+            break ;
+        case JSON_NUMBER:
+            std::cout << value.getFloat();
+            break ;
+        case JSON_BOOL:
+            std::cout << (value.getBool() ? "true" : "false");
+            break ;
+        case JSON_NULL:
+            std::cout << "null";
+            break ;
+    }
+}
+
+void	displayJsonTree( JsonValue &root )
+{
+    debugJsonTree(root, 0);
+    std::cout << std::endl;
+}

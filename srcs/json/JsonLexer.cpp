@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 19:42:51 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 13:22:29 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ std::vector<Token>	JsonLexer::tokenize()
 		{
 			case '"':
 				token = this->lexString();
-				if (token.value.empty())
+				if (token.type != TOKEN_STRING && token.value.empty())
 					throw JsonSyntaxException("Missing string end quote");
 				break ;
 			case '[':
@@ -218,6 +218,13 @@ Token	JsonLexer::lexString( void )
 	Token		tok;
 
 	this->advance();
+	if (this->peek() == '"')
+	{
+		tok.type = TOKEN_STRING;
+		tok.value = std::string();
+		this->advance();
+		return tok;
+	}
 	while (this->_input[this->_pos])
 	{
 		char	c = this->advance();

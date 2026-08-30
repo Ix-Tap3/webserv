@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 20:46:40 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 13:09:48 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,10 @@ int	main( int ac, char **av )
 	try
 	{
 		JsonParser	parser(tokenList);
+		JsonValue	root;
 
-		parser.parse();
+		root = parser.parse();
+		displayJsonTree(root);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
 	return 0;

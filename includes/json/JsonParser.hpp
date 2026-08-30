@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:08:28 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 21:37:13 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 12:18:34 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,3 +51,5 @@ public:
 
 	JsonValue	parse( void );
 };
+
+void	displayJsonTree( JsonValue &root );
