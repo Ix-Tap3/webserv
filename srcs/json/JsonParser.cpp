@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/30 13:27:57 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 13:50:20 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,6 @@ Token	JsonParser::expect( TokenType type )
 		std::string	msg = getUnexpectedTokenError(current, this->_pos);
 
 		msg += ", expected " + strTokenType(type) + " token";
-		// std::string	msg("Unexpected " + strTokenType(current.type) + " token, value: <"
-		// 		  + current.value + "> at index: ");
-		// std::stringstream	ss;
-		//
-		// ss << this->_pos << ", expected " << strTokenType(type) << " token";
-		// msg.append(ss.str());
 		throw JsonParseException(msg);
 	}
 	return this->advance();

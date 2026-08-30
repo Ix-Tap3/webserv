@@ -1,9 +1,9 @@
 [
 	{
 		"name": "IncredibleServer",
-		"port": 8080,
+		"port": 8080.2,
 		"cgi": {
-			"php": [ "asd", "POST", "askjdhgba" ]
+			"php": [ "asd", "POST", "askjdhgba" ],
 			"pyton": "c nul"
 		}
 	}

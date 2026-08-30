@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/30 13:22:29 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 13:49:25 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,10 +145,18 @@ Token	JsonLexer::lexNumber( void )
 		tok.value.append(1, this->advance());
 
 	while (!this->isEnd() && std::isdigit(this->peek()))
+		tok.value.append(1, this->advance());
+	if (this->peek() == '.')
+		tok.value.append(1, this->advance());
+	while (!this->isEnd() && std::isdigit(this->peek()))
+		tok.value.append(1, this->advance());
+	if (this->peek() == 'e' || this->peek() == 'E')
 	{
-		char	c = this->advance();
-
-		tok.value.append(1, c); 
+		this->advance();
+		if(this->peek() == '+' || this->peek() == '-')
+			tok.value.append(1, this->advance());
+		while (!this->isEnd() && std::isdigit(this->peek()))
+			tok.value.append(1, this->advance());
 	}
 	return tok;
 }
