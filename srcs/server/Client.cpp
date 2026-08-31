@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/08/31 22:07:40 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/01 01:37:58 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,28 @@ Client::~Client()
 {
 }
 
+// === GETTER === //
 int	Client::getFd() const
 {
 	return (this->_fd);
 }
 
+int	Client::getNbBodyByte() const
+{
+	return (this->_nbBodyByte);
+}
+
+int	Client::getContentLength() const
+{
+	return (this->_httpRequest.contentLength);
+}
 
 // === RECEIVE DATA === //
 void	Client::appendReceivedData(char	*buff, int len)
 {
 	this->_recvBuffer.append(buff, len);
-	std::cout.write(buff, len);
-	std::cout << "Client " << this->_fd << "received buffer: " << this->_recvBuffer << std::endl;
+	// std::cout.write(buff, len);
+	// std::cout << "Client " << this->_fd << "received buffer: " << this->_recvBuffer << std::endl;
 }
 
 bool	Client::hasCompleteHeaders() const
@@ -45,7 +55,35 @@ bool	Client::hasCompleteHeaders() const
 }
 
 // === SEND DATA === //
+char	*Client::sendResponse()
+{
+	char	*conversion = this->_sendBuffer.data();
+}
+
+bool	Client::hasSomethingToSend() const
+{
+	return (!this->_sendBuffer.empty());
+}
+
 void	Client::appendSendData(std::string data)
 {
 	this->_sendBuffer += data;
+}
+
+void	Client::stashHeaders()
+{
+	this->_httpRequest.header = this->_recvBuffer;
+	this->_recvBuffer.clear();
+}
+
+void	Client::stashBody()
+{
+	this->_httpRequest.body = this->_recvBuffer;
+	this->_recvBuffer.clear();
+}
+
+void	Client::removeReponseSend(size_t byte_send)
+{
+	size_t total_len = this->_sendBuffer.length();
+	// Find a way to cut of the first byte = byte_send of the sendBuffer	
 }
