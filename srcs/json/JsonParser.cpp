@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/30 13:50:20 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/08/30 20:32:13 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,7 @@ JsonValue	JsonParser::parseNumber( void )
 	const char	*str = tok.value.c_str();
 	char		*end;
 	double		res = std::strtod(str, &end);
+	std::cout << "debug: " <<  res << std::endl;
 
 	if (end == str || *end != '\0')
 		throw	JsonParseException("Invalid number format: " + tok.value);
