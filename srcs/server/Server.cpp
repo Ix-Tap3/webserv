@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/01 01:33:52 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/01 01:47:27 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,8 @@ bool	Server::acceptNewClient()
 bool	Server::watchClientsSocket(int index)
 {
 	int		client_fd = this->_pollFds[index].fd;
-	// Client	*client = &this->_clients[client_fd];
+	Client	*client = &this->_clients[client_fd];
+
 	if (this->_pollFds[index].revents & POLLIN)
 	{
 		char	buff[100];
@@ -199,34 +200,34 @@ bool	Server::watchClientsSocket(int index)
 			return (true);
 		}
 		// No problem
-		this->_clients[client_fd].appendReceivedData(buff, res);
-		if (this->_clients[client_fd].hasCompleteHeaders())
+		client->appendReceivedData(buff, res);
+		if (client->hasCompleteHeaders())
 		{
 			// We received all of the HTTP header
 			// that not mean that we received all, there's maybe a body so if we read enougth bytes
 			// (number of bytes are indicated by Content-Length)
-			this->_clients[client_fd].stashHeaders();
+			client->stashHeaders();
 		}
-		else if (this->_clients[client_fd].getContentLength() == this->_clients[client_fd].getNbBodyByte())
+		else if (client->getContentLength() == client->getNbBodyByte())
 		{
-			this->_clients[client_fd].stashBody();
+			client->stashBody();
 			this->_pollFds[client_fd + 1].events = POLLOUT | POLLIN;
 		}
 	}
 	else if (this->_pollFds[index].revents & POLLOUT)
 	{
-		if (!this->_clients[client_fd].hasSomethingToSend())
+		if (!client->hasSomethingToSend())
 		{
 			this->_pollFds[client_fd + 1].events = POLLIN;
 			return (true);
 		}
 
-		char	*response = this->_clients[client_fd].sendResponse();
+		char	*response = client->sendResponse();
 		std::string str_response = response;
 		size_t	response_len = str_response.length();
 
 		size_t	byte_send = send(client_fd, response, response_len, 0);
-		this->_clients[client_fd].removeReponseSend(byte_send);
+		client->removeReponseSend(byte_send);
 	}
 	return (true);
 }
