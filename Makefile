@@ -4,19 +4,20 @@ NAME = webserv
 
 CC = c++
 
-FLAGS = -Wall -Werror -Wextra -std=c++98 -g \
-		-I includes \
+#-Wall -Werror -Wextra -std=c++98 -g \		
+
+FLAGS = -I includes \
 		-I includes/server \
-		-I includes/json \
+# 		-I includes/json \
 
 SRCS_DIR = srcs
 
 SRCS = main.cpp \
-	$(SRCS_DIR)/json/JsonLexer.cpp \
-	$(SRCS_DIR)/json/JsonValue.cpp \
-	$(SRCS_DIR)/json/JsonParser.cpp \
 	$(SRCS_DIR)/server/Client.cpp \
 	$(SRCS_DIR)/server/Server.cpp
+# 	$(SRCS_DIR)/json/JsonLexer.cpp \
+	$(SRCS_DIR)/json/JsonValue.cpp \
+	$(SRCS_DIR)/json/JsonParser.cpp \
 
 OBJS_DIR = objs
 

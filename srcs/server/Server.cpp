@@ -6,12 +6,11 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/08/31 21:51:23 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/08/31 22:19:32 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/server/Server.hpp"
-
+#include <Server.hpp>
 
 Server::Server()
 {
@@ -21,6 +20,7 @@ Server::~Server()
 {
 }
 
+// === SETUP PART === //
 bool	Server::setup()
 {
 	struct addrinfo hints = {};
@@ -37,6 +37,27 @@ bool	Server::setup()
 		return (false);
 	}
 
+	if (!setupSocket(res))
+		return (false);
+	std::cout << "Socket successful" << std::endl;
+
+	if (!setupBind(res))
+		return (false);
+	std::cout << "Bind successful" << std::endl;
+
+	if (!setupListen(res))
+		return (false);
+	std::cout << "Listen successful" << std::endl;
+
+	
+	this->_pollFds.push_back(setupServerPoll());
+
+	freeaddrinfo(res);
+	return (true);
+}
+
+bool			Server::setupSocket(struct addrinfo *res)
+{
 	this->_socketFd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 	if (this->_socketFd == -1)
 	{
@@ -44,8 +65,11 @@ bool	Server::setup()
 		freeaddrinfo(res);
 		return (false);
 	}
-	std::cout << "Socket successful" << std::endl;
+	return (true);
+}
 
+bool			Server::setupBind(struct addrinfo *res)
+{
 	int res_bind = bind(this->_socketFd, res->ai_addr, res->ai_addrlen);
 	if (res_bind == -1)
 	{
@@ -54,8 +78,11 @@ bool	Server::setup()
 		freeaddrinfo(res);
 		return (false);
 	}
-	std::cout << "Bind successful" << std::endl;
+	return (true);
+}
 
+bool			Server::setupListen(struct addrinfo *res)
+{
 	int res_listen = listen(this->_socketFd, 10);
 	if (res_listen == -1)
 	{
@@ -64,18 +91,20 @@ bool	Server::setup()
 		close(this->_socketFd);
 		return (false);
 	}
-	std::cout << "Listen successful" << std::endl;
+	return (true);
+}
 
+struct pollfd	Server::setupServerPoll()
+{
 	struct pollfd server_poll;
 	server_poll.fd = this->_socketFd;
 	server_poll.events = POLLIN;
 	server_poll.revents = 0;
-	this->_pollFds.push_back(server_poll);
-
-	freeaddrinfo(res);
-	return (true);
+	return (server_poll);
 }
 
+
+// === RUN PART === //
 bool	Server::run()
 {
 	while (true)
@@ -112,7 +141,7 @@ bool	Server::run()
 	return (true);
 }
 
-
+// Server Socket //
 bool	Server::watchServerSocket(int index)
 {
 	if (this->_pollFds[index].revents & POLLIN)
@@ -143,6 +172,7 @@ bool	Server::acceptNewClient()
 	return (true);
 }
 
+// Clients Socket //
 bool	Server::watchClientsSocket(int index)
 {
 	if (this->_pollFds[index].revents & POLLIN)
