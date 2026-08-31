@@ -1,13 +1,14 @@
 {
 	"name": "serv",
-	"ports": [ 4242, 8484           ],
-	"bodyMaxSize": 123,
+	"ports": [ 4242 ],
+	"ip": "127.0.0.1",
 	"http": {
 		"methods": [ "GET" ],
 		"path": {
 			"intern": "/toto",
 			"disk": "/user/path"
 		},
+		"bodyMaxSize": 123,
 		"redirections": { },
 		"directoryListing": false,
 		"uploading": [ true, "path/to/storage"],

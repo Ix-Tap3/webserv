@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../../includes/server/Server.hpp"
 
 
 Server::Server()

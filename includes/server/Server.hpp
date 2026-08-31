@@ -13,8 +13,8 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <WebservInclude.h>
-# include "Client.hpp"
+# include "../../includes/WebservInclude.h"
+# include "../../includes/server/Client.hpp"
 
 class Server
 {

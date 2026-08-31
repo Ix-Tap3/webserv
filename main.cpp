@@ -13,6 +13,7 @@
 #include <iostream>
 #include "includes/json/JsonLexer.hpp"
 #include "includes/json/JsonParser.hpp"
+#include "includes/server/Server.hpp"
 
 int	main( int ac, char **av )
 {
@@ -29,14 +30,8 @@ int	main( int ac, char **av )
 		std::string	filename(av[1]);
 		JsonLexer	lexer(filename);
 
-		std::cout << "lexer build !" << std::endl;
-		std::cout << lexer << std::endl;
-
 		tokenList = lexer.tokenize();
-		displayTokenList(tokenList);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
-
-	std::cout << std::endl;
 
 	try
 	{
@@ -47,5 +42,13 @@ int	main( int ac, char **av )
 		displayJsonTree(root);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
+    Server server;
+
+    if (!server.setup())
+        return 1;
+
+	server.run();
+	while (true)
+		;
 	return 0;
 }
