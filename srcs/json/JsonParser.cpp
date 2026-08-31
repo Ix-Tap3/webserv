@@ -176,7 +176,6 @@ JsonValue	JsonParser::parseNumber( void )
 	const char	*str = tok.value.c_str();
 	char		*end;
 	double		res = std::strtod(str, &end);
-	std::cout << "debug: " <<  res << std::endl;
 
 	if (end == str || *end != '\0')
 		throw	JsonParseException("Invalid number format: " + tok.value);
