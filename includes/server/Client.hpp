@@ -6,14 +6,14 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/08/31 18:22:58 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/08/31 20:50:08 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include "../../includes/WebservInclude.h"
+# include <WebservInclude.h>
 
 class Client
 {
@@ -26,7 +26,8 @@ public:
 	Client(int fd);
 	~Client();
 
-	void	retrieveData(char	*buff, int len);
+	void	appendReceivedData(char	*buff, int len);
+	void	appendSendData(std::string data);
 
 	// === GETTER === //
 	int	getFd() const;

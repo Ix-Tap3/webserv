@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/08/31 18:24:16 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/08/31 21:51:23 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ bool	Server::watchClientsSocket(int index)
 			return (true);
 		}
 		// No problem
-		this->_clients[client_fd].retrieveData(buff, res);
+		this->_clients[client_fd].appendReceivedData(buff, res);
 	}
 	return (true);
 }

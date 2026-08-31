@@ -1,12 +1,25 @@
 #==================================== MAKEFILE ====================================#
 
 NAME = webserv
+
 CC = c++
-FLAGS = -Wall -Werror -Wextra -std=c++98 -I includes/server -I includes/json -I includes  -g
+
+FLAGS = -Wall -Werror -Wextra -std=c++98 -g \
+		-I includes \
+		-I includes/server \
+		-I includes/json \
+
 SRCS_DIR = srcs
-SRCS = main.cpp $(SRCS_DIR)/json/JsonLexer.cpp $(SRCS_DIR)/json/JsonValue.cpp $(SRCS_DIR)/json/JsonParser.cpp \
-	   $(SRCS_DIR)/server/Client.cpp $(SRCS_DIR)/server/Server.cpp
+
+SRCS = main.cpp \
+	$(SRCS_DIR)/json/JsonLexer.cpp \
+	$(SRCS_DIR)/json/JsonValue.cpp \
+	$(SRCS_DIR)/json/JsonParser.cpp \
+	$(SRCS_DIR)/server/Client.cpp \
+	$(SRCS_DIR)/server/Server.cpp
+
 OBJS_DIR = objs
+
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
 #==================================== COLORS ====================================#
@@ -56,7 +69,7 @@ $(NAME): $(OBJS)
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(FLAGS) -c $< -o $@
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"
