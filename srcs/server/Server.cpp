@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/01 01:47:27 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:05:24 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,54 +180,66 @@ bool	Server::watchClientsSocket(int index)
 
 	if (this->_pollFds[index].revents & POLLIN)
 	{
-		char	buff[100];
-
-		int	res = recv(client_fd, buff, sizeof(buff), 0);
-		// Error
-		if (res == -1)
-		{
-			std::cerr << "recv: " << std::strerror(errno) << std::endl;
-			close(client_fd);
+		if (!this->clientPOLLIN(client, client_fd, index))
 			return (false);
-		}
-		// Disconnect
-		else if (res == 0)
-		{
-			close(client_fd);
-			this->_pollFds.erase(this->_pollFds.begin() + index);
-			this->_clients.erase(client_fd);
-			std::cout << "Client " << client_fd << " disconnected" << std::endl;
-			return (true);
-		}
-		// No problem
-		client->appendReceivedData(buff, res);
-		if (client->hasCompleteHeaders())
-		{
-			// We received all of the HTTP header
-			// that not mean that we received all, there's maybe a body so if we read enougth bytes
-			// (number of bytes are indicated by Content-Length)
-			client->stashHeaders();
-		}
-		else if (client->getContentLength() == client->getNbBodyByte())
-		{
-			client->stashBody();
-			this->_pollFds[client_fd + 1].events = POLLOUT | POLLIN;
-		}
 	}
 	else if (this->_pollFds[index].revents & POLLOUT)
 	{
-		if (!client->hasSomethingToSend())
-		{
-			this->_pollFds[client_fd + 1].events = POLLIN;
-			return (true);
-		}
-
-		char	*response = client->sendResponse();
-		std::string str_response = response;
-		size_t	response_len = str_response.length();
-
-		size_t	byte_send = send(client_fd, response, response_len, 0);
-		client->removeReponseSend(byte_send);
+		if (!this->clientPOLLOUT(client, client_fd))
+			return (false);
 	}
+	return (true);
+}
+
+bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
+{
+	char	buff[100];
+
+	int	res = recv(clientFd, buff, sizeof(buff), 0);
+	// Error
+	if (res == -1)
+	{
+		std::cerr << "recv: " << std::strerror(errno) << std::endl;
+		close(clientFd);
+		return (false);
+	}
+	// Disconnect
+	else if (res == 0)
+	{
+	close(clientFd);
+	this->_pollFds.erase(this->_pollFds.begin() + index);
+		this->_clients.erase(clientFd);
+		std::cout << "Client " << clientFd << " disconnected" << std::endl;
+		return (true);
+	}
+	// No problem
+	client->appendReceivedData(buff, res);
+	if (client->hasCompleteHeaders())
+	{
+		// We received all of the HTTP header
+		// that not mean that we received all, there's maybe a body so if we read enougth bytes
+		// (number of bytes are indicated by Content-Length)
+		client->stashHeaders();
+	}
+	else if (client->getContentLength() == client->getNbBodyByte())
+	{
+		client->stashBody();
+		this->_pollFds[clientFd + 1].events = POLLOUT | POLLIN;
+	}
+}
+
+bool	Server::clientPOLLOUT(Client *client, int clientFd)
+{
+	if (!client->hasSomethingToSend())
+	{
+		this->_pollFds[clientFd + 1].events = POLLIN;
+		return (true);
+	}
+
+const char	*response = client->sendResponse().c_str();
+	size_t	response_len = client->sendResponse().length();
+
+	size_t	byte_send = send(clientFd, response, response_len, 0);
+	client->removeReponseSend(byte_send);
 	return (true);
 }

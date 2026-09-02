@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/01 01:37:58 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/01 02:21:41 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ bool	Client::hasCompleteHeaders() const
 }
 
 // === SEND DATA === //
-char	*Client::sendResponse()
+std::string	Client::sendResponse()
 {
-	char	*conversion = this->_sendBuffer.data();
+	return (this->_sendBuffer.data());
 }
 
 bool	Client::hasSomethingToSend() const
@@ -84,6 +84,5 @@ void	Client::stashBody()
 
 void	Client::removeReponseSend(size_t byte_send)
 {
-	size_t total_len = this->_sendBuffer.length();
-	// Find a way to cut of the first byte = byte_send of the sendBuffer	
+	this->_sendBuffer.erase(0, byte_send);
 }
