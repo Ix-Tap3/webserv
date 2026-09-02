@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:09:01 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:20:15 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ bool	Server::watchClientsSocket(int index)
 	}
 	else if (this->_pollFds[index].revents & POLLOUT)
 	{
-		if (!this->clientPOLLOUT(client, client_fd))
+		if (!this->clientPOLLOUT(client, client_fd, index))
 			return (false);
 	}
 	return (true);
@@ -228,11 +228,11 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	}
 }
 
-bool	Server::clientPOLLOUT(Client *client, int clientFd)
+bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 {
 	if (!client->hasSomethingToSend())
 	{
-		this->_pollFds[clientFd + 1].events = POLLIN;
+		this->_pollFds[index].events = POLLIN;
 		return (true);
 	}
 
