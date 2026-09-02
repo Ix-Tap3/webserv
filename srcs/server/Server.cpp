@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:05:24 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:09:01 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	else if (client->getContentLength() == client->getNbBodyByte())
 	{
 		client->stashBody();
-		this->_pollFds[clientFd + 1].events = POLLOUT | POLLIN;
+		this->_pollFds[index].events = POLLOUT | POLLIN;
 	}
 }
 
