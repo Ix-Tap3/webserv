@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:20:15 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:26:34 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,10 +236,9 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 		return (true);
 	}
 
-const char	*response = client->sendResponse().c_str();
-	size_t	response_len = client->sendResponse().length();
-
-	size_t	byte_send = send(clientFd, response, response_len, 0);
+	const std::string &response = client->getSendBuffer();;
+	size_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
 	client->removeReponseSend(byte_send);
+
 	return (true);
 }

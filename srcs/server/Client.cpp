@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/01 02:21:41 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:26:19 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,9 @@ Client::~Client()
 {
 }
 
-// === GETTER === //
+//======================//
+// ====== GETTER ====== //
+//======================//
 int	Client::getFd() const
 {
 	return (this->_fd);
@@ -41,7 +43,14 @@ int	Client::getContentLength() const
 	return (this->_httpRequest.contentLength);
 }
 
+const std::string&	Client::getSendBuffer() const
+{
+	return (this->_sendBuffer);
+}
+
+//======================//
 // === RECEIVE DATA === //
+//======================//
 void	Client::appendReceivedData(char	*buff, int len)
 {
 	this->_recvBuffer.append(buff, len);
@@ -54,12 +63,9 @@ bool	Client::hasCompleteHeaders() const
 	return (this->_recvBuffer.find("\r\n\r\n") != std::string::npos);
 }
 
-// === SEND DATA === //
-std::string	Client::sendResponse()
-{
-	return (this->_sendBuffer.data());
-}
-
+//======================//
+// ===== SEND DATA ==== //
+//======================//
 bool	Client::hasSomethingToSend() const
 {
 	return (!this->_sendBuffer.empty());

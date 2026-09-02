@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/01 02:22:39 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 17:24:02 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ public:
 	// === SEND DATA === //
 	void		appendSendData(std::string data);
 	bool		hasSomethingToSend() const;
-	std::string	sendResponse();
+	const std::string&	Client::getSendBuffer() const;
 	void		removeReponseSend(size_t byte_send);
 
 	// === GETTER === //
