@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:26:19 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 19:34:39 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,13 @@
 
 Client::Client()
 {
+	this->_contentLength = -1;
 }
 
 Client::Client(int fd)
 {
 	this->_fd = fd;
+	this->_contentLength = -1;
 }
 
 Client::~Client()
@@ -40,7 +42,7 @@ int	Client::getNbBodyByte() const
 
 int	Client::getContentLength() const
 {
-	return (this->_httpRequest.contentLength);
+	return (this->_contentLength);
 }
 
 const std::string&	Client::getSendBuffer() const
@@ -78,13 +80,13 @@ void	Client::appendSendData(std::string data)
 
 void	Client::stashHeaders()
 {
-	this->_httpRequest.header = this->_recvBuffer;
+	this->_strHeader = this->_recvBuffer;
 	this->_recvBuffer.clear();
 }
 
 void	Client::stashBody()
 {
-	this->_httpRequest.body = this->_recvBuffer;
+	this->_strBody = this->_recvBuffer;
 	this->_recvBuffer.clear();
 }
 

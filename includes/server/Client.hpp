@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:24:02 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/02 19:51:15 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,18 @@
 # define CLIENT_HPP
 
 # include <WebservInclude.h>
-
-struct HttpRequest
-{
-	std::string header;
-	std::string body;
-	int			contentLength;
-};
+# include <HttpParser.hpp>
 
 class Client
 {
 private:
 	int _fd;
 	std::string _recvBuffer;
+	std::string _strHeader;
+	std::string _strBody;
 	std::string _sendBuffer;
 	int			_nbBodyByte;
+	int			_contentLength;
 	HttpRequest	_httpRequest;
 public:
 
@@ -45,7 +42,7 @@ public:
 	// === SEND DATA === //
 	void		appendSendData(std::string data);
 	bool		hasSomethingToSend() const;
-	const std::string&	Client::getSendBuffer() const;
+	const std::string&	getSendBuffer() const;
 	void		removeReponseSend(size_t byte_send);
 
 	// === GETTER === //
