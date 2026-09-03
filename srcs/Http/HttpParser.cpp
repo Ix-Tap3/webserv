@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 17:38:00 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/03 19:25:48 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	size_t space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		//throw an exception
+		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
 	}
 	line.method = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
@@ -35,7 +35,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		//throw an exception
+		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
 	}
 	line.target = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
@@ -44,7 +44,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	strRequestLine.erase(0, 8);
 	if (strRequestLine != "\r\n")
 	{
-		// throw an exception
+		throw HttpException(400, "End (\"\\r\\n\") not found in Request Line: " + strRequestLine);
 	}
 
 	VerifyRequestLine(line);
@@ -60,60 +60,71 @@ void	HttpParser::VerifyRequestLine(RequestLine line)
 
 void		HttpParser::VerifyMethod(std::string method)
 {
-	if (method.empty() || (method != "GET" && method != "POST" && method != "DELETE"))
+	if (method.empty())
 	{
-		// throw an exception
+		throw HttpException(0, "Method is empty");
+	}
+	else if (method != "GET" && method != "POST" && method != "DELETE")
+	{
+		if (method == "PUT" || method == "HEAD" || method == "CONNECT" ||
+			method == "OPTIONS" || method == "TRACE" || method == "PATCH")
+		{
+			throw HttpException(405, "Method not supported: " + method);
+		}
+		throw HttpException(400, "Unknown Method: " + method);
 	}
 }
 
 void		HttpParser::VerifyTarget(std::string target)
 {
-	if (target.empty() || target[0] != '/')
-	{
-		// throw an exception
-	}
+	if (target.empty())
+		throw HttpException(400, "Path is empty: " + target);
+
+	std::string begin = target.substr(0, 7);
+	if (target[0] != '/' && begin != "http://")
+		throw HttpException(400, "Path isn't accepted: " + target);
+
 	if (target.size() > 8192)
-	{
-		// throw an exception (414 URI Too Long)
-	}
+		throw HttpException(414, "URI Too Long");
+
 	for (size_t i = 0; i < target.size(); ++i)
 	{
 		unsigned char c = target[i];
 		if (c < 0x20 || c == 0x7F)
 		{
-			// throw an exception
+			throw HttpException(400, "Invalid character in request target: " + target);
 		}
 	}
-	if (ContainsDotDotSegment(target))
-	{
-		// throw an exception (doesnt accept ".." in path to avoid attacks)
-	}
+	// if (ContainsDotDotSegment(target))
+	// {
+	// 	// throw an exception (doesnt accept ".." in path to avoid attacks)
+	// }
 }
 
-bool HttpParser::ContainsDotDotSegment(const std::string& path)
-{
-	size_t pos = 0;
-	while (pos < path.size())
-	{
-		size_t next = path.find('/', pos + 1);
-		if (next == std::string::npos)
-			next = path.size();
+// bool HttpParser::ContainsDotDotSegment(const std::string& path)
+// {
+// 	size_t pos = 0;
+// 	while (pos < path.size())
+// 	{
+// 		size_t next = path.find('/', pos + 1);
+// 		if (next == std::string::npos)
+// 			next = path.size();
 		
-		std::string segment = path.substr(pos + 1, next - pos - 1);
+// 		std::string segment = path.substr(pos + 1, next - pos - 1);
 
-		if (segment == "..")
-			return true;
+// 		if (segment == "..")
+// 			return true;
 
-		pos = next;
-	}
-	return false;
-}
+// 		pos = next;
+// 	}
+// 	return false;
+// }
 
 void		HttpParser::VerifyVersion(std::string version)
 {
 	if (version.empty() || version != "HTTP/1.0")
 	{
-		// throw an exception
+		throw HttpException(400, "Version isn't accepted: " + version);
 	}	
 }
 

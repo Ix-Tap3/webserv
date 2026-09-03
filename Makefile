@@ -8,7 +8,7 @@ CC = c++
 
 FLAGS = -I includes \
 		-I includes/server \
-		-I includes/HttpParser \
+		-I includes/Http \
 # 		-I includes/json \
 
 SRCS_DIR = srcs
