@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 17:02:56 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/03 17:38:00 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,19 +41,80 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	strRequestLine.erase(0, space + 1);
 
 	line.version = strRequestLine.substr(0, 8);
-
-	if (!strRequestLine.empty())
+	strRequestLine.erase(0, 8);
+	if (strRequestLine != "\r\n")
 	{
-		//throw an exception
+		// throw an exception
 	}
 
 	VerifyRequestLine(line);
 	return (line);
 }
 
-void	HttpParser::VerifyRequestLine(RequestLine requestLine)
+void	HttpParser::VerifyRequestLine(RequestLine line)
 {
-	
+	VerifyMethod(line.method);
+	VerifyTarget(line.target);
+	VerifyVersion(line.version);
+}
+
+void		HttpParser::VerifyMethod(std::string method)
+{
+	if (method.empty() || (method != "GET" && method != "POST" && method != "DELETE"))
+	{
+		// throw an exception
+	}
+}
+
+void		HttpParser::VerifyTarget(std::string target)
+{
+	if (target.empty() || target[0] != '/')
+	{
+		// throw an exception
+	}
+	if (target.size() > 8192)
+	{
+		// throw an exception (414 URI Too Long)
+	}
+	for (size_t i = 0; i < target.size(); ++i)
+	{
+		unsigned char c = target[i];
+		if (c < 0x20 || c == 0x7F)
+		{
+			// throw an exception
+		}
+	}
+	if (ContainsDotDotSegment(target))
+	{
+		// throw an exception (doesnt accept ".." in path to avoid attacks)
+	}
+}
+
+bool HttpParser::ContainsDotDotSegment(const std::string& path)
+{
+	size_t pos = 0;
+	while (pos < path.size())
+	{
+		size_t next = path.find('/', pos + 1);
+		if (next == std::string::npos)
+			next = path.size();
+		
+		std::string segment = path.substr(pos + 1, next - pos - 1);
+
+		if (segment == "..")
+			return true;
+
+		pos = next;
+	}
+	return false;
+}
+
+void		HttpParser::VerifyVersion(std::string version)
+{
+	if (version.empty() || version != "HTTP/1.0")
+	{
+		// throw an exception
+	}	
 }
 
 void	HttpParser::DataSorting(std::string& header)
@@ -95,9 +156,6 @@ Header	HttpParser::ParseHeader(std::string& header)
 	
 	return (this->_HttpRequest._Header);
 }
-
-
-
 
 Body	HttpParser::ParseBody(std::string&	body)
 {
