@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 19:50:33 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/03 17:02:50 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,19 @@ class HttpParser
 private:
 	HttpRequest	_HttpRequest;
 
-	RequestLine ParseRequestLine(std::string strRequestLine);
+	// === HEADER === //
 	void		DataSorting(std::string& header);
+	// Request Line //
+	RequestLine ParseRequestLine(std::string& strRequestLine);
+	void		VerifyRequestLine(RequestLine requestLine);
 public:
 	HttpParser();
 	~HttpParser();
 
+	// === HEADER === //
 	Header	ParseHeader(std::string& header);
+
+	// === BODY === //
 	Body	ParseBody(std::string&	body);
 };
 

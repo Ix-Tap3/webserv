@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 19:51:15 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/03 17:01:05 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ private:
 	int			_nbBodyByte;
 	int			_contentLength;
 	HttpRequest	_httpRequest;
+
+	HttpParser	_parser;
 public:
 
 	Client();
