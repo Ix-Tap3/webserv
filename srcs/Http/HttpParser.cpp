@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 19:25:48 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/08 18:44:21 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,10 @@ void	HttpParser::DataSorting(std::string& header)
 				std::make_pair(line.substr(0, colon),
 				line.substr(colon + 1)));
 		}
+		else
+		{
+			throw HttpException(400, "No semi colon found: " + line);
+		}
 		pos = eol + 2;
 	}
 }
@@ -161,11 +165,85 @@ void	HttpParser::DataSorting(std::string& header)
 Header	HttpParser::ParseHeader(std::string& header)
 {
 	if (header.empty())
-		return ;
-	
+	{
+		throw HttpException(400, "Header empty");	
+	}
+
 	DataSorting(header);
-	
+	ParseHeaders();
+
 	return (this->_HttpRequest._Header);
+}
+
+void	HttpParser::ParseHeaders(void)
+{
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_HttpRequest._Header._HeadersFields.begin(); 
+		it != this->_HttpRequest._Header._HeadersFields.end(); 
+		++it)
+	{
+		if (it->first.empty() || it->second.empty())
+			throw HttpException(400, "Header Fields empty");
+		
+		VerifyHeaderName(it->first);
+		VerifyHeaderValue(it->second);
+
+		std::string name = strToMin(it->first);
+		if () // All know Headers name
+			VerifyKnownHeaders();
+		
+	}
+}
+
+std::string	HttpParser::strToMin(std::string& str)
+{
+	std::string out(str);
+	for (size_t i = 0; i < out.size(); ++i)
+		out[i] = std::tolower(static_cast<unsigned char>(out[i]));
+	return out;
+}
+
+void	HttpParser::VerifyHeaderName(std::string name)
+{
+	for (size_t i = 0; i < name.size(); ++i)
+	{
+		if (!isTchar(name[i]))
+			throw HttpException(400, "Headers Name contains a non tchar:" + name);
+	}
+}
+
+void	HttpParser::VerifyKnownHeaders(std::string name)
+{
+	
+}
+
+bool	HttpParser::isTchar(char c)
+{
+	if (std::isalnum(c))
+		return true;
+
+	static const std::string special = "!#$%&'*+-.^_`|~";
+	return (special.find(c) != std::string::npos);
+}
+
+void	HttpParser::VerifyHeaderValue(std::string value)
+{
+	for (size_t i = 0; i < value.size(); ++i)
+	{
+		if (!isValidCharValue(value[i]))
+			throw HttpException(400, "Headers value contains a non valid character:" + value);
+	}
+}
+
+bool	HttpParser::isValidCharValue(char c)
+{
+	if ((c >= 0x00 && c <= 0x08) ||
+		(c >= 0x0A && c <= 0x0F) ||
+		c == 0x7F)
+	{
+		return (false);
+	}
+	return (true);
 }
 
 Body	HttpParser::ParseBody(std::string&	body)

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 19:10:10 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/08 18:44:44 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,10 @@ class HttpParser
 private:
 	HttpRequest	_HttpRequest;
 
+	// === UTILS === //
+	std::string	strToMin(std::string& str);
+	bool		isTchar(char c);
+
 	// === HEADER === //
 	void		DataSorting(std::string& header);
 	// Request Line //
@@ -56,6 +60,12 @@ private:
 	void		VerifyTarget(std::string target);
 	void		VerifyVersion(std::string version);
 	// bool		ContainsDotDotSegment(const std::string& path);
+	// Headers //
+	void		ParseHeaders(void);
+	void		VerifyHeaderName(std::string name);
+	void		VerifyHeaderValue(std::string value);
+	void		VerifyKnownHeaders(std::string name);
+	bool		isValidCharValue(char c);
 public:
 	HttpParser();
 	~HttpParser();
