@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 19:10:46 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 20:12:21 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ public:
 	Client();
 	Client(int fd);
 	~Client();
+
+	void	printHeader();
 
 	// === RECEIVE DATA === //
 	void	appendReceivedData(char	*buff, int len);

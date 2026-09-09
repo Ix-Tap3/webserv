@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 19:04:02 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 20:16:10 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,20 +32,20 @@ struct Body
 struct Header
 {
 	// std::string str_header;
-	std::vector<std::pair<std::string, std::string> > _HeadersFields;
+	std::vector<std::pair<std::string, std::string> > _headersFields;
 };
 
 struct HttpRequest
 {
-	RequestLine _RequestLine;
-	Header	_Header;
-	Body	_Body;
+	RequestLine _requestLine;
+	Header	_header;
+	Body	_body;
 };
 
 class HttpParser
 {
 private:
-	HttpRequest	_HttpRequest;
+	HttpRequest	_httpRequest;
 
 	// === UTILS === //
 	std::string	strToMin(std::string& str);

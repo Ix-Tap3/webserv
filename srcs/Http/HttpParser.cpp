@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 19:20:59 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 20:20:13 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,8 @@ Header	HttpParser::ParseHeader(std::string& header)
 
 	DataSorting(header);
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_HttpRequest._Header._HeadersFields.begin(); 
-		it != this->_HttpRequest._Header._HeadersFields.end(); 
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
 		DeleteUselessSpace(it->first);
@@ -88,7 +88,7 @@ Header	HttpParser::ParseHeader(std::string& header)
 	}
 	ParseHeaders();
 
-	return (this->_HttpRequest._Header);
+	return (this->_httpRequest._header);
 }
 
 void	HttpParser::DataSorting(std::string& header)
@@ -107,13 +107,13 @@ void	HttpParser::DataSorting(std::string& header)
 		
 		if (pos == 0)
 		{
-			this->_HttpRequest._RequestLine = ParseRequestLine(line);
+			this->_httpRequest._requestLine = ParseRequestLine(line);
 			pos = eol + 2;
 			continue;
 		}
 		else if (colon != std::string::npos)
 		{
-			this->_HttpRequest._Header._HeadersFields.push_back(
+			this->_httpRequest._header._headersFields.push_back(
 				std::make_pair(line.substr(0, colon),
 				line.substr(colon + 1)));
 		}
@@ -241,8 +241,8 @@ void		HttpParser::VerifyVersion(std::string version)
 void	HttpParser::ParseHeaders(void)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_HttpRequest._Header._HeadersFields.begin(); 
-		it != this->_HttpRequest._Header._HeadersFields.end(); 
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
 		if (it->first.empty())
@@ -318,8 +318,8 @@ void		HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::stri
 bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_HttpRequest._Header._HeadersFields.begin(); 
-		it != this->_HttpRequest._Header._HeadersFields.end(); 
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
 		if (it != headerFields && it->first == headerFields->first)

@@ -6,11 +6,28 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 19:13:14 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 20:19:03 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Client.hpp>
+
+void	Client::printHeader()
+{
+	std::cout << "// === REQUEST LINE === //";
+	std::cout << "Method: " << this->_httpRequest._requestLine.method;
+	std::cout << "Target: " << this->_httpRequest._requestLine.target;
+	std::cout << "Version: " << this->_httpRequest._requestLine.version;
+
+	std::cout << "// === HEADERS FIELDS === //";
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
+		++it)
+	{
+		std::cout << "\"" << it->first << "\": \"" << it->second << "\"";
+	}
+}
 
 Client::Client()
 {
@@ -84,7 +101,8 @@ void	Client::stashHeaders()
 	this->_recvBuffer.clear();
 	try
 	{
-		this->_httpRequest._Header = this->_parser.ParseHeader(this->_strHeader);
+		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
+		printHeader();
 	}
 	catch(const HttpException& e)
 	{
