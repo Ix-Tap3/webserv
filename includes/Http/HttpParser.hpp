@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/08 18:44:44 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/08 18:58:36 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ private:
 	void		ParseHeaders(void);
 	void		VerifyHeaderName(std::string name);
 	void		VerifyHeaderValue(std::string value);
-	void		VerifyKnownHeaders(std::string name);
+	void		VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isValidCharValue(char c);
 public:
 	HttpParser();

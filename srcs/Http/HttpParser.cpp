@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/08 18:44:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 17:42:15 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,9 +189,9 @@ void	HttpParser::ParseHeaders(void)
 		VerifyHeaderValue(it->second);
 
 		std::string name = strToMin(it->first);
-		if () // All know Headers name
-			VerifyKnownHeaders();
-		
+		if (name == "content-length" || name == "connection" ||
+			name == "content-type" || name == "host" || name == "transfer-encoding")
+			VerifyKnownHeaders(it, name);
 	}
 }
 
@@ -212,9 +212,24 @@ void	HttpParser::VerifyHeaderName(std::string name)
 	}
 }
 
-void	HttpParser::VerifyKnownHeaders(std::string name)
+void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
-	
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	this->_HttpRequest._Header._HeadersFields.begin(); 
+	it != this->_HttpRequest._Header._HeadersFields.end(); 
+	++it)
+	{
+		if (it != headerFields && it->first == headerFields->first)
+			throw HttpException(400, "Non authorize double headers appears twice" + headerFields->first);
+	}
+	if (name == "content-length")
+	{
+		for (size_t i = 0; i < headerFields->second.length(); i++)
+		{
+			if (headerFields->second[i] < '0' || headerFields->second[i] < '9')
+				throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int");
+		}
+	}
 }
 
 bool	HttpParser::isTchar(char c)
@@ -238,8 +253,7 @@ void	HttpParser::VerifyHeaderValue(std::string value)
 bool	HttpParser::isValidCharValue(char c)
 {
 	if ((c >= 0x00 && c <= 0x08) ||
-		(c >= 0x0A && c <= 0x0F) ||
-		c == 0x7F)
+		(c >= 0x0A && c <= 0x0F) || c == 0x7F)
 	{
 		return (false);
 	}
