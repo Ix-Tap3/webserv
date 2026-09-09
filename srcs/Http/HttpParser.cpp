@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 21:15:16 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 21:47:01 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ Header	HttpParser::ParseHeader(std::string& header)
 	}
 
 	DataSorting(header);
+	this->_httpRequest._requestLine = ParseRequestLine(this->_httpRequest._requestLine.raw_requestLine);
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_httpRequest._header._headersFields.begin(); 
 		it != this->_httpRequest._header._headersFields.end(); 
@@ -98,45 +99,46 @@ void	HttpParser::DataSorting(std::string& header)
 	{
 		size_t eol = header.find("\r\n", pos);
 		if (eol == std::string::npos)
-		{
-			eol = header.size();
-		}
+			throw HttpException(400, "Empty line in Header");
 		
 		std::string line = header.substr(pos, eol - pos);
-		size_t	colon = line.find(':');
+		if (line.empty())
+			break;
 		
 		if (pos == 0)
 		{
-			this->_httpRequest._requestLine = ParseRequestLine(line);
+			this->_httpRequest._requestLine.raw_requestLine = line;
 			pos = eol + 2;
 			continue;
 		}
-		else if (colon != std::string::npos)
+		else
 		{
+			size_t	colon = line.find(':');
+
+			if (colon == std::string::npos)
+				throw HttpException(400, "No semi colon found: " + line);
+
 			this->_httpRequest._header._headersFields.push_back(
 				std::make_pair(line.substr(0, colon),
 				line.substr(colon + 1)));
 		}
-		else
-		{
-			throw HttpException(400, "No semi colon found: " + line);
-		}
 		pos = eol + 2;
 	}
 }
+
 // ============ //
 // Request Line //
 // ============ //
 RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 {
-	RequestLine line;
+	RequestLine res;
 	
 	size_t space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
 		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
 	}
-	line.method = strRequestLine.substr(0, space);
+	res.method = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
 
 	space = strRequestLine.find(' ');
@@ -144,18 +146,18 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	{
 		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
 	}
-	line.target = strRequestLine.substr(0, space);
+	res.target = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
 
-	line.version = strRequestLine.substr(0, 8);
+	res.version = strRequestLine.substr(0, 8);
 	strRequestLine.erase(0, 8);
 	if (strRequestLine != "\r\n")
 	{
 		throw HttpException(400, "End (\"\\r\\n\") not found in Request Line: " + strRequestLine);
 	}
 
-	VerifyRequestLine(line);
-	return (line);
+	VerifyRequestLine(res);
+	return (res);
 }
 
 void	HttpParser::VerifyRequestLine(RequestLine line)
