@@ -6,13 +6,15 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 17:47:55 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 18:11:54 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <HttpParser.hpp>
 
+// ============== //
 // === BORING === //
+// ============== //
 HttpParser::HttpParser()
 {
 }
@@ -21,7 +23,9 @@ HttpParser::~HttpParser()
 {
 }
 
+// ============= //
 // === UTILS === //
+// ============= //
 std::string	HttpParser::strToMin(std::string& str)
 {
 	std::string out(str);
@@ -32,14 +36,36 @@ std::string	HttpParser::strToMin(std::string& str)
 
 bool	HttpParser::isTchar(char c)
 {
-	if (std::isalnum(c))
+	if (std::isalnum(static_cast<unsigned char>(c)))
 		return true;
 
 	static const std::string special = "!#$%&'*+-.^_`|~";
 	return (special.find(c) != std::string::npos);
 }
 
+void	HttpParser::DeleteUselessSpace(std::string& str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] != ' ' && i != 0)
+		{
+			str.erase(0, i);
+			break;
+		}
+	}
+	for (size_t i = str.length() - 1; i != 0; --i)
+	{
+		if (str[i] != ' ' && i != str.length() - 1)
+		{
+			str.erase(i + 1, str.length() - 1);
+			break;
+		}
+	}
+}
+
+// ============== //
 // === HEADER === //
+// ============== //
 Header	HttpParser::ParseHeader(std::string& header)
 {
 	if (header.empty())
@@ -48,6 +74,14 @@ Header	HttpParser::ParseHeader(std::string& header)
 	}
 
 	DataSorting(header);
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_HttpRequest._Header._HeadersFields.begin(); 
+		it != this->_HttpRequest._Header._HeadersFields.end(); 
+		++it)
+	{
+		DeleteUselessSpace(it->first);
+		DeleteUselessSpace(it->second);
+	}
 	ParseHeaders();
 
 	return (this->_HttpRequest._Header);
@@ -86,8 +120,9 @@ void	HttpParser::DataSorting(std::string& header)
 		pos = eol + 2;
 	}
 }
-
+// ============ //
 // Request Line //
+// ============ //
 RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 {
 	RequestLine line;
@@ -196,7 +231,9 @@ void		HttpParser::VerifyVersion(std::string version)
 	}	
 }
 
+// ============== //
 // Headers Fields //
+// ============== //
 void	HttpParser::ParseHeaders(void)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
@@ -240,8 +277,8 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	{
 		for (size_t i = 0; i < headerFields->second.length(); i++)
 		{
-			if (headerFields->second[i] < '0' || headerFields->second[i] < '9')
-				throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int");
+			if (headerFields->second[i] < '0' || headerFields->second[i] > '9')
+				throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int or zero");
 		}
 	}
 }
