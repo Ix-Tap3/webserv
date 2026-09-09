@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 20:20:13 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 21:15:16 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,7 +322,8 @@ bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::stri
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		if (it != headerFields && it->first == headerFields->first)
+		std::string it_name = strToMin(it->first);
+		if (it != headerFields && it_name == name)
 		{
 			if (it->second == headerFields->second)
 				continue;
