@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 18:07:46 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 18:20:27 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,12 @@ private:
 	void		VerifyHeaderValue(std::string value);
 	void		VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isValidCharValue(char c);
+	bool		isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyTransferEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 public:
 	HttpParser();
 	~HttpParser();
