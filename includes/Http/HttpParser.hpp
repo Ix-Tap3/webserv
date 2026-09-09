@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/08 18:58:36 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 17:47:31 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ private:
 	void		VerifyTarget(std::string target);
 	void		VerifyVersion(std::string version);
 	// bool		ContainsDotDotSegment(const std::string& path);
-	// Headers //
+	// Headers Fields//
 	void		ParseHeaders(void);
 	void		VerifyHeaderName(std::string name);
 	void		VerifyHeaderValue(std::string value);

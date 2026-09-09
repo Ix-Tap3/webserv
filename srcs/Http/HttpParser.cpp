@@ -6,12 +6,13 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 17:42:15 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 17:47:55 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <HttpParser.hpp>
 
+// === BORING === //
 HttpParser::HttpParser()
 {
 }
@@ -20,6 +21,73 @@ HttpParser::~HttpParser()
 {
 }
 
+// === UTILS === //
+std::string	HttpParser::strToMin(std::string& str)
+{
+	std::string out(str);
+	for (size_t i = 0; i < out.size(); ++i)
+		out[i] = std::tolower(static_cast<unsigned char>(out[i]));
+	return out;
+}
+
+bool	HttpParser::isTchar(char c)
+{
+	if (std::isalnum(c))
+		return true;
+
+	static const std::string special = "!#$%&'*+-.^_`|~";
+	return (special.find(c) != std::string::npos);
+}
+
+// === HEADER === //
+Header	HttpParser::ParseHeader(std::string& header)
+{
+	if (header.empty())
+	{
+		throw HttpException(400, "Header empty");	
+	}
+
+	DataSorting(header);
+	ParseHeaders();
+
+	return (this->_HttpRequest._Header);
+}
+
+void	HttpParser::DataSorting(std::string& header)
+{
+	size_t pos = 0;
+	while (pos < header.size())
+	{
+		size_t eol = header.find("\r\n", pos);
+		if (eol == std::string::npos)
+		{
+			eol = header.size();
+		}
+		
+		std::string line = header.substr(pos, eol - pos);
+		size_t	colon = line.find(':');
+		
+		if (pos == 0)
+		{
+			this->_HttpRequest._RequestLine = ParseRequestLine(line);
+			pos = eol + 2;
+			continue;
+		}
+		else if (colon != std::string::npos)
+		{
+			this->_HttpRequest._Header._HeadersFields.push_back(
+				std::make_pair(line.substr(0, colon),
+				line.substr(colon + 1)));
+		}
+		else
+		{
+			throw HttpException(400, "No semi colon found: " + line);
+		}
+		pos = eol + 2;
+	}
+}
+
+// Request Line //
 RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 {
 	RequestLine line;
@@ -128,53 +196,7 @@ void		HttpParser::VerifyVersion(std::string version)
 	}	
 }
 
-void	HttpParser::DataSorting(std::string& header)
-{
-	size_t pos = 0;
-	while (pos < header.size())
-	{
-		size_t eol = header.find("\r\n", pos);
-		if (eol == std::string::npos)
-		{
-			eol = header.size();
-		}
-		
-		std::string line = header.substr(pos, eol - pos);
-		size_t	colon = line.find(':');
-		
-		if (pos == 0)
-		{
-			this->_HttpRequest._RequestLine = ParseRequestLine(line);
-			pos = eol + 2;
-			continue;
-		}
-		else if (colon != std::string::npos)
-		{
-			this->_HttpRequest._Header._HeadersFields.push_back(
-				std::make_pair(line.substr(0, colon),
-				line.substr(colon + 1)));
-		}
-		else
-		{
-			throw HttpException(400, "No semi colon found: " + line);
-		}
-		pos = eol + 2;
-	}
-}
-
-Header	HttpParser::ParseHeader(std::string& header)
-{
-	if (header.empty())
-	{
-		throw HttpException(400, "Header empty");	
-	}
-
-	DataSorting(header);
-	ParseHeaders();
-
-	return (this->_HttpRequest._Header);
-}
-
+// Headers Fields //
 void	HttpParser::ParseHeaders(void)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
@@ -193,14 +215,6 @@ void	HttpParser::ParseHeaders(void)
 			name == "content-type" || name == "host" || name == "transfer-encoding")
 			VerifyKnownHeaders(it, name);
 	}
-}
-
-std::string	HttpParser::strToMin(std::string& str)
-{
-	std::string out(str);
-	for (size_t i = 0; i < out.size(); ++i)
-		out[i] = std::tolower(static_cast<unsigned char>(out[i]));
-	return out;
 }
 
 void	HttpParser::VerifyHeaderName(std::string name)
@@ -230,15 +244,6 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 				throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int");
 		}
 	}
-}
-
-bool	HttpParser::isTchar(char c)
-{
-	if (std::isalnum(c))
-		return true;
-
-	static const std::string special = "!#$%&'*+-.^_`|~";
-	return (special.find(c) != std::string::npos);
 }
 
 void	HttpParser::VerifyHeaderValue(std::string value)
