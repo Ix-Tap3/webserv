@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 18:27:43 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 19:04:20 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,23 +268,25 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	if (name == "content-length")
 		VerifyContentLength(headerFields, name);
 	if (name == "connection")
-		VerifyContentLength(headerFields, name);
+		VerifyConnection(headerFields, name);
 	if (name == "transfer-encoding")
-		VerifyContentLength(headerFields, name);
+		VerifyTransferEncoding(headerFields, name);
 	if (name == "host")
-		VerifyContentLength(headerFields, name);
+		VerifyHost(headerFields, name);
 	if (name == "content-type")
-		VerifyContentLength(headerFields, name);
+		VerifyContentType(headerFields, name);
 }
 
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
+	if (headerFields->second.empty())
+		throw HttpException(400, "Content-Length header fields value is empty");
 	for (size_t i = 0; i < headerFields->second.length(); i++)
 	{
 		if (headerFields->second[i] < '0' || headerFields->second[i] > '9')
 			throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int or zero");
 	}
-	isDupplicate(headerFields, name);
+	isWrongDupplicate(headerFields, name);
 }
 
 void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -307,7 +309,7 @@ void		HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::stri
 	
 }
 
-bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_HttpRequest._Header._HeadersFields.begin(); 
@@ -315,8 +317,10 @@ bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >
 		++it)
 	{
 		if (it != headerFields && it->first == headerFields->first)
-			throw HttpException(400, "Non authorize double headers appears twice" + headerFields->first);
+			return (true);
+		// throw HttpException(400, "Non authorize double headers appears twice" + headerFields->first);
 	}
+	return (false);
 }
 
 void	HttpParser::VerifyHeaderValue(std::string value)
