@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 15:56:16 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 18:22:22 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define HTTPPARSER_HPP
 # include <WebservInclude.h>
 # include <HttpException.hpp>
+# include <sstream>
 
 struct RequestLine
 {
@@ -47,6 +48,7 @@ private:
 	HttpRequest	_httpRequest;
 
 	// === UTILS === //
+	int			stringToInt(std::string str) const;
 	std::string	strToMin(std::string& str);
 	bool		isTchar(char c);
 	void		DeleteUselessSpace(std::string& str);
@@ -65,13 +67,20 @@ private:
 	void		VerifyHeaderName(std::string name);
 	void		VerifyHeaderValue(std::string value);
 	void		VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	bool		isValidCharValue(char c);
-	bool		isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyTransferEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	bool		isValidHostname(std::string& value);
+	bool		isValidCharHostname(char c);
+	bool		isValidIPv4(std::string& value);
+	bool		isValidIPv6(std::string& value);
+	bool		isValidPort(std::string& value, int i);
+	bool		isValidCharValue(char c);
+	bool		isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	bool		isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+
 public:
 	HttpParser();
 	~HttpParser();

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 21:55:08 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 18:28:33 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,17 @@ HttpParser::~HttpParser()
 // ============= //
 // === UTILS === //
 // ============= //
+int	HttpParser::stringToInt(std::string str) const
+{
+	int					res;
+	std::stringstream	ss;
+
+	ss << str;
+	ss >> res;
+
+	return (res);
+}
+
 std::string	HttpParser::strToMin(std::string& str)
 {
 	std::string out(str);
@@ -308,7 +319,12 @@ void		HttpParser::VerifyTransferEncoding(std::vector<std::pair<std::string, std:
 
 void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
-	
+	if (headerFields->second.empty())
+		throw HttpException(400, "The value of this header cannot be empty: " + headerFields->first);
+	if (isDupplicate(headerFields, name))
+		throw HttpException(400, "Non authorize double headers appears twice: " + headerFields->first);
+	if (!isValidHostname(headerFields->second) && !isValidIPv4(headerFields->second) && isValidIPv6(headerFields->second))
+		throw HttpException(400, "Value of Host Header is not acceptable: " + headerFields->second);
 }
 
 void		HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -332,6 +348,77 @@ bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::stri
 		}
 	}
 	return (false);
+}
+
+bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+{
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
+		++it)
+	{
+		std::string it_name = strToMin(it->first);
+		if (it != headerFields && it_name == name)
+			return (true);
+	}
+	return (false);
+}
+
+bool		HttpParser::isValidHostname(std::string& value)
+{
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		if (i == 0 && !isalnum(value[i]))
+			return (false);
+		if (value[i] == '.' && (!isalnum(value[i + 1]) || !isalnum(value[i - 1])))
+			return (false);
+		if (value[i] == ':')
+		{
+			if (!isValidPort(value, i))
+				return (false);
+			else
+				return (true);
+		}
+		if (!isValidCharHostname(value[i]))
+			return (false);
+	}
+	return (true);
+}
+
+bool		HttpParser::isValidCharHostname(char c)
+{
+	if (!isalnum(c) && c != '.' && c != '-')
+		return (false);
+	return (true);
+}
+
+bool		HttpParser::isValidIPv4(std::string& value)
+{
+		
+}
+
+bool		HttpParser::isValidIPv6(std::string& value)
+{
+		
+}
+
+bool		HttpParser::isValidPort(std::string& value, int i)
+{
+	int count = 0;
+
+	while (i < value.length())
+	{
+		if (value[i] < 0 || value[i] > 9)
+			return (false);
+		i++;
+		count++;
+	}
+	if (count > 5)
+		return (false);	
+	int portNb = stringToInt(value);
+	if (portNb == 0 || portNb > 65535)
+		return (false);
+	return (true);
 }
 
 void	HttpParser::VerifyHeaderValue(std::string value)
