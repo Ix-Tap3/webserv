@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 18:41:54 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 18:50:46 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -410,9 +410,20 @@ bool		HttpParser::isValidCharHostname(char c)
 
 bool		HttpParser::isValidIPv4(std::string& value)
 {
-	std::vector<std::string> ip = split(value, '.');
-	for (std::vector<std::string>::iterator it = ip.begin(); it != ip.end(); it++)
+	std::string ipv4;
+
+	size_t	beginPort = value.find(":");
+	if (beginPort != std::string::npos && !isValidPort(value, beginPort))
+		return (false);
+	else
+		ipv4 = value.erase(beginPort, value.length() - 1);
+	
+	std::vector<std::string> ips = split(ipv4, '.');
+	int	count = 0;
+	for (std::vector<std::string>::iterator it = ips.begin(); it != ips.end(); it++)
 	{
+		if (count > 4)
+			return (false);
 		for (size_t i = 0; i < it->length(); i++)
 		{
 			if (i > 3)
