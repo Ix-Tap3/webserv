@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 21:23:16 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 15:56:16 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ struct Body
 
 struct Header
 {
-	// std::string str_header;
 	std::vector<std::pair<std::string, std::string> > _headersFields;
 };
 

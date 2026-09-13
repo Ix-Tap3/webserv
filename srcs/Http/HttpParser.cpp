@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 21:47:01 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/09 21:55:08 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	HttpParser::DeleteUselessSpace(std::string& str)
 		return ;
 	for (size_t i = 0; i < str.length(); i++)
 	{
-		if (str[i] != ' ' && i != 0)
+		if (isspace(str[i]) != ' ' && i != 0)
 		{
 			str.erase(0, i);
 			break;
@@ -59,7 +59,7 @@ void	HttpParser::DeleteUselessSpace(std::string& str)
 		return ;
 	for (size_t i = str.length() - 1; i != 0; --i)
 	{
-		if (str[i] != ' ' && i != str.length() - 1)
+		if (isspace(str[i]) && i != str.length() - 1)
 		{
 			str.erase(i + 1, str.length() - 1);
 			break;
@@ -84,7 +84,6 @@ Header	HttpParser::ParseHeader(std::string& header)
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		DeleteUselessSpace(it->first);
 		DeleteUselessSpace(it->second);
 	}
 	ParseHeaders();
@@ -116,7 +115,7 @@ void	HttpParser::DataSorting(std::string& header)
 			size_t	colon = line.find(':');
 
 			if (colon == std::string::npos)
-				throw HttpException(400, "No semi colon found: " + line);
+				throw HttpException(400, "No colon found: " + line);
 
 			this->_httpRequest._header._headersFields.push_back(
 				std::make_pair(line.substr(0, colon),
