@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 18:28:33 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 18:41:54 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,22 @@ HttpParser::~HttpParser()
 // ============= //
 // === UTILS === //
 // ============= //
+std::vector<std::string> HttpParser::split(const std::string &s, char delim)
+{
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = s.find(delim);
+
+    while (end != std::string::npos)
+    {
+        tokens.push_back(s.substr(start, end - start));
+        start = end + 1;
+        end = s.find(delim, start);
+    }
+    tokens.push_back(s.substr(start));
+    return tokens;
+}
+
 int	HttpParser::stringToInt(std::string str) const
 {
 	int					res;
@@ -394,7 +410,23 @@ bool		HttpParser::isValidCharHostname(char c)
 
 bool		HttpParser::isValidIPv4(std::string& value)
 {
-		
+	std::vector<std::string> ip = split(value, '.');
+	for (std::vector<std::string>::iterator it = ip.begin(); it != ip.end(); it++)
+	{
+		for (size_t i = 0; i < it->length(); i++)
+		{
+			if (i > 3)
+				return (false);
+			if ((*it)[i] < 0 || (*it)[i] > 9)
+				return (false);
+		}
+		int ipInt = stringToInt((*it));
+		if (ipInt > 255 || ipInt < 0)
+			return (false);
+	}
+	if (value == "255.255.255.255" || value == "0.0.0.0")
+		throw HttpException(400, "This Ipv4 cannot be used cause its already reserved: " + value);
+	return (true);
 }
 
 bool		HttpParser::isValidIPv6(std::string& value)

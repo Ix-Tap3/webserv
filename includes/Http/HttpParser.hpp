@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 18:22:22 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/13 18:33:08 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ private:
 	HttpRequest	_httpRequest;
 
 	// === UTILS === //
+	std::vector<std::string>	split(const std::string &s, char delim);
 	int			stringToInt(std::string str) const;
 	std::string	strToMin(std::string& str);
 	bool		isTchar(char c);
