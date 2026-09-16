@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/16 16:10:29 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/16 19:04:48 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,7 +393,7 @@ bool		HttpParser::isValidHostname(std::string& value)
 			if (!isalnum(value[i + 1]) || !isalnum(value[i - 1])) // is the chars around aren't alphanum
 				return (false);
 		}
-		if (value[i] == '-')
+		if (value[i] == '-') // all char are authorized around except for '.'
 		{
 			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
 				return (false);
@@ -402,7 +402,7 @@ bool		HttpParser::isValidHostname(std::string& value)
 		}
 		if (value[i] == ':')
 		{
-			if (i + 1 >= value.length())
+			if (i + 1 >= value.length()) // is there something behind ':'
 				return (false);
 			if (!isValidPort(value, i + 1))
 				return (false);
@@ -460,9 +460,99 @@ bool		HttpParser::isValidIPv4(std::string value)
 	return (true);
 }
 
-bool		HttpParser::isValidIPv6(std::string& value)
+bool		HttpParser::isValidIPv6(std::string value)
 {
+	int endIP = 0;
+	int group = 1;
+	int	inGroup = 0;
+
+	if (value.empty())
+		return (false);
+	
+	if (value[0] != '[')
+		return (false);
+	size_t test = value.find("::");
+	if (test == std::string::npos)
+	{
+		for (size_t i = 1; i < value.length(); i++)
+		{
+			endIP = i;
+
+			if (value[i] == ':')
+			{
+				inGroup = 0;
+				group++;
+				if (group > 8) // max 8 groups when there's not any "::"
+					return (false);
+				continue;
+			}
+			
+			if (value[i] == ']')
+			{
+				if (!isValidCharIPv6(value[i - 1]))
+					return (false);
+				break;	
+			}
+			
+			if (!isValidCharIPv6(value[i]))
+				return (false);
+			
+			inGroup++;
+			if (inGroup > 4) // 4 char max between a ':'
+				return (false);
+		}
+		if (group != 8) // if there's not "::" there should be excactly 8 groups
+			return (false);
+	}
+	else
+	{
+		if ((test = value.find("::", test)) != std::string::npos) // is there a second "::"
+			return (false);
 		
+		for (size_t i = 1; i < value.length(); i++)
+		{
+			endIP = i;
+
+			if (value[i] == ':')
+			{
+				group++;
+				inGroup = 0;
+				if (group > 7) // max 7 groups when there's "::"
+					return (false);
+				continue;
+			}
+
+			if (value[i] == ']')
+				break;
+			
+			if (!isValidCharIPv6(value[i]))
+				return (false);
+			
+			inGroup++;
+			if (inGroup > 4) // 4 char max between a ':'
+				return (false);
+		}
+	}
+	if (value[endIP] != ']') // if the ip isn't terminated by ']'
+		return (false);
+	endIP++;
+	if (endIP < value.length() && value[endIP] == ':')
+		return (isValidPort(value, endIP + 1));
+	if (endIP < value.length())
+		return (false);
+	return (true);
+}
+
+bool		isValidCharIPv6(char c)
+{
+	if ((c >= '0' && c <= '9') ||
+			c == 'a' || c == 'b' || c == 'c' ||
+			c == 'd' || c == 'e' || c == 'f' ||
+			c == 'A' || c == 'B' || c == 'C' ||
+			c == 'D' || c == 'E' || c == 'F')
+		return (true);
+	else
+		return (false);
 }
 
 bool		HttpParser::isValidPort(std::string& value, int i)
