@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 18:33:08 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/16 15:23:35 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ private:
 	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isValidHostname(std::string& value);
 	bool		isValidCharHostname(char c);
-	bool		isValidIPv4(std::string& value);
+	bool		isValidIPv4(std::string value);
 	bool		isValidIPv6(std::string& value);
 	bool		isValidPort(std::string& value, int i);
 	bool		isValidCharValue(char c);

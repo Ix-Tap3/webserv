@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/13 18:50:46 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/16 16:10:29 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -339,7 +339,7 @@ void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::
 		throw HttpException(400, "The value of this header cannot be empty: " + headerFields->first);
 	if (isDupplicate(headerFields, name))
 		throw HttpException(400, "Non authorize double headers appears twice: " + headerFields->first);
-	if (!isValidHostname(headerFields->second) && !isValidIPv4(headerFields->second) && isValidIPv6(headerFields->second))
+	if (!isValidHostname(headerFields->second) && !isValidIPv4(headerFields->second) && !isValidIPv6(headerFields->second))
 		throw HttpException(400, "Value of Host Header is not acceptable: " + headerFields->second);
 }
 
@@ -386,11 +386,25 @@ bool		HttpParser::isValidHostname(std::string& value)
 	{
 		if (i == 0 && !isalnum(value[i]))
 			return (false);
-		if (value[i] == '.' && (!isalnum(value[i + 1]) || !isalnum(value[i - 1])))
-			return (false);
+		if (value[i] == '.')
+		{
+			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
+				return (false);
+			if (!isalnum(value[i + 1]) || !isalnum(value[i - 1])) // is the chars around aren't alphanum
+				return (false);
+		}
+		if (value[i] == '-')
+		{
+			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
+				return (false);
+			if (value[i - 1] == '.' || value[i + 1] == '.')
+				return (false);
+		}
 		if (value[i] == ':')
 		{
-			if (!isValidPort(value, i))
+			if (i + 1 >= value.length())
+				return (false);
+			if (!isValidPort(value, i + 1))
 				return (false);
 			else
 				return (true);
@@ -408,34 +422,40 @@ bool		HttpParser::isValidCharHostname(char c)
 	return (true);
 }
 
-bool		HttpParser::isValidIPv4(std::string& value)
+bool		HttpParser::isValidIPv4(std::string value)
 {
 	std::string ipv4;
+	int count;
 
 	size_t	beginPort = value.find(":");
-	if (beginPort != std::string::npos && !isValidPort(value, beginPort))
-		return (false);
+	if (beginPort != std::string::npos)
+	{
+		if (!isValidPort(value, beginPort + 1))
+			return (false);
+		ipv4 = value.erase(beginPort);
+	}
 	else
-		ipv4 = value.erase(beginPort, value.length() - 1);
-	
+		ipv4 = value;
+
 	std::vector<std::string> ips = split(ipv4, '.');
-	int	count = 0;
+	count = 0;
 	for (std::vector<std::string>::iterator it = ips.begin(); it != ips.end(); it++)
 	{
-		if (count > 4)
-			return (false);
 		for (size_t i = 0; i < it->length(); i++)
 		{
 			if (i > 3)
 				return (false);
-			if ((*it)[i] < 0 || (*it)[i] > 9)
+			if ((*it)[i] < '0' || (*it)[i] > '9')
 				return (false);
 		}
 		int ipInt = stringToInt((*it));
 		if (ipInt > 255 || ipInt < 0)
 			return (false);
+		count++;
 	}
-	if (value == "255.255.255.255" || value == "0.0.0.0")
+	if (count != 4)
+		return (false);
+	if (ipv4 == "255.255.255.255" || ipv4 == "0.0.0.0")
 		throw HttpException(400, "This Ipv4 cannot be used cause its already reserved: " + value);
 	return (true);
 }
@@ -448,18 +468,19 @@ bool		HttpParser::isValidIPv6(std::string& value)
 bool		HttpParser::isValidPort(std::string& value, int i)
 {
 	int count = 0;
+	int	begin = i;
 
 	while (i < value.length())
 	{
-		if (value[i] < 0 || value[i] > 9)
+		if (value[i] < '0' || value[i] > '9')
 			return (false);
 		i++;
 		count++;
 	}
 	if (count > 5)
 		return (false);	
-	int portNb = stringToInt(value);
-	if (portNb == 0 || portNb > 65535)
+	int portNb = stringToInt(value.substr(begin));
+	if (portNb > 65535)
 		return (false);
 	return (true);
 }
