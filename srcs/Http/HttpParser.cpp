@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 18:42:23 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 18:58:53 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -475,11 +475,11 @@ bool		HttpParser::isValidIPv4(std::string value)
 	return (true);
 }
 
-bool		HttpParser::isPotentialIPv4(std::string value)
+bool		HttpParser::isPotentialIPv4(std::string& value)
 {
 	for (size_t i = 0; i < value.length(); i++)
 	{
-		if (value[i] < '0' && value[i] > '9' && value[i] != '.')
+		if (!((value[i] >= '0' && value[i] <= '9') || value[i] == '.' || value[i] == ':'))
 			return (false);
 	}
 	return (true);
