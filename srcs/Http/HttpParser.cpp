@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/16 19:04:48 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 16:31:21 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,13 +384,13 @@ bool		HttpParser::isValidHostname(std::string& value)
 {
 	for (size_t i = 0; i < value.length(); i++)
 	{
-		if (i == 0 && !isalnum(value[i]))
+		if (i == 0 && !isalnum(static_cast<unsigned char>(value[i])))
 			return (false);
 		if (value[i] == '.')
 		{
 			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
 				return (false);
-			if (!isalnum(value[i + 1]) || !isalnum(value[i - 1])) // is the chars around aren't alphanum
+			if (!isalnum(static_cast<unsigned char>(value[i + 1])) || !isalnum(static_cast<unsigned char>(value[i - 1]))) // is the chars around aren't alphanum
 				return (false);
 		}
 		if (value[i] == '-') // all char are authorized around except for '.'
@@ -417,7 +417,7 @@ bool		HttpParser::isValidHostname(std::string& value)
 
 bool		HttpParser::isValidCharHostname(char c)
 {
-	if (!isalnum(c) && c != '.' && c != '-')
+	if (!isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-')
 		return (false);
 	return (true);
 }
@@ -455,7 +455,7 @@ bool		HttpParser::isValidIPv4(std::string value)
 	}
 	if (count != 4)
 		return (false);
-	if (ipv4 == "255.255.255.255" || ipv4 == "0.0.0.0")
+	if (ipv4 == "255.255.255.255" ) // 0.0.0.0 is ok for a server
 		throw HttpException(400, "This Ipv4 cannot be used cause its already reserved: " + value);
 	return (true);
 }
