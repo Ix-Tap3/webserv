@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 16:31:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 17:20:34 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ Header	HttpParser::ParseHeader(std::string& header)
 {
 	if (header.empty())
 	{
-		throw HttpException(400, "Header empty");	
+		throw HttpException(400, RED "Header empty" RESET);	
 	}
 
 	DataSorting(header);
@@ -125,7 +125,7 @@ void	HttpParser::DataSorting(std::string& header)
 	{
 		size_t eol = header.find("\r\n", pos);
 		if (eol == std::string::npos)
-			throw HttpException(400, "Empty line in Header");
+			throw HttpException(400, RED "Empty line in Header" RESET);
 		
 		std::string line = header.substr(pos, eol - pos);
 		if (line.empty())
@@ -142,7 +142,7 @@ void	HttpParser::DataSorting(std::string& header)
 			size_t	colon = line.find(':');
 
 			if (colon == std::string::npos)
-				throw HttpException(400, "No colon found: " + line);
+				throw HttpException(400, RED "No colon found: " YELLOW + line + RESET);
 
 			this->_httpRequest._header._headersFields.push_back(
 				std::make_pair(line.substr(0, colon),
@@ -162,7 +162,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	size_t space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + strRequestLine + RESET);
 	}
 	res.method = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
@@ -170,16 +170,16 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, "Space separator not found in Request Line: " + strRequestLine);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + strRequestLine + RESET);
 	}
 	res.target = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
 
 	res.version = strRequestLine.substr(0, 8);
 	strRequestLine.erase(0, 8);
-	if (strRequestLine != "\r\n")
+	if (!strRequestLine.empty())
 	{
-		throw HttpException(400, "End (\"\\r\\n\") not found in Request Line: " + strRequestLine);
+		throw HttpException(400, RED "End (\"\\r\\n\") not found in Request Line: " YELLOW + strRequestLine + RESET);
 	}
 
 	VerifyRequestLine(res);
@@ -197,37 +197,37 @@ void		HttpParser::VerifyMethod(std::string method)
 {
 	if (method.empty())
 	{
-		throw HttpException(400, "Method is empty");
+		throw HttpException(400, RED "Method is empty" RESET);
 	}
 	else if (method != "GET" && method != "POST" && method != "DELETE")
 	{
 		if (method == "PUT" || method == "HEAD" || method == "CONNECT" ||
 			method == "OPTIONS" || method == "TRACE" || method == "PATCH")
 		{
-			throw HttpException(405, "Method not supported: " + method);
+			throw HttpException(405, RED "Method not supported: " YELLOW + method + RESET);
 		}
-		throw HttpException(400, "Unknown Method: " + method);
+		throw HttpException(400, RED "Unknown Method: " YELLOW + method + RESET);
 	}
 }
 
 void		HttpParser::VerifyTarget(std::string target)
 {
 	if (target.empty())
-		throw HttpException(400, "Path is empty: " + target);
+		throw HttpException(400, RED "Path is empty: " YELLOW + target + RESET);
 
 	std::string begin = target.substr(0, 7);
 	if (target[0] != '/' && begin != "http://")
-		throw HttpException(400, "Path isn't accepted: " + target);
+		throw HttpException(400, RED "Path isn't accepted: " YELLOW + target + RESET);
 
 	if (target.size() > 8192)
-		throw HttpException(414, "URI Too Long");
+		throw HttpException(414, RED "URI Too Long" RESET);
 
 	for (size_t i = 0; i < target.size(); ++i)
 	{
 		unsigned char c = target[i];
 		if (c < 0x20 || c == 0x7F)
 		{
-			throw HttpException(400, "Invalid character in request target: " + target);
+			throw HttpException(400, RED "Invalid character in request target: " YELLOW + target + RESET);
 		}
 	}
 	// if (ContainsDotDotSegment(target))
@@ -259,7 +259,7 @@ void		HttpParser::VerifyVersion(std::string version)
 {
 	if (version.empty() || version != "HTTP/1.0")
 	{
-		throw HttpException(400, "Version isn't accepted: " + version);
+		throw HttpException(400, RESET "Version isn't accepted: " YELLOW + version + RESET);
 	}	
 }
 
@@ -274,7 +274,7 @@ void	HttpParser::ParseHeaders(void)
 		++it)
 	{
 		if (it->first.empty())
-			throw HttpException(400, "Header Fields name empty");
+			throw HttpException(400, RESET "Header Fields name empty" RESET);
 		
 		VerifyHeaderName(it->first);
 		VerifyHeaderValue(it->second);
@@ -291,7 +291,7 @@ void	HttpParser::VerifyHeaderName(std::string name)
 	for (size_t i = 0; i < name.size(); ++i)
 	{
 		if (!isTchar(name[i]))
-			throw HttpException(400, "Headers Name contains a non tchar:" + name);
+			throw HttpException(400, RED "Headers Name contains a non tchar: " YELLOW + name + RESET);
 	}
 }
 
@@ -312,14 +312,14 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
 	if (headerFields->second.empty())
-		throw HttpException(400, "Content-Length header fields value is empty");
+		throw HttpException(400, RED "Content-Length header fields value is empty" RESET);
 	for (size_t i = 0; i < headerFields->second.length(); i++)
 	{
 		if (headerFields->second[i] < '0' || headerFields->second[i] > '9')
-			throw HttpException(400, "Value of Content-Length header fields has to be a valid positive int or zero");
+			throw HttpException(400, RED "Value of Content-Length isn't a valid positive int or zero: " YELLOW +  headerFields->second + RESET);
 	}
 	if (isWrongDupplicate(headerFields, name))
-		throw HttpException(400, "Non authorize double headers appears twice" + headerFields->first);
+		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
 	
 }
 
@@ -335,12 +335,39 @@ void		HttpParser::VerifyTransferEncoding(std::vector<std::pair<std::string, std:
 
 void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
+	int which = 0;
+ 
 	if (headerFields->second.empty())
-		throw HttpException(400, "The value of this header cannot be empty: " + headerFields->first);
+		throw HttpException(400, RED "The value of this header cannot be empty: " YELLOW + headerFields->first + RESET);
+	
 	if (isDupplicate(headerFields, name))
-		throw HttpException(400, "Non authorize double headers appears twice: " + headerFields->first);
-	if (!isValidHostname(headerFields->second) && !isValidIPv4(headerFields->second) && !isValidIPv6(headerFields->second))
-		throw HttpException(400, "Value of Host Header is not acceptable: " + headerFields->second);
+		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
+		
+	if (!isValidHostname(headerFields->second))
+		which = 1;
+	if (!isValidIPv4(headerFields->second))
+		which = 2;
+	else
+		which = 0;
+	if (!isValidIPv6(headerFields->second))
+		which = 3;
+	else
+		which = 0;
+
+	switch (which)
+	{
+	case 1:
+		throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);
+		break;
+	case 2:
+		throw HttpException(400, RED "Value of Host (IPv4) isn't acceptable: " YELLOW + headerFields->second + RESET);
+		break;
+	case 3:
+		throw HttpException(400, RED "Value of Host (IPv6) isn't acceptable: " YELLOW + headerFields->second + RESET);
+		break;
+	default:
+		break;
+	}
 }
 
 void		HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -456,7 +483,7 @@ bool		HttpParser::isValidIPv4(std::string value)
 	if (count != 4)
 		return (false);
 	if (ipv4 == "255.255.255.255" ) // 0.0.0.0 is ok for a server
-		throw HttpException(400, "This Ipv4 cannot be used cause its already reserved: " + value);
+		throw HttpException(400, RED "This Ipv4 cannot be used cause its already reserved: " YELLOW + value + RESET);
 	return (true);
 }
 
@@ -543,7 +570,7 @@ bool		HttpParser::isValidIPv6(std::string value)
 	return (true);
 }
 
-bool		isValidCharIPv6(char c)
+bool		HttpParser::isValidCharIPv6(char c)
 {
 	if ((c >= '0' && c <= '9') ||
 			c == 'a' || c == 'b' || c == 'c' ||
@@ -580,7 +607,7 @@ void	HttpParser::VerifyHeaderValue(std::string value)
 	for (size_t i = 0; i < value.size(); ++i)
 	{
 		if (!isValidCharValue(value[i]))
-			throw HttpException(400, "Headers value contains a non valid character:" + value);
+			throw HttpException(400, RED "Headers value contains a non valid character:" YELLOW + value + RESET);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/03 19:03:29 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/03 19:08:52 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 16:43:00 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ HttpException::HttpException(int statusCode, const std::string& message) : _mess
 {
 }
 
-HttpException::~HttpException()
+HttpException::~HttpException() throw()
 {
 }
 

@@ -13,11 +13,12 @@ FLAGS = -I includes \
 
 SRCS_DIR = srcs
 
-SRCS = main.cpp \
-	$(SRCS_DIR)/server/Client.cpp \
+SRCS = mainTestParser.cpp \
+	$(SRCS_DIR)/Http/HttpParser.cpp \
+	$(SRCS_DIR)/Http/HttpException.cpp \
+# 	$(SRCS_DIR)/server/Client.cpp \
 	$(SRCS_DIR)/server/Server.cpp \
-	$(SRCS_DIR)/HttpParser/HttpParser.cpp \
-# 	$(SRCS_DIR)/json/JsonLexer.cpp \
+	$(SRCS_DIR)/json/JsonLexer.cpp \
 	$(SRCS_DIR)/json/JsonValue.cpp \
 	$(SRCS_DIR)/json/JsonParser.cpp \
 
