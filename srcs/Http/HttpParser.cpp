@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 18:58:53 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 19:34:04 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -496,8 +496,13 @@ bool		HttpParser::isValidIPv6(std::string value)
 	
 	if (value[0] != '[')
 		return (false);
-	size_t test = value.find("::");
-	if (test == std::string::npos)
+	
+	size_t tripleColon = value.find(":::");
+	if (tripleColon != std::string::npos)
+		return (false); 
+
+	size_t doubleColon = value.find("::");
+	if (doubleColon == std::string::npos)
 	{
 		for (size_t i = 1; i < value.length(); i++)
 		{
@@ -531,8 +536,13 @@ bool		HttpParser::isValidIPv6(std::string value)
 	}
 	else
 	{
-		if ((test = value.find("::", test)) != std::string::npos) // is there a second "::"
-			return (false);
+		std::cout << doubleColon;
+		doubleColon = value.find("::", doubleColon + 1);
+		if (doubleColon != std::string::npos) // is there a second "::"
+		{
+			std::cout << "flag1" << doubleColon;
+			return (false);	
+		}
 		
 		for (size_t i = 1; i < value.length(); i++)
 		{
@@ -543,7 +553,10 @@ bool		HttpParser::isValidIPv6(std::string value)
 				group++;
 				inGroup = 0;
 				if (group > 7) // max 7 groups when there's "::"
+				{
+					std::cout << "flag2" << group;
 					return (false);
+				}
 				continue;
 			}
 
@@ -551,20 +564,32 @@ bool		HttpParser::isValidIPv6(std::string value)
 				break;
 			
 			if (!isValidCharIPv6(value[i]))
-				return (false);
+			{
+				std::cout << "flag3";
+				return (false);	
+			}
 			
 			inGroup++;
 			if (inGroup > 4) // 4 char max between a ':'
+			{
+				std::cout << "flag4" << inGroup;
 				return (false);
+			}
 		}
 	}
 	if (value[endIP] != ']') // if the ip isn't terminated by ']'
-		return (false);
+	{
+		std::cout << "flag5" << value[endIP];
+		return (false);	
+	}
 	endIP++;
 	if (endIP < value.length() && value[endIP] == ':')
 		return (isValidPort(value, endIP + 1));
 	if (endIP < value.length())
+	{
+		std::cout << "flag6" << endIP << " " << value.length();
 		return (false);
+	}
 	return (true);
 }
 
@@ -605,7 +630,7 @@ void	HttpParser::VerifyHeaderValue(std::string value)
 	for (size_t i = 0; i < value.size(); ++i)
 	{
 		if (!isValidCharValue(value[i]))
-			throw HttpException(400, RED "Headers value contains a non valid character:" YELLOW + value + RESET);
+			throw HttpException(400, RED "Headers value contains a non valid character: " YELLOW + value + RESET);
 	}
 }
 
