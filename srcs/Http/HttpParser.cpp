@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 17:20:34 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 18:42:23 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,38 +335,26 @@ void		HttpParser::VerifyTransferEncoding(std::vector<std::pair<std::string, std:
 
 void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
-	int which = 0;
- 
 	if (headerFields->second.empty())
 		throw HttpException(400, RED "The value of this header cannot be empty: " YELLOW + headerFields->first + RESET);
 	
 	if (isDupplicate(headerFields, name))
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
-		
-	if (!isValidHostname(headerFields->second))
-		which = 1;
-	if (!isValidIPv4(headerFields->second))
-		which = 2;
-	else
-		which = 0;
-	if (!isValidIPv6(headerFields->second))
-		which = 3;
-	else
-		which = 0;
-
-	switch (which)
+	
+	if (!headerFields->second.empty() && headerFields->second[0] == '[')
 	{
-	case 1:
-		throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);
-		break;
-	case 2:
-		throw HttpException(400, RED "Value of Host (IPv4) isn't acceptable: " YELLOW + headerFields->second + RESET);
-		break;
-	case 3:
-		throw HttpException(400, RED "Value of Host (IPv6) isn't acceptable: " YELLOW + headerFields->second + RESET);
-		break;
-	default:
-		break;
+		if (!isValidIPv6(headerFields->second))
+			throw HttpException(400, RED "Value of Host (IPv6) isn't acceptable: " YELLOW + headerFields->second + RESET);	
+	}
+	else if (isPotentialIPv4(headerFields->second))
+	{
+		if (!isValidIPv4(headerFields->second))
+			throw HttpException(400, RED "Value of Host (IPv4) isn't acceptable: " YELLOW + headerFields->second + RESET);		
+	}
+	else 
+	{
+		if (!isValidHostname(headerFields->second))
+			throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);		
 	}
 }
 
@@ -484,6 +472,16 @@ bool		HttpParser::isValidIPv4(std::string value)
 		return (false);
 	if (ipv4 == "255.255.255.255" ) // 0.0.0.0 is ok for a server
 		throw HttpException(400, RED "This Ipv4 cannot be used cause its already reserved: " YELLOW + value + RESET);
+	return (true);
+}
+
+bool		HttpParser::isPotentialIPv4(std::string value)
+{
+	for (size_t i = 0; i < value.length(); i++)
+	{
+		if (value[i] < '0' && value[i] > '9' && value[i] != '.')
+			return (false);
+	}
 	return (true);
 }
 

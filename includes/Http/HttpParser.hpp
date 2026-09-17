@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/16 18:36:44 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/17 18:37:14 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ private:
 	bool		isValidHostname(std::string& value);
 	bool		isValidCharHostname(char c);
 	bool		isValidIPv4(std::string value);
+	bool		isPotentialIPv4(std::string value);
 	bool		isValidIPv6(std::string value);
 	bool		isValidCharIPv6(char c);
 	bool		isValidPort(std::string& value, int i);
