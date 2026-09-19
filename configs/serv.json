@@ -1,17 +1,38 @@
 {
-	"name": "serv",
-	"ports": [ 4242 ],
 	"ip": "127.0.0.1",
-	"http": {
-		"methods": [ "GET" ],
-		"path": {
-			"intern": "/toto",
-			"disk": "/user/path"
+	"ports": [ 4242, 8080 ],
+	"hosts": [ "example.com", "castorland.castor" ],
+	"root": "/",
+	"default_page": "webserv.html",
+	"directory_listing": true,
+
+	"error_pages": {
+		"404": "errors/404.html",
+		"505": "errors/505.html"
+	},
+
+	"max_body_size": 1000000,
+
+	"cgi": {
+		".php": "/usr/bin/php-cgi",
+		".py": "/usr/bin/python3"
+	},
+
+	"locations":
+	[
+		{
+			"path": "/www",
+			"root": "/user/home/mon_site",
+			"methods": [ "GET", "POST" ],
+			"directory_listing": false,
+			"default_page": "index.html",
+			"upload_store": "",
+			"redirect": null,
 		},
-		"bodyMaxSize": 123,
-		"redirections": { },
-		"directoryListing": false,
-		"uploading": [ true, "path/to/storage"],
-		"default": "index.html"
-	}
+		{
+			"path": "/upload",
+			"methods": [ "POST" ],
+			"upload_store": "/user/www/upload"
+		}
+	]
 }

@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 23:36:54 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/19 11:21:51 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,7 @@ public:
 
 	JsonValue	&operator=	( const JsonValue &other );
 
-	JsonType	getType( void ) const;
-
+	JsonType							getType( void ) const;
 	float								getFloat( void ) const;
 	int									getInt( void ) const;
 	bool								getBool( void ) const;
@@ -63,6 +62,8 @@ public:
 	void	setValue( std::string *str );
 	void	setValue( std::vector<JsonValue> *arr );
 	void	setValue( std::map<std::string, JsonValue> *obj );
+
+	bool	contains( std::string key ) const;
 };
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value );

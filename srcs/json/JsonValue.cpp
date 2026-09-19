@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:51:21 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/29 23:37:43 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/19 13:01:24 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,13 @@ void	JsonValue::copyFrom( const JsonValue &other )
 		case JSON_NULL:
 			this->_type = JSON_NULL;
 	}
+}
+
+bool	JsonValue::contains( std::string key ) const
+{
+	if (this->getType() != JSON_OBJECT)
+		throw std::logic_error("JsonValue is not an object.");
+	for (std::map<std::string, JsonValue>::iterator it = this->obj.begin())
 }
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value )
