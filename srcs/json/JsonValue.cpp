@@ -142,7 +142,10 @@ bool	JsonValue::contains( std::string key ) const
 {
 	if (this->getType() != JSON_OBJECT)
 		throw std::logic_error("JsonValue is not an object.");
-	for (std::map<std::string, JsonValue>::iterator it = this->obj.begin())
+	for (std::map<std::string, JsonValue>::iterator it = this->obj->begin(); it != this->obj->end(); it++)
+		if (it->first == key)
+			return true;
+	return false;
 }
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value )

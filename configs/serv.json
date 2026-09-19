@@ -27,7 +27,7 @@
 			"directory_listing": false,
 			"default_page": "index.html",
 			"upload_store": "",
-			"redirect": null,
+			"redirect": null
 		},
 		{
 			"path": "/upload",
