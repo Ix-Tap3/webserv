@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 18:47:57 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/24 16:14:15 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ private:
 	bool		isValidCharIPv6(char c);
 	bool		isValidPort(std::string& value, int i);
 	bool		isValidCharValue(char c);
+	bool		isValidToken(const std::string& str);
 	bool		isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 

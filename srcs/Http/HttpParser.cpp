@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 19:34:04 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/24 16:15:00 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,18 +28,18 @@ HttpParser::~HttpParser()
 // ============= //
 std::vector<std::string> HttpParser::split(const std::string &s, char delim)
 {
-    std::vector<std::string> tokens;
-    size_t start = 0;
-    size_t end = s.find(delim);
+	std::vector<std::string> tokens;
+	size_t start = 0;
+	size_t end = s.find(delim);
 
-    while (end != std::string::npos)
-    {
-        tokens.push_back(s.substr(start, end - start));
-        start = end + 1;
-        end = s.find(delim, start);
-    }
-    tokens.push_back(s.substr(start));
-    return tokens;
+	while (end != std::string::npos)
+	{
+		tokens.push_back(s.substr(start, end - start));
+		start = end + 1;
+		end = s.find(delim, start);
+	}
+	tokens.push_back(s.substr(start));
+	return tokens;
 }
 
 int	HttpParser::stringToInt(std::string str) const
@@ -302,7 +302,7 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	else if (name == "connection")
 		VerifyConnection(headerFields, name);
 	else if (name == "transfer-encoding")
-		VerifyTransferEncoding(headerFields, name);
+		throw HttpException(501, RED "The header \"Transfer-Encoding\" isn't implemented" RESET);
 	else if (name == "host")
 		VerifyHost(headerFields, name);
 	else if (name == "content-type")
@@ -325,12 +325,19 @@ void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::st
 
 void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
-	
-}
-
-void		HttpParser::VerifyTransferEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
-{
-	
+	std::vector<std::string> value = split(headerFields->second, ',');
+	for (std::vector<std::string>::iterator it = value.begin(); it != value.end() ; it++)
+	{
+		std::string cpy = (*it);
+		DeleteUselessSpace(cpy);
+		if (cpy.empty())
+			throw HttpException(400, RED "Empty value (Connection Header):" YELLOW + headerFields->first + headerFields->second + RESET);
+		for (size_t i = 0; i < cpy.length(); i++)
+		{
+			if (std::isspace(cpy[i]))
+				throw HttpException(400, RED "White space in middle of a value (Connection Header): " YELLOW + headerFields->second + RESET);	
+		}	
+	}
 }
 
 void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -357,10 +364,82 @@ void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::
 			throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);		
 	}
 }
-
-void		HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
-	
+	std::string value = headerFields->second;
+	DeleteUselessSpace(value);
+
+	if (value.empty())
+		throw HttpException(400, "Empty Content-Type");
+
+	size_t semi = value.find(';');
+	std::string mediaType = value.substr(0, semi);
+	DeleteUselessSpace(mediaType);
+
+	size_t slash = mediaType.find('/');
+
+	if (slash == std::string::npos)
+		throw HttpException(400, "Invalid Content-Type: missing '/'");
+
+	if (slash == 0 || slash == mediaType.length() - 1)
+		throw HttpException(400, "Invalid Content-Type");
+
+	std::string type = mediaType.substr(0, slash);
+	std::string subtype = mediaType.substr(slash + 1);
+
+	if (!isValidToken(type) || !isValidToken(subtype))
+		throw HttpException(400, "Invalid Content-Type");
+
+	while (semi != std::string::npos)
+	{
+		size_t begin = semi + 1;
+		size_t next = value.find(';', begin);
+
+		std::string parameter = value.substr(begin, next - begin);
+		DeleteUselessSpace(parameter);
+
+		if (parameter.empty())
+			throw HttpException(400, "Empty Content-Type parameter");
+
+		size_t equal = parameter.find('=');
+
+		if (equal == std::string::npos ||
+			equal == 0 ||
+			equal == parameter.length() - 1)
+			throw HttpException(400, "Invalid Content-Type parameter");
+
+		std::string paramName = parameter.substr(0, equal);
+		std::string paramValue = parameter.substr(equal + 1);
+
+		DeleteUselessSpace(paramName);
+		DeleteUselessSpace(paramValue);
+
+		if (!isValidToken(paramName) || paramValue.empty())
+			throw HttpException(400, "Invalid Content-Type parameter");
+
+		semi = next;
+	}
+}
+
+bool HttpParser::isValidToken(const std::string& str)
+{
+    if (str.empty())
+        return false;
+
+    const std::string separators = "()<>@,;:\\\"/[]?={} \t";
+
+    for (size_t i = 0; i < str.length(); ++i)
+    {
+        unsigned char c = static_cast<unsigned char>(str[i]);
+
+        if (c < 0x21 || c > 0x7E)
+            return false;
+
+        if (separators.find(c) != std::string::npos)
+            return false;
+    }
+
+    return true;
 }
 
 bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -646,5 +725,5 @@ bool	HttpParser::isValidCharValue(char c)
 
 Body	HttpParser::ParseBody(std::string&	body)
 {
-	
+	(void)body;
 }
