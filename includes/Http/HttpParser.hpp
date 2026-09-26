@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/24 16:14:15 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 15:53:40 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ private:
 	void		VerifyMethod(std::string method);
 	void		VerifyTarget(std::string target);
 	void		VerifyVersion(std::string version);
-	// bool		ContainsDotDotSegment(const std::string& path);
 	// Headers Fields//
 	void		ParseHeaders(void);
 	void		VerifyHeaderName(std::string name);
@@ -70,7 +69,6 @@ private:
 	void		VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	void		VerifyTransferEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isValidHostname(std::string& value);

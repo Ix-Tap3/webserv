@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 20:19:03 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 15:50:49 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,13 +102,14 @@ void	Client::stashHeaders()
 	try
 	{
 		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
-		printHeader();
+		printHeader(); // test purpose
 	}
 	catch(const HttpException& e)
 	{
 		std::cerr << e.getStatusCode() << " ";
 		std::cerr << e.what() << std::endl;
 	}
+	
 }
 
 void	Client::stashBody()

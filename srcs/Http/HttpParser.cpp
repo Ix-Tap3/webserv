@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/24 16:15:00 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 16:03:50 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,26 +72,21 @@ bool	HttpParser::isTchar(char c)
 
 void	HttpParser::DeleteUselessSpace(std::string& str)
 {
-	if (str.empty())
-		return ;
-	for (size_t i = 0; i < str.length(); i++)
+	size_t start = 0;
+	while (start < str.length() && std::isspace(static_cast<unsigned char>(str[start])))
+		start++;
+
+	if (start == str.length())
 	{
-		if (isspace(str[i]) != ' ' && i != 0)
-		{
-			str.erase(0, i);
-			break;
-		}
-	}
-	if (str.empty())
+		str.clear();
 		return ;
-	for (size_t i = str.length() - 1; i != 0; --i)
-	{
-		if (isspace(str[i]) && i != str.length() - 1)
-		{
-			str.erase(i + 1, str.length() - 1);
-			break;
-		}
 	}
+
+	size_t end = str.length() - 1;
+	while (end > start && std::isspace(static_cast<unsigned char>(str[end])))
+		end--;
+
+	str = str.substr(start, end - start + 1);
 }
 
 // ============== //
@@ -230,30 +225,7 @@ void		HttpParser::VerifyTarget(std::string target)
 			throw HttpException(400, RED "Invalid character in request target: " YELLOW + target + RESET);
 		}
 	}
-	// if (ContainsDotDotSegment(target))
-	// {
-	// 	// throw an exception (doesnt accept ".." in path to avoid attacks)
-	// }
 }
-
-// bool HttpParser::ContainsDotDotSegment(const std::string& path)
-// {
-// 	size_t pos = 0;
-// 	while (pos < path.size())
-// 	{
-// 		size_t next = path.find('/', pos + 1);
-// 		if (next == std::string::npos)
-// 			next = path.size();
-		
-// 		std::string segment = path.substr(pos + 1, next - pos - 1);
-
-// 		if (segment == "..")
-// 			return true;
-
-// 		pos = next;
-// 	}
-// 	return false;
-// }
 
 void		HttpParser::VerifyVersion(std::string version)
 {
