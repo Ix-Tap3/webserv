@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 16:30:02 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 18:29:20 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,13 +208,13 @@ void		HttpParser::VerifyMethod(std::string method)
 void		HttpParser::VerifyTarget(std::string target)
 {
 	if (target.empty())
-		throw HttpException(400, RED "Path is empty: " YELLOW + target + RESET);
+		throw HttpException(400, RED "Path is empty" RESET);
 
 	std::string begin = target.substr(0, 7);
 	if (target[0] != '/' && begin != "http://")
 		throw HttpException(400, RED "Path isn't accepted: " YELLOW + target + RESET);
 
-	if (target.size() > 8192)
+	if (target.length() > 8192)
 		throw HttpException(414, RED "URI Too Long" RESET);
 
 	for (size_t i = 0; i < target.size(); ++i)
@@ -231,7 +231,7 @@ void		HttpParser::VerifyVersion(std::string version)
 {
 	if (version.empty() || version != "HTTP/1.0")
 	{
-		throw HttpException(400, RESET "Version isn't accepted: " YELLOW + version + RESET);
+		throw HttpException(400, RED "Version isn't accepted: " YELLOW + version + RESET);
 	}	
 }
 
@@ -246,7 +246,7 @@ void	HttpParser::ParseHeaders(void)
 		++it)
 	{
 		if (it->first.empty())
-			throw HttpException(400, RESET "Header Fields name empty" RESET);
+			throw HttpException(400, RED "Header Fields name empty" RESET);
 		
 		VerifyHeaderName(it->first);
 		VerifyHeaderValue(it->second);
@@ -278,7 +278,7 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	else if (name == "host")
 		VerifyHost(headerFields, name);
 	else if (name == "content-type")
-		VerifyContentType(headerFields);
+		VerifyContentType(headerFields, name);
 }
 
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -303,11 +303,11 @@ void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::strin
 		std::string cpy = (*it);
 		DeleteUselessSpace(cpy);
 		if (cpy.empty())
-			throw HttpException(400, RED "Empty value (Connection Header):" YELLOW + headerFields->first + headerFields->second + RESET);
+			throw HttpException(400, RED "Empty value: " YELLOW + headerFields->first + ": " + headerFields->second + RESET);
 		for (size_t i = 0; i < cpy.length(); i++)
 		{
 			if (std::isspace(cpy[i]))
-				throw HttpException(400, RED "White space in middle of a value (Connection Header): " YELLOW + headerFields->second + RESET);	
+				throw HttpException(400, RED "White space in middle of a value: " YELLOW + headerFields->first + ": " + headerFields->second + RESET);	
 		}	
 	}
 }
@@ -336,8 +336,11 @@ void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::
 			throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);		
 	}
 }
-void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
+void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
+	if (isDupplicate(headerFields, name))
+		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
+	
 	std::string value = headerFields->second;
 	DeleteUselessSpace(value);
 
