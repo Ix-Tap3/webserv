@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 18:29:20 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 18:44:04 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,7 +345,7 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 	DeleteUselessSpace(value);
 
 	if (value.empty())
-		throw HttpException(400, "Empty Content-Type");
+		throw HttpException(400, RED "Empty Content-Type" RESET);
 
 	size_t semi = value.find(';');
 	std::string mediaType = value.substr(0, semi);
@@ -354,16 +354,16 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 	size_t slash = mediaType.find('/');
 
 	if (slash == std::string::npos)
-		throw HttpException(400, "Invalid Content-Type: missing '/'");
+		throw HttpException(400, RED "Invalid Content-Type: missing '/'" RESET);
 
 	if (slash == 0 || slash == mediaType.length() - 1)
-		throw HttpException(400, "Invalid Content-Type");
+		throw HttpException(400, RED "Invalid Content-Type" RESET);
 
 	std::string type = mediaType.substr(0, slash);
 	std::string subtype = mediaType.substr(slash + 1);
 
 	if (!isValidToken(type) || !isValidToken(subtype))
-		throw HttpException(400, "Invalid Content-Type");
+		throw HttpException(400, RED "Invalid Content-Type" RESET);
 
 	while (semi != std::string::npos)
 	{
@@ -374,14 +374,14 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 		DeleteUselessSpace(parameter);
 
 		if (parameter.empty())
-			throw HttpException(400, "Empty Content-Type parameter");
+			throw HttpException(400, RED "Empty Content-Type parameter" RESET);
 
 		size_t equal = parameter.find('=');
 
 		if (equal == std::string::npos ||
 			equal == 0 ||
 			equal == parameter.length() - 1)
-			throw HttpException(400, "Invalid Content-Type parameter");
+			throw HttpException(400, RED "Invalid Content-Type parameter" RESET);
 
 		std::string paramName = parameter.substr(0, equal);
 		std::string paramValue = parameter.substr(equal + 1);
@@ -390,7 +390,7 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 		DeleteUselessSpace(paramValue);
 
 		if (!isValidToken(paramName) || paramValue.empty())
-			throw HttpException(400, "Invalid Content-Type parameter");
+			throw HttpException(400, RED "Invalid Content-Type parameter" RESET);
 
 		semi = next;
 	}
@@ -510,6 +510,8 @@ bool		HttpParser::isValidIPv4(std::string value)
 	count = 0;
 	for (std::vector<std::string>::iterator it = ips.begin(); it != ips.end(); it++)
 	{
+		if ((*it).empty())
+			throw HttpException(400, RED "Empty Bytes in IPv4: " YELLOW + value + RESET);
 		for (size_t i = 0; i < it->length(); i++)
 		{
 			if (i > 3)
