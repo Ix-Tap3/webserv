@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 16:03:50 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 16:30:02 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -272,13 +272,13 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	if (name == "content-length")
 		VerifyContentLength(headerFields, name);
 	else if (name == "connection")
-		VerifyConnection(headerFields, name);
+		VerifyConnection(headerFields);
 	else if (name == "transfer-encoding")
 		throw HttpException(501, RED "The header \"Transfer-Encoding\" isn't implemented" RESET);
 	else if (name == "host")
 		VerifyHost(headerFields, name);
 	else if (name == "content-type")
-		VerifyContentType(headerFields, name);
+		VerifyContentType(headerFields);
 }
 
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -295,7 +295,7 @@ void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::st
 	
 }
 
-void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
 {
 	std::vector<std::string> value = split(headerFields->second, ',');
 	for (std::vector<std::string>::iterator it = value.begin(); it != value.end() ; it++)
@@ -336,7 +336,7 @@ void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::
 			throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);		
 	}
 }
-void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
 {
 	std::string value = headerFields->second;
 	DeleteUselessSpace(value);
@@ -634,9 +634,9 @@ bool		HttpParser::isValidIPv6(std::string value)
 		return (false);	
 	}
 	endIP++;
-	if (endIP < value.length() && value[endIP] == ':')
+	if (size_t(endIP) < value.length() && value[endIP] == ':')
 		return (isValidPort(value, endIP + 1));
-	if (endIP < value.length())
+	if (size_t(endIP) < value.length())
 	{
 		std::cout << "flag6" << endIP << " " << value.length();
 		return (false);
@@ -661,7 +661,7 @@ bool		HttpParser::isValidPort(std::string& value, int i)
 	int count = 0;
 	int	begin = i;
 
-	while (i < value.length())
+	while (size_t(i) < value.length())
 	{
 		if (value[i] < '0' || value[i] > '9')
 			return (false);
@@ -698,4 +698,6 @@ bool	HttpParser::isValidCharValue(char c)
 Body	HttpParser::ParseBody(std::string&	body)
 {
 	(void)body;
+	Body tmp;
+	return tmp;
 }

@@ -1,5 +1,6 @@
 #include <HttpParser.hpp>
 #include <HttpException.hpp>
+#include <WebservInclude.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
