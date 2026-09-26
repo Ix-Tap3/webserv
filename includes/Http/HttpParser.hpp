@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 18:28:19 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:39:44 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define HTTPPARSER_HPP
 # include <WebservInclude.h>
 # include <HttpException.hpp>
-# include <sstream>
+# include <Utils.hpp>
 
 struct RequestLine
 {
@@ -48,11 +48,7 @@ private:
 	HttpRequest	_httpRequest;
 
 	// === UTILS === //
-	std::vector<std::string>	split(const std::string &s, char delim);
-	int			stringToInt(std::string str) const;
-	std::string	strToMin(std::string& str);
-	bool		isTchar(char c);
-	void		DeleteUselessSpace(std::string& str);
+
 
 	// === HEADER === //
 	void		DataSorting(std::string& header);

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 19:51:43 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:31:11 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,6 +233,9 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 {
 	if (!client->hasSomethingToSend())
 	{
+		// if (!client->getConnectionState())
+			// close the connection
+		
 		this->_pollFds[index].events = POLLIN;
 		return (true);
 	}

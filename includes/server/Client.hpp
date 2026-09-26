@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/09 20:12:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:39:58 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,16 @@
 
 # include <WebservInclude.h>
 # include <HttpParser.hpp>
+# include <Utils.hpp>
+
+struct State
+{
+	bool	header;
+	bool	body;
+	bool	connection;
+};
+
+
 
 class Client
 {
@@ -24,9 +34,11 @@ private:
 	std::string _strHeader;
 	std::string _strBody;
 	std::string _sendBuffer;
+	HttpRequest	_httpRequest;
+
+	State		_state;
 	int			_nbBodyByte;
 	int			_contentLength;
-	HttpRequest	_httpRequest;
 
 	HttpParser	_parser;
 public:
@@ -50,9 +62,10 @@ public:
 	void		removeReponseSend(size_t byte_send);
 
 	// === GETTER === //
-	int	getFd() const;
-	int	getNbBodyByte() const;
-	int	getContentLength() const;
+	int		getFd() const;
+	int		getNbBodyByte() const;
+	int		getContentLength() const;
+	bool	getConnectionState() const;
 };
 
 #endif

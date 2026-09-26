@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 18:44:04 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:41:32 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,68 +26,7 @@ HttpParser::~HttpParser()
 // ============= //
 // === UTILS === //
 // ============= //
-std::vector<std::string> HttpParser::split(const std::string &s, char delim)
-{
-	std::vector<std::string> tokens;
-	size_t start = 0;
-	size_t end = s.find(delim);
 
-	while (end != std::string::npos)
-	{
-		tokens.push_back(s.substr(start, end - start));
-		start = end + 1;
-		end = s.find(delim, start);
-	}
-	tokens.push_back(s.substr(start));
-	return tokens;
-}
-
-int	HttpParser::stringToInt(std::string str) const
-{
-	int					res;
-	std::stringstream	ss;
-
-	ss << str;
-	ss >> res;
-
-	return (res);
-}
-
-std::string	HttpParser::strToMin(std::string& str)
-{
-	std::string out(str);
-	for (size_t i = 0; i < out.size(); ++i)
-		out[i] = std::tolower(static_cast<unsigned char>(out[i]));
-	return out;
-}
-
-bool	HttpParser::isTchar(char c)
-{
-	if (std::isalnum(static_cast<unsigned char>(c)))
-		return true;
-
-	static const std::string special = "!#$%&'*+-.^_`|~";
-	return (special.find(c) != std::string::npos);
-}
-
-void	HttpParser::DeleteUselessSpace(std::string& str)
-{
-	size_t start = 0;
-	while (start < str.length() && std::isspace(static_cast<unsigned char>(str[start])))
-		start++;
-
-	if (start == str.length())
-	{
-		str.clear();
-		return ;
-	}
-
-	size_t end = str.length() - 1;
-	while (end > start && std::isspace(static_cast<unsigned char>(str[end])))
-		end--;
-
-	str = str.substr(start, end - start + 1);
-}
 
 // ============== //
 // === HEADER === //
@@ -106,7 +45,7 @@ Header	HttpParser::ParseHeader(std::string& header)
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		DeleteUselessSpace(it->second);
+		Utils::DeleteUselessSpace(it->second);
 	}
 	ParseHeaders();
 
@@ -251,7 +190,7 @@ void	HttpParser::ParseHeaders(void)
 		VerifyHeaderName(it->first);
 		VerifyHeaderValue(it->second);
 
-		std::string name = strToMin(it->first);
+		std::string name = Utils::strToMin(it->first);
 		if (name == "content-length" || name == "connection" ||
 			name == "content-type" || name == "host" || name == "transfer-encoding")
 			VerifyKnownHeaders(it, name);
@@ -262,7 +201,7 @@ void	HttpParser::VerifyHeaderName(std::string name)
 {
 	for (size_t i = 0; i < name.size(); ++i)
 	{
-		if (!isTchar(name[i]))
+		if (!Utils::isTchar(name[i]))
 			throw HttpException(400, RED "Headers Name contains a non tchar: " YELLOW + name + RESET);
 	}
 }
@@ -297,11 +236,11 @@ void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::st
 
 void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
 {
-	std::vector<std::string> value = split(headerFields->second, ',');
+	std::vector<std::string> value = Utils::strSplit(headerFields->second, ',');
 	for (std::vector<std::string>::iterator it = value.begin(); it != value.end() ; it++)
 	{
 		std::string cpy = (*it);
-		DeleteUselessSpace(cpy);
+		Utils::DeleteUselessSpace(cpy);
 		if (cpy.empty())
 			throw HttpException(400, RED "Empty value: " YELLOW + headerFields->first + ": " + headerFields->second + RESET);
 		for (size_t i = 0; i < cpy.length(); i++)
@@ -342,14 +281,14 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
 	
 	std::string value = headerFields->second;
-	DeleteUselessSpace(value);
+	Utils::DeleteUselessSpace(value);
 
 	if (value.empty())
 		throw HttpException(400, RED "Empty Content-Type" RESET);
 
 	size_t semi = value.find(';');
 	std::string mediaType = value.substr(0, semi);
-	DeleteUselessSpace(mediaType);
+	Utils::DeleteUselessSpace(mediaType);
 
 	size_t slash = mediaType.find('/');
 
@@ -371,7 +310,7 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 		size_t next = value.find(';', begin);
 
 		std::string parameter = value.substr(begin, next - begin);
-		DeleteUselessSpace(parameter);
+		Utils::DeleteUselessSpace(parameter);
 
 		if (parameter.empty())
 			throw HttpException(400, RED "Empty Content-Type parameter" RESET);
@@ -386,8 +325,8 @@ void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::strin
 		std::string paramName = parameter.substr(0, equal);
 		std::string paramValue = parameter.substr(equal + 1);
 
-		DeleteUselessSpace(paramName);
-		DeleteUselessSpace(paramValue);
+		Utils::DeleteUselessSpace(paramName);
+		Utils::DeleteUselessSpace(paramValue);
 
 		if (!isValidToken(paramName) || paramValue.empty())
 			throw HttpException(400, RED "Invalid Content-Type parameter" RESET);
@@ -424,7 +363,7 @@ bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::stri
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		std::string it_name = strToMin(it->first);
+		std::string it_name = Utils::strToMin(it->first);
 		if (it != headerFields && it_name == name)
 		{
 			if (it->second == headerFields->second)
@@ -442,7 +381,7 @@ bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		std::string it_name = strToMin(it->first);
+		std::string it_name = Utils::strToMin(it->first);
 		if (it != headerFields && it_name == name)
 			return (true);
 	}
@@ -506,7 +445,7 @@ bool		HttpParser::isValidIPv4(std::string value)
 	else
 		ipv4 = value;
 
-	std::vector<std::string> ips = split(ipv4, '.');
+	std::vector<std::string> ips = Utils::strSplit(ipv4, '.');
 	count = 0;
 	for (std::vector<std::string>::iterator it = ips.begin(); it != ips.end(); it++)
 	{
@@ -519,7 +458,7 @@ bool		HttpParser::isValidIPv4(std::string value)
 			if ((*it)[i] < '0' || (*it)[i] > '9')
 				return (false);
 		}
-		int ipInt = stringToInt((*it));
+		int ipInt = Utils::stringToInt((*it));
 		if (ipInt > 255 || ipInt < 0)
 			return (false);
 		count++;
@@ -675,7 +614,7 @@ bool		HttpParser::isValidPort(std::string& value, int i)
 	}
 	if (count > 5)
 		return (false);	
-	int portNb = stringToInt(value.substr(begin));
+	int portNb = Utils::stringToInt(value.substr(begin));
 	if (portNb > 65535)
 		return (false);
 	return (true);

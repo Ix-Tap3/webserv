@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/17 17:02:35 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:38:51 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,5 +41,7 @@
 # include <unistd.h>
 # include <string.h>
 # include <vector>
+
+# include <sstream>
 
 #endif

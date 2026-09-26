@@ -12,7 +12,7 @@ INC = -Iincludes \
 
 SRCS_DIR = srcs
 
-SRCS = mainTestParser.cpp \
+SRCS = main.cpp \
 	$(SRCS_DIR)/Http/HttpParser.cpp \
 	$(SRCS_DIR)/Http/HttpException.cpp \
 	$(SRCS_DIR)/server/Server.cpp \

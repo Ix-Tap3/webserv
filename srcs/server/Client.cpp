@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 15:50:49 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/26 19:30:27 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,20 @@ void	Client::printHeader()
 Client::Client()
 {
 	this->_contentLength = -1;
+	this->_state.header = true;
+	this->_state.body = false;
+	this->_state.connection = true;
+	this->_nbBodyByte = 0;
 }
 
 Client::Client(int fd)
 {
 	this->_fd = fd;
 	this->_contentLength = -1;
+	this->_state.header = true;
+	this->_state.body = false;
+	this->_state.connection = true;
+	this->_nbBodyByte = 0;
 }
 
 Client::~Client()
@@ -62,6 +70,11 @@ int	Client::getContentLength() const
 	return (this->_contentLength);
 }
 
+bool	Client::getConnectionState() const
+{
+	return (this->_state.connection);
+}
+
 const std::string&	Client::getSendBuffer() const
 {
 	return (this->_sendBuffer);
@@ -73,6 +86,9 @@ const std::string&	Client::getSendBuffer() const
 void	Client::appendReceivedData(char	*buff, int len)
 {
 	this->_recvBuffer.append(buff, len);
+	if (this->_state.body)
+		this->_nbBodyByte += len;
+	
 	// std::cout.write(buff, len);
 	// std::cout << "Client " << this->_fd << "received buffer: " << this->_recvBuffer << std::endl;
 }
@@ -102,20 +118,29 @@ void	Client::stashHeaders()
 	try
 	{
 		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
-		printHeader(); // test purpose
+		printHeader(); // for test purpose
 	}
 	catch(const HttpException& e)
 	{
 		std::cerr << e.getStatusCode() << " ";
 		std::cerr << e.what() << std::endl;
 	}
-	
+	this->_contentLength = extractContentLength();
+	if (this->_contentLength > 0)
+	{
+		this->_state.header = false;
+		this->_state.body = true;
+	}
+	this->_state.connection = extractConnection();
 }
 
 void	Client::stashBody()
 {
 	this->_strBody = this->_recvBuffer;
 	this->_recvBuffer.clear();
+	this->_state.body = false;
+	this->_state.header = true;
+	this->_nbBodyByte = 0;
 }
 
 void	Client::removeReponseSend(size_t byte_send)
