@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 19:30:27 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/27 16:04:02 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,42 @@ bool	Client::hasCompleteHeaders() const
 //======================//
 // ===== SEND DATA ==== //
 //======================//
+int		Client::extractContentLength()
+{
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
+		++it)
+	{
+		std::string name = Utils::strToMin((*it).first);
+		if (name == "content-length")
+			return (Utils::stringToInt((*it).second));
+	}
+	return (0);
+}
+
+bool		Client::extractConnection()
+{
+	bool state = false;
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+		this->_httpRequest._header._headersFields.begin(); 
+		it != this->_httpRequest._header._headersFields.end(); 
+		++it)
+	{
+		std::string name = Utils::strToMin((*it).first);
+		if (name == "connection")
+		{
+			size_t pos = (*it).second.find("close");
+			if (pos != std::string::npos)
+				return (false);
+			size_t pos = (*it).second.find("keep-alive");
+			if (pos != std::string::npos)
+				state = true;
+		}
+	}
+	return (state);
+}
+
 bool	Client::hasSomethingToSend() const
 {
 	return (!this->_sendBuffer.empty());

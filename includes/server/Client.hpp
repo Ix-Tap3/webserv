@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 19:39:58 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/27 15:55:09 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,9 @@ private:
 	int			_contentLength;
 
 	HttpParser	_parser;
+
+	int			extractContentLength();
+	bool		extractConnection();
 public:
 
 	Client();
