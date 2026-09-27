@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/27 16:04:02 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/27 16:28:49 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,17 +124,44 @@ bool		Client::extractConnection()
 		++it)
 	{
 		std::string name = Utils::strToMin((*it).first);
+		std::string value = Utils::strToMin((*it).second);
 		if (name == "connection")
 		{
-			size_t pos = (*it).second.find("close");
-			if (pos != std::string::npos)
+			size_t pos = value.find("close");
+			if (isClose(value))
 				return (false);
-			size_t pos = (*it).second.find("keep-alive");
-			if (pos != std::string::npos)
+			size_t pos = value.find("keep-alive");
+			if (isKeepAlive(value))
 				state = true;
 		}
 	}
 	return (state);
+}
+
+bool	isClose(std::string value)
+{
+	std::vector<std::string> token = Utils::strSplit(value, ',');
+	for (std::vector<std::string>::iterator it = token.begin();
+		it != token.end(); it++)
+	{
+		Utils::DeleteUselessSpace((*it));
+		if ((*it) == "close")
+			return (true);
+	}
+	return (false);
+}
+
+bool	isKeepAlive(std::string value)
+{
+	std::vector<std::string> token = Utils::strSplit(value, ',');
+	for (std::vector<std::string>::iterator it = token.begin();
+		it != token.end(); it++)
+	{
+		Utils::DeleteUselessSpace((*it));
+		if ((*it) == "keep-alive")
+			return (true);
+	}
+	return (false);
 }
 
 bool	Client::hasSomethingToSend() const
@@ -149,8 +176,14 @@ void	Client::appendSendData(std::string data)
 
 void	Client::stashHeaders()
 {
-	this->_strHeader = this->_recvBuffer;
-	this->_recvBuffer.clear();
+	size_t endOfHeader = this->_recvBuffer.find("\r\n\r\n");
+	
+	this->_strHeader = this->_recvBuffer.substr(0, endOfHeader + 4);
+
+	this->_recvBuffer.erase(0, endOfHeader + 4);
+
+	this->_nbBodyByte += this->_recvBuffer.length();
+	
 	try
 	{
 		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
