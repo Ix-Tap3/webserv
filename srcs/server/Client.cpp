@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 20:08:59 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 21:32:12 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ const std::string&	Client::getSendBuffer() const
 //======================//
 void	Client::appendReceivedData(char	*buff, int len)
 {
-	std::cout << "data received: " << buff << std::endl;
 	if (this->_state.body)
 	{
 		this->_nbBodyByte += len;
@@ -96,8 +95,18 @@ void	Client::appendReceivedData(char	*buff, int len)
 }
 
 bool	Client::hasCompleteHeaders() const
-{
-	return (this->_recvBuffer.find("\r\n\r\n") != std::string::npos);
+{    
+    size_t pos = this->_recvBuffer.find("\r\n\r\n"); // test purpose
+
+    if (pos != std::string::npos) // test purpose
+    {
+        std::cout << "The header is complete at position " // test purpose
+                  << pos << std::endl; // test purpose
+        return (true); // test purpose
+    }
+
+    return (false); // test purpose
+	// return (this->_recvBuffer.find("\r\n\r\n") != std::string::npos); // real code
 }
 
 //======================//
@@ -212,6 +221,8 @@ void	Client::stashBody()
 	this->_state.body = false;
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
+
+	
 }
 
 void	Client::removeReponseSend(size_t byte_send)

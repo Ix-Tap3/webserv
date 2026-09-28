@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 20:13:24 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 21:29:37 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,6 +196,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	char	buff[100];
 
 	int	res = recv(clientFd, buff, sizeof(buff), 0);
+	std::cout << "Data received: " << std::string(buff, res) << std::endl; // test purpose
 	// Error
 	if (res == -1)
 	{
@@ -206,8 +207,8 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	// Disconnect
 	else if (res == 0)
 	{
-	close(clientFd);
-	this->_pollFds.erase(this->_pollFds.begin() + index);
+		close(clientFd);
+		this->_pollFds.erase(this->_pollFds.begin() + index);
 		this->_clients.erase(clientFd);
 		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
 		return (true);
@@ -234,9 +235,16 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	if (!client->hasSomethingToSend())
 	{
 		if (!client->getConnectionState())
-			return (false);
-		
-		this->_pollFds[index].events = POLLIN;
+		{
+			if (!close(clientFd))
+			{
+				std::cerr << "close: " << std::strerror(errno) << std::endl;
+				return (false);
+			}
+			this->_clients.erase(index);
+		}
+		else
+			this->_pollFds[index].events = POLLIN;
 		return (true);
 	}
 
