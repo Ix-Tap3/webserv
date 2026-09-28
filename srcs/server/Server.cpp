@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 19:31:11 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/27 19:31:31 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,7 +221,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 		// (number of bytes are indicated by Content-Length)
 		client->stashHeaders();
 	}
-	else if (client->getContentLength() == client->getNbBodyByte())
+	else if (client->getContentLength() <= client->getNbBodyByte())
 	{
 		client->stashBody();
 		this->_pollFds[index].events = POLLOUT | POLLIN;
@@ -241,7 +241,12 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	}
 
 	const std::string &response = client->getSendBuffer();;
-	size_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
+	ssize_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
+	if (byte_send == -1)
+	{
+		return (false);// error
+	}
+	
 	client->removeReponseSend(byte_send);
 
 	return (true);

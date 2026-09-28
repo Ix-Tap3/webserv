@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/27 16:28:49 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 19:39:00 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,13 @@ const std::string&	Client::getSendBuffer() const
 //======================//
 void	Client::appendReceivedData(char	*buff, int len)
 {
-	this->_recvBuffer.append(buff, len);
 	if (this->_state.body)
+	{
 		this->_nbBodyByte += len;
-	
-	// std::cout.write(buff, len);
-	// std::cout << "Client " << this->_fd << "received buffer: " << this->_recvBuffer << std::endl;
+		this->_recvBuffer.append(buff, len);
+	}
+	else
+		this->_recvBuffer.append(buff, len);
 }
 
 bool	Client::hasCompleteHeaders() const
@@ -177,9 +178,7 @@ void	Client::appendSendData(std::string data)
 void	Client::stashHeaders()
 {
 	size_t endOfHeader = this->_recvBuffer.find("\r\n\r\n");
-	
 	this->_strHeader = this->_recvBuffer.substr(0, endOfHeader + 4);
-
 	this->_recvBuffer.erase(0, endOfHeader + 4);
 
 	this->_nbBodyByte += this->_recvBuffer.length();
@@ -205,8 +204,10 @@ void	Client::stashHeaders()
 
 void	Client::stashBody()
 {
-	this->_strBody = this->_recvBuffer;
-	this->_recvBuffer.clear();
+	std::string body = this->_recvBuffer.substr(0, this->_contentLength);
+	this->_recvBuffer.erase(0, this->_contentLength);
+	this->_strBody = body;
+
 	this->_state.body = false;
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
