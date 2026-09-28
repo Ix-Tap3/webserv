@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/31 22:01:23 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 20:05:12 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 // #include "includes/json/JsonParser.hpp"
 #include "includes/server/Server.hpp"
 
-int	main( int ac, char **av )
+int	main(void)// int ac, char **av )
 {
 	// if (ac != 2)
 	// {
@@ -42,10 +42,12 @@ int	main( int ac, char **av )
 	// 	displayJsonTree(root);
 	// } catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
-    Server server;
+	Server server;
 
-    if (!server.setup())
-        return 1;
+	if (!server.setup())
+	{
+		return 1;
+	}
 
 	server.run();
 	while (true)

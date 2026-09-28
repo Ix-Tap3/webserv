@@ -5,21 +5,27 @@ NAME = webserv
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
-INC = -Iincludes \
-		   -Iincludes/server \
-		   -Iincludes/Http \
+INCLUDES = -I includes \
+		   -I includes/server \
+		   -I includes/Http \
+		   -I includes/Utils \
 # 		   -Iincludes/json
 
 SRCS_DIR = srcs
+JSON_DIR = $(SRCS_DIR)/json
+SERV_DIR = $(SRCS_DIR)/server
+HTTP_DIR = $(SRCS_DIR)/Http
+UTILS_DIR = $(SRCS_DIR)/Utils
 
 SRCS = main.cpp \
-	$(SRCS_DIR)/Http/HttpParser.cpp \
-	$(SRCS_DIR)/Http/HttpException.cpp \
-	$(SRCS_DIR)/server/Server.cpp \
-	$(SRCS_DIR)/server/Client.cpp \
-# 	$(SRCS_DIR)/json/JsonLexer.cpp \
-	$(SRCS_DIR)/json/JsonValue.cpp \
-	$(SRCS_DIR)/json/JsonParser.cpp
+	$(HTTP_DIR)/HttpParser.cpp \
+	$(HTTP_DIR)/HttpException.cpp \
+	$(SERV_DIR)/Server.cpp \
+	$(SERV_DIR)/Client.cpp \
+	$(UTILS_DIR)/Utils.cpp \
+# 	$(JSON_DIR)/json/JsonLexer.cpp \
+	$(JSON_DIR)/json/JsonValue.cpp \
+	$(JSON_DIR)/json/JsonParser.cpp
 
 OBJS_DIR = objs
 
@@ -73,7 +79,7 @@ $(NAME): $(OBJS)
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CXX) $(CXXFLAGS) $(INC) -MMD -MP -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
 
 -include $(DEPS)
 

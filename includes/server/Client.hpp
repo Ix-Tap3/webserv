@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/27 15:55:09 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 20:06:29 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ private:
 
 	int			extractContentLength();
 	bool		extractConnection();
+	bool		isClose(std::string value);
+	bool		isKeepAlive(std::string value);
 public:
 
 	Client();

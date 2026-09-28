@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 19:39:00 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 20:08:59 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ const std::string&	Client::getSendBuffer() const
 //======================//
 void	Client::appendReceivedData(char	*buff, int len)
 {
+	std::cout << "data received: " << buff << std::endl;
 	if (this->_state.body)
 	{
 		this->_nbBodyByte += len;
@@ -131,7 +132,7 @@ bool		Client::extractConnection()
 			size_t pos = value.find("close");
 			if (isClose(value))
 				return (false);
-			size_t pos = value.find("keep-alive");
+			pos = value.find("keep-alive");
 			if (isKeepAlive(value))
 				state = true;
 		}
@@ -139,7 +140,7 @@ bool		Client::extractConnection()
 	return (state);
 }
 
-bool	isClose(std::string value)
+bool	Client::isClose(std::string value)
 {
 	std::vector<std::string> token = Utils::strSplit(value, ',');
 	for (std::vector<std::string>::iterator it = token.begin();
@@ -152,7 +153,7 @@ bool	isClose(std::string value)
 	return (false);
 }
 
-bool	isKeepAlive(std::string value)
+bool	Client::isKeepAlive(std::string value)
 {
 	std::vector<std::string> token = Utils::strSplit(value, ',');
 	for (std::vector<std::string>::iterator it = token.begin();
