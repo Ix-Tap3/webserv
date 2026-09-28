@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 21:32:12 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/28 21:36:34 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,18 @@
 
 void	Client::printHeader()
 {
-	std::cout << "// === REQUEST LINE === //";
-	std::cout << "Method: " << this->_httpRequest._requestLine.method;
-	std::cout << "Target: " << this->_httpRequest._requestLine.target;
-	std::cout << "Version: " << this->_httpRequest._requestLine.version;
+	std::cout << "// === REQUEST LINE === //" << std::endl;
+	std::cout << "Method: " << this->_httpRequest._requestLine.method << std::endl;
+	std::cout << "Target: " << this->_httpRequest._requestLine.target << std::endl;
+	std::cout << "Version: " << this->_httpRequest._requestLine.version << std::endl;
 
-	std::cout << "// === HEADERS FIELDS === //";
+	std::cout << "// === HEADERS FIELDS === //" << std::endl;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_httpRequest._header._headersFields.begin(); 
 		it != this->_httpRequest._header._headersFields.end(); 
 		++it)
 	{
-		std::cout << "\"" << it->first << "\": \"" << it->second << "\"";
+		std::cout << "\"" << it->first << "\": \"" << it->second << "\"" << std::endl;
 	}
 }
 
@@ -222,7 +222,7 @@ void	Client::stashBody()
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
 
-	
+	this->_sendBuffer = "yes";
 }
 
 void	Client::removeReponseSend(size_t byte_send)
