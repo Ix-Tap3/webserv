@@ -17,6 +17,7 @@
 # include <ostream>
 # include "JsonType.hpp"
 
+
 class JsonValue
 {
 private:
@@ -67,3 +68,8 @@ public:
 };
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value );
+
+typedef std::vector<JsonValue>				JsonArray;
+typedef std::map<std::string, JsonValue>	JsonObj;
+typedef std::map<std::string, JsonValue>::iterator	JsonObjIterator;
+typedef std::vector<JsonValue>::iterator			JsonArrIterator;

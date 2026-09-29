@@ -17,15 +17,15 @@
 class ConfigLoader
 {
 private:
-	JsonValue	_root;
-	std::vector<JsonValue>	_locationSave;
+	JsonValue		_root;
+	JsonObjIterator	locationsPos;
 
 	JsonValue		peek( void ) const;
 	JsonValue		advance( void );
 	bool			isEnd( void ) const;
 	bool			expect( JsonType type ) const;
-	std::string		checkMissingField( std::string src ) const;
-	ServerConfig	parseObject( std::map<std::string, JsonValue> *obj );
+	std::string		checkMissingField( void ) const;
+	ServerConfig	parseServer( void ) const;
 	
 	class ConfigException:	public std::exception
 	{

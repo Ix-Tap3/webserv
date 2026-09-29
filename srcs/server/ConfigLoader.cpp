@@ -11,44 +11,81 @@
 /* ************************************************************************** */
 
 #include <iostream>
+#include <sstream>
 #include "../../includes/server/ConfigLoader.hpp"
 
-ConfigLoader::ConfigLoader	( JsonValue root ): _root(root) { }
+ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
+{
+	if (this->_root.getType() != JSON_OBJECT)
+		throw ConfigException("Config must start with a Json object");
+
+	std::string	missings;
+
+	missings = this->checkMissingField();
+	if (!missings.empty())
+		throw ConfigException("the following fields are missing in the configuration file: " + missings);
+
+	std::cout << "field tests passed!" << std::endl;
+}
 
 ServerConfig	ConfigLoader::load( void )
 {
 	ServerConfig	config;
 
-	if (this->_root.getType() != JSON_OBJECT)
-		throw ConfigException("Config must start with a Json object");
-
-	std::string	missing = this->checkMissingField("server");
-	if (!missing.empty())
-		throw ConfigException(missing + " field is missing in the server configuration");
-
-	std::cout << "field tests passed!" << std::endl;
-	// config = this->parseObject(this->_root.getObject());
+	// config = parseServer();
 
 	return config;
 }
 
-std::string	ConfigLoader::checkMissingField( std::string src ) const
+std::string	ConfigLoader::checkMissingField( void ) const
 {
-	if (src == "server")
+	if (this->_root.getType() != JSON_OBJECT)
+		throw ConfigException("Invalid format in configuration file.");
+
+	std::map<std::string, JsonValue>	*obj = this->_root.getObject();
+	std::string							missings;
+
+	if (!this->_root.contains("ports"))
+		missings.append("ports");
+	if (!this->_root.contains("hosts"))
 	{
-		if (!this->_root.contains("ports"))
-			return "ports";
-		else if (!this->_root.contains("locations"))
-			return "locations";
-		else if (!this->_root.contains("hosts"))
-			return "hosts";
+		if (!missings.empty())
+			missings.append(", ");
+		missings.append("hosts");
 	}
-	else if (src == "locations")
+	if (!this->_root.contains("locations"))
 	{
-		if (!this->_root.contains("path"))
-			return "path";
+		if (!missings.empty())
+			missings.append(", ");
+		missings.append("locations");
+		return missings;
 	}
-	return "";
+
+	for (JsonObjIterator it = obj->begin(); it != obj->end(); it++)
+	{
+		if (it->first == "locations")
+		{
+			JsonArray	*arr = it->second.getArray();
+			int			idx = 1;
+
+			for (JsonArrIterator it2 = arr->begin(); it2 != arr->end(); it2++)
+			{
+				if (!it2->contains("path"))
+				{
+					std::stringstream	ss;
+
+					ss << idx;
+					if (!missings.empty())
+						missings.append(", ");
+					missings.append("path in locations field ");
+					missings.append(ss.str());
+				}
+				idx++;
+			}
+		}
+	}
+
+	return missings;
 }
 
 // --- Exceptions
