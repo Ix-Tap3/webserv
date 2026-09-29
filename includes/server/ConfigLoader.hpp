@@ -20,12 +20,13 @@ private:
 	JsonValue		_root;
 	JsonObjIterator	locationsPos;
 
-	JsonValue		peek( void ) const;
-	JsonValue		advance( void );
-	bool			isEnd( void ) const;
-	bool			expect( JsonType type ) const;
+	// JsonValue		peek( void ) const;
+	// JsonValue		advance( void );
+	// bool			isEnd( void ) const;
+	// bool			expect( JsonType type ) const;
 	std::string		checkMissingField( void ) const;
 	ServerConfig	parseServer( void ) const;
+	bool			checkIpFormat( std::string ip );
 	
 	class ConfigException:	public std::exception
 	{

@@ -179,3 +179,22 @@ std::ostream	&operator<<	( std::ostream &out, const JsonValue &value )
 	} catch ( std::exception &e ) { out << e.what(); return out; }
 	return out;
 }
+
+std::string	typeToStr( JsonType type )
+{
+	switch (type)
+	{
+		case JSON_OBJECT:
+			return "object";
+		case JSON_NUMBER:
+			return "number";
+		case JSON_STRING:
+			return "string";
+		case JSON_BOOL:
+			return "bool";
+		case JSON_ARRAY:
+			return "array";
+		case JSON_NULL:
+			return "null";
+	}
+}

@@ -1,5 +1,6 @@
 {
 	"ip": "127.0.0.1",
+	"ports": [ 4242, 8080 ],
 	"hosts": [ "example.com", "castorland.castor" ],
 	"root": "/",
 	"default_page": "webserv.html",
@@ -20,6 +21,7 @@
 	"locations":
 	[
 		{
+			"path": "/www",
 			"root": "/user/home/mon_site",
 			"methods": [ "GET", "POST" ],
 			"directory_listing": false,
@@ -28,6 +30,7 @@
 			"redirect": null
 		},
 		{
+			"path": "/upload",
 			"methods": [ "POST" ],
 			"upload_store": "/user/www/upload"
 		}

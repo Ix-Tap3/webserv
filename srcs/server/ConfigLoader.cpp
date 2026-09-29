@@ -14,6 +14,7 @@
 #include <sstream>
 #include "../../includes/server/ConfigLoader.hpp"
 
+// --- Constructor
 ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 {
 	if (this->_root.getType() != JSON_OBJECT)
@@ -28,12 +29,41 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 	std::cout << "field tests passed!" << std::endl;
 }
 
+// --- Member functions
 ServerConfig	ConfigLoader::load( void )
 {
 	ServerConfig	config;
 
-	// config = parseServer();
+	config = parseServer();
+	// config.locations = parseLocations();
 
+	return config;
+}
+
+ServerConfig	ConfigLoader::parseServer( void ) const
+{
+	ServerConfig	config;
+	JsonObj			*obj = this->_root.getObject();
+	
+	enum CHOSE{
+		CGI,
+		IP,
+		PORTS
+	};
+
+	std::map<std::string, CHOSE> map;
+	map["cgi"] = CGI;
+
+	for (JsonObjIterator it = obj->begin(); it != obj->end(); it++)
+	{
+		std::cout << "it->first: " << it->first << ", type: " << typeToStr(it->second.getType()) << std::endl;
+		if (map.find(it->first) != map.end()){
+			switch (map[it->first]) {
+				case CGI : 
+			}
+		}
+	}
+	
 	return config;
 }
 

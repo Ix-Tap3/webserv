@@ -68,8 +68,9 @@ public:
 };
 
 std::ostream	&operator<<	( std::ostream &out, const JsonValue &value );
+std::string		typeToStr( JsonType type );
 
-typedef std::vector<JsonValue>				JsonArray;
-typedef std::map<std::string, JsonValue>	JsonObj;
+typedef std::vector<JsonValue>						JsonArray;
+typedef std::map<std::string, JsonValue>			JsonObj;
 typedef std::map<std::string, JsonValue>::iterator	JsonObjIterator;
 typedef std::vector<JsonValue>::iterator			JsonArrIterator;
