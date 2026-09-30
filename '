@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 14:37:08 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 12:37:45 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,6 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 
 	for (ConfigFields::iterator it = this->_fields.begin(); it != _fields.end(); it++)
 		std::cout << "key: " << it->first << " value: " << it->second << std::endl;
-
-	std::cout << std::endl;
 }
 
 // --- Member functions
@@ -66,13 +64,12 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				if (!this->checkIpFormat(*(it->second.getString())))
 					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1)");
 				config.ip = *(it->second.getString());
-				std::cout << "server ip: " << config.ip << std::endl;
 				break ;
 			case LOCATIONS:
 				this->_locationsPos = it;
 				break ;
 			default:
-				break ;
+				std::cout << field->first << std::endl;
 		}
 	}
 }
@@ -134,55 +131,15 @@ std::string	ConfigLoader::checkMissingField( void ) const
 	return missings;
 }
 
-bool	ConfigLoader::checkIpFormat( std::string ip ) const
+bool	ConfigLoader::checkIpFormat( std::string &ip ) const
 {
-	if (ip.find_first_not_of("0123456789.") != std::string::npos)
+	if (ip.find_first_not_of("0123456789."))
 		return false;
 
+	std::string::iterator	it = ip.begin();
 	int						digits = 0;
-	int						sections = 1;
 
-	for (std::string::iterator it = ip.begin(); it != ip.end(); it++)
-	{
-		if (*it == '.' && it + 1 == ip.end())
-			return false;
 
-		if (*it == '.' || it + 1 == ip.end())
-		{
-			if (digits == 0 || digits > 3)
-				return false;
-			if (digits > 1 && ip.at(0) == 0)
-				return false;
-
-			if (it + 1 == ip.end())
-				digits++;
-
-			std::string			sub = ip.substr(0, digits);
-			std::stringstream	ss;
-			int					nb;
-
-			ss << sub;
-			ss >> nb;
-			
-			if (nb > 255)
-				return false;
-
-			if (it + 1 != ip.end())
-			{
-				ip = ip.substr(digits + 1, std::string::npos);
-				it = ip.begin();
-				sections++;
-			}
-
-			digits = 0;
-		}
-		digits++;
-	}
-
-	if (sections != 4)
-		return false;
-
-	return true;
 }
 
 // --- Exceptions

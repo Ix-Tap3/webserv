@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/19 11:21:51 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 11:59:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,6 @@ std::string		typeToStr( JsonType type );
 
 typedef std::vector<JsonValue>						JsonArray;
 typedef std::map<std::string, JsonValue>			JsonObj;
-typedef std::map<std::string, JsonValue>::iterator	JsonObjIterator;
+typedef JsonObj::iterator							JsonObjIterator;
+typedef	JsonObj::const_iterator						JsonObjConstIterator;
 typedef std::vector<JsonValue>::iterator			JsonArrIterator;

@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 11:13:02 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 14:14:39 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ private:
 	};
 
 	void		buildFields( void );
-	void		parseServer( ServerConfig *config ) const;
-	void		parseLocations( std::vector<LocationConfig> *locConfig ) const;
+	void		parseServer( ServerConfig &config );
+	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
 	bool		checkIpFormat( std::string ip ) const;
 	std::string	checkMissingField( void ) const;
 	
