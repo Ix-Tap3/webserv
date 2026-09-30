@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:06:39 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:11:49 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,7 @@ HttpRequest	HttpParser::ParseHeader(std::string& header)
 	}
 
 	DataSorting(header);
-	std::cout << "1Raw request line: " << this->_httpRequest._requestLine.raw_requestLine << std::endl;
 	this->_httpRequest._requestLine = ParseRequestLine(this->_httpRequest._requestLine.raw_requestLine);
-	std::cout << "1Method: " << this->_httpRequest._requestLine.method << std::endl;
-	std::cout << "2Raw request line: " << this->_httpRequest._requestLine.raw_requestLine << std::endl;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_httpRequest._header._headersFields.begin(); 
 		it != this->_httpRequest._header._headersFields.end(); 
@@ -52,7 +49,6 @@ HttpRequest	HttpParser::ParseHeader(std::string& header)
 	}
 	ParseHeaders();
 
-	std::cout << "2Method: " << this->_httpRequest._requestLine.method << std::endl;
 	return (this->_httpRequest);
 }
 
