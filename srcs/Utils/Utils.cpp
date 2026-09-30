@@ -27,6 +27,14 @@ int	Utils::stringToInt(std::string str)
 	return (res);
 }
 
+std::string	Utils::intToString(int nb)
+{
+	std::stringstream	ss;
+
+	ss << nb;
+	return (ss.str());
+}
+
 std::string	Utils::strToMin(std::string& str)
 {
 	std::string out(str);

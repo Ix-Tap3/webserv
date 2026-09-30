@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 17:58:28 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:06:21 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	Client::printHeader()
 {
-	std::cout << "// === REQUEST LINE === //" << std::endl;
+	std::cout << std::endl << "// === REQUEST LINE === //" << std::endl;
 	std::cout << "Method: " << this->_httpRequest._requestLine.method << std::endl;
 	std::cout << "Target: " << this->_httpRequest._requestLine.target << std::endl;
 	std::cout << "Version: " << this->_httpRequest._requestLine.version << std::endl;
@@ -196,7 +196,7 @@ void	Client::stashHeaders()
 	try
 	{
 		this->_parser = HttpParser();
-		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
+		this->_httpRequest = this->_parser.ParseHeader(this->_strHeader);
 		printHeader(); // for test purpose
 	}
 	catch(const HttpException& e)

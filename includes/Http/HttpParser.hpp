@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 21:32:55 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:06:09 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ public:
 	~HttpParser();
 
 	// === HEADER === //
-	Header	ParseHeader(std::string& header);
+	HttpRequest	ParseHeader(std::string& header);
 
 	// === BODY === //
 	Body	ParseBody(std::string&	body);

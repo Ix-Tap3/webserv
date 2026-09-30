@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 16:53:34 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:04:04 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ bool	Server::setup()
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-
+	
 	int status = getaddrinfo("127.0.0.1", "8080", &hints, &res);
 	if (status != 0)
 	{
@@ -40,6 +40,13 @@ bool	Server::setup()
 	if (!setupSocket(res))
 		return (false);
 	std::cout << "Socket successful" << std::endl;
+
+	int opt = 1;
+	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	{
+		perror("setsockopt");
+		return (false);
+	}
 
 	if (!setupBind(res))
 		return (false);

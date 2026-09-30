@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 19:41:32 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:06:39 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ HttpParser::~HttpParser()
 // ============== //
 // === HEADER === //
 // ============== //
-Header	HttpParser::ParseHeader(std::string& header)
+HttpRequest	HttpParser::ParseHeader(std::string& header)
 {
 	if (header.empty())
 	{
@@ -39,7 +39,10 @@ Header	HttpParser::ParseHeader(std::string& header)
 	}
 
 	DataSorting(header);
+	std::cout << "1Raw request line: " << this->_httpRequest._requestLine.raw_requestLine << std::endl;
 	this->_httpRequest._requestLine = ParseRequestLine(this->_httpRequest._requestLine.raw_requestLine);
+	std::cout << "1Method: " << this->_httpRequest._requestLine.method << std::endl;
+	std::cout << "2Raw request line: " << this->_httpRequest._requestLine.raw_requestLine << std::endl;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_httpRequest._header._headersFields.begin(); 
 		it != this->_httpRequest._header._headersFields.end(); 
@@ -49,7 +52,8 @@ Header	HttpParser::ParseHeader(std::string& header)
 	}
 	ParseHeaders();
 
-	return (this->_httpRequest._header);
+	std::cout << "2Method: " << this->_httpRequest._requestLine.method << std::endl;
+	return (this->_httpRequest);
 }
 
 void	HttpParser::DataSorting(std::string& header)
@@ -92,11 +96,13 @@ void	HttpParser::DataSorting(std::string& header)
 RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 {
 	RequestLine res;
+
+	res.raw_requestLine = strRequestLine;
 	
 	size_t space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + strRequestLine + RESET);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
 	}
 	res.method = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
@@ -104,7 +110,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + strRequestLine + RESET);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
 	}
 	res.target = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
@@ -113,7 +119,7 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 	strRequestLine.erase(0, 8);
 	if (!strRequestLine.empty())
 	{
-		throw HttpException(400, RED "End (\"\\r\\n\") not found in Request Line: " YELLOW + strRequestLine + RESET);
+		throw HttpException(400, RED "End (\"\\r\\n\") not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
 	}
 
 	VerifyRequestLine(res);
