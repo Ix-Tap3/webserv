@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 16:25:06 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 17:14:55 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ private:
 
 	void		buildFields( void );
 	void		buildPortsArray( std::vector<int> &portsArray, JsonArray &jsonArray ) const;
+	void		buildHostsArray( std::vector<std::string> &hostArray, JsonArray &jsonArray ) const;
 	void		parseServer( ServerConfig &config );
 	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
 	bool		checkJsonType( JsonValue &value, std::string expected ) const;

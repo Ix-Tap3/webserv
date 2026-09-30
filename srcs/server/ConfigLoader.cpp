@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 17:06:16 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 17:36:42 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,14 @@ ServerConfig	ConfigLoader::load( void )
 	{
 		std::cout << *it;
 		if (it + 1 != config.ports.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server hosts: ";
+	for (std::vector<std::string>::iterator it = config.hosts.begin(); it != config.hosts.end(); it++)
+	{
+		std::cout << *it;
+		if (it + 1 != config.hosts.end())
 			std::cout << ", ";
 	}
 	std::cout << std::endl;
@@ -111,7 +119,12 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 					throw ConfigException("\"ports\" field must be a Json array");
 				
 				this->buildPortsArray(config.ports, *it->second.getArray());
-				std::cout << "ports array builded!" << std::endl;
+				break ;
+			case HOSTS:
+				if (!this->checkJsonType(it->second, "array"))
+					throw ConfigException("\"hosts\" field must be a Json array");
+
+				this->buildHostsArray(config.hosts, *it->second.getArray());
 				break ;
 			default:
 				break ;
@@ -279,7 +292,7 @@ bool	ConfigLoader::checkPath( std::string path ) const
 void	ConfigLoader::buildPortsArray( std::vector<int> &portsArray, JsonArray &jsonArray ) const
 {
 	if (jsonArray.empty())
-		throw ConfigException("Empty portsArray provided, please insert at least one port");
+		throw ConfigException("Empty \"ports\" field, please insert at least one port");
 	for (JsonArray::iterator it = jsonArray.begin(); it != jsonArray.end(); it++)
 	{
 		if (!this->checkJsonType(*it, "number"))
@@ -297,6 +310,26 @@ void	ConfigLoader::buildPortsArray( std::vector<int> &portsArray, JsonArray &jso
 			throw ConfigException("Invalid port range in \"ports\" field, please use only integers between 1 and 65 535");
 
 		portsArray.push_back(port);
+	}
+}
+
+void	ConfigLoader::buildHostsArray( std::vector<std::string> &hostsArray, JsonArray &jsonArray ) const
+{
+	if (jsonArray.empty())
+		throw ConfigException("Empty \"hosts\" field, please insert at least one host");
+
+	for (JsonArray::iterator it = jsonArray.begin(); it != jsonArray.end(); it++)
+	{
+		if (!this->checkJsonType(*it, "string"))
+			throw ConfigException("Invalid hostname provided. hostnames must be a Json string");
+
+		std::string	*hostname = it->getString();
+		std::size_t	dot = hostname->find_last_of('.');
+
+		if (dot == std::string::npos)
+			throw ConfigException("Hostnames must have a dot followed by a domain extension");
+
+		hostsArray.push_back(*hostname);
 	}
 }
 
