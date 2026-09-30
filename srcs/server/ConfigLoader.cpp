@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/19 17:09:23 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 11:26:29 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,13 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 		throw ConfigException("the following fields are missing in the configuration file: " + missings);
 
 	std::cout << "field tests passed!" << std::endl;
+
+	this->buildFields();
+
+	std::cout << "fields build." << std::endl;
+
+	for (ConfigFields::iterator it = this->_fields.begin(); it != _fields.end(); it++)
+		std::cout << "key: " << it->first << " value: " << it->second << std::endl;
 }
 
 // --- Member functions
@@ -34,37 +41,26 @@ ServerConfig	ConfigLoader::load( void )
 {
 	ServerConfig	config;
 
-	config = parseServer();
-	// config.locations = parseLocations();
+	parseServer(&config);
+	// parseLocations(&config.locations);
 
 	return config;
 }
 
-ServerConfig	ConfigLoader::parseServer( void ) const
+void	ConfigLoader::parseServer( ServerConfig *config ) const
 {
-	ServerConfig	config;
 	JsonObj			*obj = this->_root.getObject();
 	
-	enum CHOSE{
-		CGI,
-		IP,
-		PORTS
-	};
-
-	std::map<std::string, CHOSE> map;
-	map["cgi"] = CGI;
-
 	for (JsonObjIterator it = obj->begin(); it != obj->end(); it++)
 	{
 		std::cout << "it->first: " << it->first << ", type: " << typeToStr(it->second.getType()) << std::endl;
-		if (map.find(it->first) != map.end()){
-			switch (map[it->first]) {
-				case CGI : 
-			}
-		}
 	}
-	
-	return config;
+}
+
+void	ConfigLoader::buildFields( void )
+{
+	for (int i = 0; i != METHODS; i++)
+		this->_fields[this->_fieldsName[i]] = static_cast<FieldsValue>(i);
 }
 
 std::string	ConfigLoader::checkMissingField( void ) const
@@ -72,8 +68,8 @@ std::string	ConfigLoader::checkMissingField( void ) const
 	if (this->_root.getType() != JSON_OBJECT)
 		throw ConfigException("Invalid format in configuration file.");
 
-	std::map<std::string, JsonValue>	*obj = this->_root.getObject();
-	std::string							missings;
+	JsonObj		*obj = this->_root.getObject();
+	std::string	missings;
 
 	if (!this->_root.contains("ports"))
 		missings.append("ports");

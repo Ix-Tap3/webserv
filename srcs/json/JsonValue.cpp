@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:51:21 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/19 13:01:24 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 11:21:07 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,4 +197,5 @@ std::string	typeToStr( JsonType type )
 		case JSON_NULL:
 			return "null";
 	}
+	return "";
 }

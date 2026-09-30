@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 09:59:58 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/19 11:09:50 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 10:57:11 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ struct	ServerConfig
 	std::string							ip; // empty = not set, 0.0.0.0 by default or 127.0.0.1
 	std::string							root; // empty = not set, must be set
 	std::string							default_page; // empty = not set, "serv.html" by default
-	std::vector<int>					port; // empty = not set, must be set
+	std::vector<int>					ports; // empty = not set, must be set
 	std::vector<std::string>			hosts; // empty = not set, must be set or webserv by default
 	std::vector<LocationConfig>			locations; // empty = not set, must be set
 	std::map<std::string, std::string>	cgis; // empty = not set, can be unset
@@ -45,5 +45,23 @@ struct	ServerConfig
 	bool								directory_listing; // false by default
 };
 
+enum	FieldsValue
+{
+	IP,
+	ROOT,
+	DEFAULT_PAGE,
+	PORTS,
+	HOSTS,
+	LOCATIONS,
+	CGIS,
+	ERROR_PAGES,
+	MAX_BODY_SIZE,
+	DIRECTORY_LISTING,
+	REDIRECTION_CODE,
+	REDIRECTION_PATH,
+	UPLOAD,
+	PATH,
+	METHODS
+};
 
 #endif
