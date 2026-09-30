@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 21:41:32 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 16:53:34 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,19 +201,23 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	if (res == -1)
 	{
 		std::cerr << "recv: " << std::strerror(errno) << std::endl;
-		close(clientFd);
+		if (close(clientFd) == -1)
+		{
+			std::cerr << "close: " << std::strerror(errno) << std::endl;
+			return (false);
+		}
 		return (false);
 	}
 	// Disconnect
 	else if (res == 0)
 	{
-		if (!close(clientFd))
+		if (close(clientFd) == -1)
 		{
 			std::cerr << "close: " << std::strerror(errno) << std::endl;
 			return (false);
 		}
 		this->_pollFds.erase(this->_pollFds.begin() + index);
-		this->_clients.erase(clientFd);
+		this->_clients.erase(index);
 		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
 		return (true);
 	}
@@ -240,7 +244,7 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	{
 		if (!client->getConnectionState())
 		{
-			if (!close(clientFd))
+			if (close(clientFd) == -1)
 			{
 				std::cerr << "close: " << std::strerror(errno) << std::endl;
 				return (false);
