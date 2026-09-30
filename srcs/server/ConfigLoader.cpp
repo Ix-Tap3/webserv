@@ -6,11 +6,12 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 14:37:08 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 17:06:16 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
+#include <cmath>
 #include <sstream>
 #include "../../includes/server/ConfigLoader.hpp"
 
@@ -46,6 +47,18 @@ ServerConfig	ConfigLoader::load( void )
 	parseServer(config);
 	// parseLocations(config.locations);
 
+	std::cout << "server ip: " << config.ip << std::endl;
+	std::cout << "server root directory: " << config.root << std::endl;
+	std::cout << "server default_page: " << config.default_page << std::endl;
+	std::cout << "server ports: ";
+	for (std::vector<int>::iterator it = config.ports.begin(); it != config.ports.end(); it++)
+	{
+		std::cout << *it;
+		if (it + 1 != config.ports.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+
 	return config;
 }
 
@@ -62,14 +75,43 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 
 		switch (field->second)
 		{
-			case IP:
-				if (!this->checkIpFormat(*(it->second.getString())))
-					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1)");
-				config.ip = *(it->second.getString());
-				std::cout << "server ip: " << config.ip << std::endl;
-				break ;
 			case LOCATIONS:
 				this->_locationsPos = it;
+				break ;
+			case IP:
+				if (!this->checkJsonType(it->second, "string"))
+					throw ConfigException("\"ip\" field must be a Json string");
+				if (!this->checkIpFormat(*(it->second.getString())))
+					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1)");
+
+				config.ip = *(it->second.getString());
+				break ;
+			case ROOT:
+				if (!this->checkJsonType(it->second, "string"))
+					throw ConfigException("\"root\" field must be a Json string");
+				if (it->second.getString()->find_first_of(".") != std::string::npos)
+					throw ConfigException("\"root\" field path link to a file, not a directory");
+				if (!this->checkPath(*(it->second.getString())))
+					throw ConfigException("Invalid path provided in server \"root\" field, please use only absolute path");
+
+				config.root = *(it->second.getString());
+				break ;
+			case DEFAULT_PAGE:
+				if (!this->checkJsonType(it->second, "string"))
+					throw ConfigException("\"default_page\" field must be a Json string");
+				if (it->second.getString()->find_first_of(".") == std::string::npos)
+					throw ConfigException("\"default_page\" field path link to a directory, not a file");
+				if (!this->checkPath(*(it->second.getString())))
+					throw ConfigException("Invalid path provided in server \"default_page\" field, please use only absolute path");
+
+				config.default_page = *it->second.getString();
+				break ;
+			case PORTS:
+				if (!this->checkJsonType(it->second, "array"))
+					throw ConfigException("\"ports\" field must be a Json array");
+				
+				this->buildPortsArray(config.ports, *it->second.getArray());
+				std::cout << "ports array builded!" << std::endl;
 				break ;
 			default:
 				break ;
@@ -134,6 +176,38 @@ std::string	ConfigLoader::checkMissingField( void ) const
 	return missings;
 }
 
+bool	ConfigLoader::checkJsonType( JsonValue &value, std::string expected ) const
+{
+	switch (value.getType())
+	{
+		case JSON_STRING:
+			if (expected != "string" )
+				return false;
+			break ;
+		case JSON_ARRAY:
+			if (expected != "array")
+				return false;
+			break ;
+		case JSON_BOOL:
+			if (expected != "bool")
+				return false;
+			break;
+		case JSON_NULL:
+			if (expected != "null")
+				return false;
+			break ;
+		case JSON_NUMBER:
+			if (expected != "number")
+				return false;
+			break ;
+		case JSON_OBJECT:
+			if (expected != "object")
+				return false;
+			break ;
+	}
+	return true;
+}
+
 bool	ConfigLoader::checkIpFormat( std::string ip ) const
 {
 	if (ip.find_first_not_of("0123456789.") != std::string::npos)
@@ -183,6 +257,47 @@ bool	ConfigLoader::checkIpFormat( std::string ip ) const
 		return false;
 
 	return true;
+}
+
+bool	ConfigLoader::checkPath( std::string path ) const
+{
+	if (path.empty())
+		return false;
+
+	if (path.find('\0') != std::string::npos)
+		return false;
+
+	if (path[0] != '/')
+		return false;
+
+	if (path.find("..") != std::string::npos)
+		return false;
+
+	return true;
+}
+
+void	ConfigLoader::buildPortsArray( std::vector<int> &portsArray, JsonArray &jsonArray ) const
+{
+	if (jsonArray.empty())
+		throw ConfigException("Empty portsArray provided, please insert at least one port");
+	for (JsonArray::iterator it = jsonArray.begin(); it != jsonArray.end(); it++)
+	{
+		if (!this->checkJsonType(*it, "number"))
+			throw ConfigException("Invalid Port provided. Please use only integers between 1 and 65 535");
+
+		double	iptr;
+		double	rest = std::modf(it->getDouble(), &iptr);
+
+		if (rest != 0.0)
+			throw ConfigException("Invalid floating number in \"ports\" field, ports array must be fill with only integer between 1 and 65 535.");
+
+		int	port = it->getInt();
+
+		if (port <= 0 || port > 65535)
+			throw ConfigException("Invalid port range in \"ports\" field, please use only integers between 1 and 65 535");
+
+		portsArray.push_back(port);
+	}
 }
 
 // --- Exceptions

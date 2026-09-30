@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:37:31 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 11:59:06 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 16:45:02 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ public:
 
 	JsonType							getType( void ) const;
 	float								getFloat( void ) const;
+	double								getDouble( void ) const;
 	int									getInt( void ) const;
 	bool								getBool( void ) const;
 	std::string							*getString( void ) const;

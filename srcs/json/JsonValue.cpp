@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 11:51:21 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 11:21:07 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/09/30 16:47:05 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,13 @@ float								JsonValue::getFloat( void ) const
 	if (this->number > FLT_MAX || this->number < -FLT_MAX)
 		throw std::logic_error("Impossible to get JsonValue FLOAT value, number is out of limits");
 	return static_cast<float>(this->number);
+}
+
+double								JsonValue::getDouble( void ) const
+{
+	if (this->_type != JSON_NUMBER)
+		throw std::logic_error("JsonValue is not a double");
+	return this->number;
 }
 bool		JsonValue::getBool( void ) const
 {
