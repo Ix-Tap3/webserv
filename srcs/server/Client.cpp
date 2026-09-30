@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 21:36:34 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:58:28 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,7 @@ void	Client::stashHeaders()
 	
 	try
 	{
+		this->_parser = HttpParser();
 		this->_httpRequest._header = this->_parser.ParseHeader(this->_strHeader);
 		printHeader(); // for test purpose
 	}
