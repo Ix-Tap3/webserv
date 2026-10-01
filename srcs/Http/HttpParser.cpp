@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:35:59 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:32:20 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,10 @@ HttpRequest	HttpParser::ParseHttpRequest(std::string& header)
 	}
 
 	DataSorting(header);
-	this->_httpRequest._requestLine = ParseRequestLine(this->_httpRequest._requestLine.raw_requestLine);
+	this->_httpRequest.requestLine = ParseRequestLine(this->_httpRequest.requestLine._raw_requestLine);
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		Utils::DeleteUselessSpace(it->second);
@@ -67,7 +67,7 @@ void	HttpParser::DataSorting(std::string& header)
 		
 		if (pos == 0)
 		{
-			this->_httpRequest._requestLine.raw_requestLine = line;
+			this->_httpRequest.requestLine._raw_requestLine = line;
 			pos = eol + 2;
 			continue;
 		}
@@ -78,7 +78,7 @@ void	HttpParser::DataSorting(std::string& header)
 			if (colon == std::string::npos)
 				throw HttpException(400, RED "No colon found: " YELLOW + line + RESET);
 
-			this->_httpRequest._header._headersFields.push_back(
+			this->_httpRequest.header._headersFields.push_back(
 				std::make_pair(line.substr(0, colon),
 				line.substr(colon + 1)));
 		}
@@ -93,29 +93,29 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 {
 	RequestLine res;
 
-	res.raw_requestLine = strRequestLine;
+	res._raw_requestLine = strRequestLine;
 	
 	size_t space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res._raw_requestLine + RESET);
 	}
-	res.method = strRequestLine.substr(0, space);
+	res._method = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
 
 	space = strRequestLine.find(' ');
 	if (space == std::string::npos)
 	{
-		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
+		throw HttpException(400, RED "Space separator not found in Request Line: " YELLOW + res._raw_requestLine + RESET);
 	}
-	res.target = strRequestLine.substr(0, space);
+	res._target = strRequestLine.substr(0, space);
 	strRequestLine.erase(0, space + 1);
 
-	res.version = strRequestLine.substr(0, 8);
+	res._version = strRequestLine.substr(0, 8);
 	strRequestLine.erase(0, 8);
 	if (!strRequestLine.empty())
 	{
-		throw HttpException(400, RED "End (\"\\r\\n\") not found in Request Line: " YELLOW + res.raw_requestLine + RESET);
+		throw HttpException(400, RED "End (\"\\r\\n\") not found in Request Line: " YELLOW + res._raw_requestLine + RESET);
 	}
 
 	VerifyRequestLine(res);
@@ -124,9 +124,9 @@ RequestLine HttpParser::ParseRequestLine(std::string& strRequestLine)
 
 void	HttpParser::VerifyRequestLine(RequestLine line)
 {
-	VerifyMethod(line.method);
-	VerifyTarget(line.target);
-	VerifyVersion(line.version);
+	VerifyMethod(line._method);
+	VerifyTarget(line._target);
+	VerifyVersion(line._version);
 }
 
 void		HttpParser::VerifyMethod(std::string method)
@@ -182,8 +182,8 @@ void		HttpParser::VerifyVersion(std::string version)
 void	HttpParser::ParseHeaders(void)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		if (it->first.empty())
@@ -361,8 +361,8 @@ bool HttpParser::isValidToken(const std::string& str)
 bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		std::string it_name = Utils::strToMin(it->first);
@@ -379,8 +379,8 @@ bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::stri
 bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		std::string it_name = Utils::strToMin(it->first);

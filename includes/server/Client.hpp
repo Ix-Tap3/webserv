@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/28 20:06:29 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:33:15 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,11 @@
 # define CLIENT_HPP
 
 # include <WebservInclude.h>
-# include <HttpParser.hpp>
 # include <Utils.hpp>
+
+# include <HttpParser.hpp>
+# include <HttpRequestHandler.hpp>
+# include <HttpResponse.hpp>
 
 struct State
 {
@@ -24,23 +27,24 @@ struct State
 	bool	connection;
 };
 
-
-
 class Client
 {
 private:
 	int _fd;
 	std::string _recvBuffer;
+
 	std::string _strHeader;
-	std::string _strBody;
-	std::string _sendBuffer;
+
 	HttpRequest	_httpRequest;
+	std::string _sendBuffer;
 
 	State		_state;
 	int			_nbBodyByte;
 	int			_contentLength;
 
 	HttpParser	_parser;
+	HttpRequestHandler _httpRequestHandler;
+	HttpResponse		_httpResponseMaker;
 
 	int			extractContentLength();
 	bool		extractConnection();

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:37:20 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:37:44 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 void	Client::printHeader()
 {
 	std::cout << std::endl << "// === REQUEST LINE === //" << std::endl;
-	std::cout << "Method: " << this->_httpRequest._requestLine.method << std::endl;
-	std::cout << "Target: " << this->_httpRequest._requestLine.target << std::endl;
-	std::cout << "Version: " << this->_httpRequest._requestLine.version << std::endl;
+	std::cout << "Method: " << this->_httpRequest.requestLine._method << std::endl;
+	std::cout << "Target: " << this->_httpRequest.requestLine._target << std::endl;
+	std::cout << "Version: " << this->_httpRequest.requestLine._version << std::endl;
 
 	std::cout << "// === HEADERS FIELDS === //" << std::endl;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		std::cout << "\"" << it->first << "\": \"" << it->second << "\"" << std::endl;
@@ -115,8 +115,8 @@ bool	Client::hasCompleteHeaders() const
 int		Client::extractContentLength()
 {
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		std::string name = Utils::strToMin((*it).first);
@@ -130,8 +130,8 @@ bool		Client::extractConnection()
 {
 	bool state = false;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-		this->_httpRequest._header._headersFields.begin(); 
-		it != this->_httpRequest._header._headersFields.end(); 
+		this->_httpRequest.header._headersFields.begin(); 
+		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
 	{
 		std::string name = Utils::strToMin((*it).first);
@@ -217,16 +217,16 @@ void	Client::stashBody()
 {
 	std::string body = this->_recvBuffer.substr(0, this->_contentLength);
 	this->_recvBuffer.erase(0, this->_contentLength);
-	this->_strBody = body;
+	this->_httpRequest._body = body;
 
 	this->_state.body = false;
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
 
-	this->_sendBuffer = "yes"; // test purpose
-	// this->_sendBuffer = 
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
 }
 
+//this->_httpRequestHandler.handleRequest(this->_httpRequest)
 void	Client::removeReponseSend(size_t byte_send)
 {
 	this->_sendBuffer.erase(0, byte_send);

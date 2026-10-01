@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/26 19:38:51 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:30:39 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,32 @@
 # include <vector>
 
 # include <sstream>
+
+struct RequestLine
+{
+	std::string	_raw_requestLine;
+	std::string _method;
+	std::string _target;
+	std::string _version;
+};
+
+struct Header
+{
+	std::vector<std::pair<std::string, std::string> > _headersFields;
+};
+
+struct HttpRequest
+{
+	RequestLine requestLine;
+	Header		header;
+	std::string	_body;
+};
+
+struct ResponseData
+{
+	int 		_contentLength;
+	std::string _body;
+	std::string _contentType;
+};
 
 #endif
