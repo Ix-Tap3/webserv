@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 09:12:26 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 10:16:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ private:
 	void		buildErrorPagesMap( std::map<int, std::string> &errorPagesMap, JsonObj &jsonObj ) const;
 	void		buildCgiMap( std::map<std::string, std::string> &cgiMap, JsonObj &jsonObj) const;
 	void		parseServer( ServerConfig &config );
+	void		fillServerConfig( ServerConfig &config ) const;
 	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
 	bool		checkJsonType( JsonValue &value, std::string expected ) const;
 	bool		checkIpFormat( std::string ip ) const;
@@ -69,3 +70,5 @@ public:
 
 	ServerConfig	load();
 };
+
+void	displayServerConfig( ServerConfig config );

@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 10:01:26 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 10:24:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,46 +47,11 @@ ServerConfig	ConfigLoader::load( void )
 	ServerConfig	config;
 
 	config.listing_set = false;
+	config.max_body_size = -1;
 	parseServer(config);
+	fillServerConfig(config);
+	displayServerConfig(config);
 	// parseLocations(config.locations);
-
-	std::cout << "server ip: " << config.ip << std::endl;
-	std::cout << "server root directory: " << config.root << std::endl;
-	std::cout << "server default_page: " << config.default_page << std::endl;
-	std::cout << "server ports: ";
-	for (std::vector<int>::iterator it = config.ports.begin(); it != config.ports.end(); it++)
-	{
-		std::cout << *it;
-		if (it + 1 != config.ports.end())
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-	std::cout << "server hosts: ";
-	for (std::vector<std::string>::iterator it = config.hosts.begin(); it != config.hosts.end(); it++)
-	{
-		std::cout << *it;
-		if (it + 1 != config.hosts.end())
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-	std::cout << "server cgis: ";
-	for (std::map<std::string, std::string>::iterator it = config.cgis.begin(); it != config.cgis.end(); it++)
-	{
-		std::cout << "[" << it->first << ", " << it->second << "]";
-		if (std::next(it) != config.cgis.end())
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-	std::cout << "server error_pages: ";
-	for (std::map<int, std::string>::iterator it = config.error_pages.begin(); it != config.error_pages.end(); it++)
-	{
-		std::cout << "[" << it->first << ", " << it->second << "]";
-		if (std::next(it) != config.error_pages.end())
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-	std::cout << "server max_body_size: " << config.max_body_size << std::endl;
-	std::cout << "server directory_listing: " << (config.directory_listing ? "true" : "false") << std::endl;
 
 	return config;
 }
@@ -178,6 +143,20 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 	}
 }
 
+void	ConfigLoader::fillServerConfig( ServerConfig &config ) const
+{
+	if (config.ip.empty())
+		config.ip = "127.0.0.1";
+	if (config.default_page.empty())
+		config.default_page = "/index.html";
+	if (config.error_pages.empty())
+		config.error_pages[505] = "/errors/505.html";
+	if (config.max_body_size == -1)
+		config.max_body_size = 10000;
+	if (config.listing_set == false)
+		config.directory_listing = false;
+}
+
 void	ConfigLoader::buildFields( void )
 {
 	for (int i = 0; i != METHODS; i++)
@@ -199,6 +178,12 @@ std::string	ConfigLoader::checkMissingField( void ) const
 		if (!missings.empty())
 			missings.append(", ");
 		missings.append("hosts");
+	}
+	if (!this->_root.contains("root"))
+	{
+		if (!missings.empty())
+			missings.append(", ");
+		missings.append("root");
 	}
 	if (!this->_root.contains("locations"))
 	{
@@ -372,8 +357,8 @@ void	ConfigLoader::buildHostsArray( std::vector<std::string> &hostsArray, JsonAr
 		std::string	*hostname = it->getString();
 		std::size_t	dot = hostname->find_last_of('.');
 
-		if (dot == std::string::npos)
-			throw ConfigException("Hostnames must have a dot followed by a domain extension");
+		if (dot == std::string::npos && *hostname != "localhost")
+			throw ConfigException("Hostnames must have a dot followed by a domain extension. Or use \"localhost\"");
 
 		hostsArray.push_back(*hostname);
 	}
@@ -432,6 +417,47 @@ void	ConfigLoader::buildErrorPagesMap( std::map<int, std::string> &errorPasgesMa
 
 		errorPasgesMap[key] = path;
 	}
+}
+
+void	displayServerConfig( ServerConfig config )
+{
+	std::cout << "server ip: " << config.ip << std::endl;
+	std::cout << "server root directory: " << config.root << std::endl;
+	std::cout << "server default_page: " << config.default_page << std::endl;
+	std::cout << "server ports: ";
+	for (std::vector<int>::iterator it = config.ports.begin(); it != config.ports.end(); it++)
+	{
+		std::cout << *it;
+		if (it + 1 != config.ports.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server hosts: ";
+	for (std::vector<std::string>::iterator it = config.hosts.begin(); it != config.hosts.end(); it++)
+	{
+		std::cout << *it;
+		if (it + 1 != config.hosts.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server cgis: ";
+	for (std::map<std::string, std::string>::iterator it = config.cgis.begin(); it != config.cgis.end(); it++)
+	{
+		std::cout << "[" << it->first << ", " << it->second << "]";
+		if (std::next(it) != config.cgis.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server error_pages: ";
+	for (std::map<int, std::string>::iterator it = config.error_pages.begin(); it != config.error_pages.end(); it++)
+	{
+		std::cout << "[" << it->first << ", " << it->second << "]";
+		if (std::next(it) != config.error_pages.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server max_body_size: " << config.max_body_size << std::endl;
+	std::cout << "server directory_listing: " << (config.directory_listing ? "true" : "false") << std::endl;
 }
 
 // --- Exceptions
