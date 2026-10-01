@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 09:59:58 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 09:54:54 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 11:27:39 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,8 +58,7 @@ enum	FieldsValue
 	ERROR_PAGES,
 	MAX_BODY_SIZE,
 	DIRECTORY_LISTING,
-	REDIRECTION_CODE,
-	REDIRECTION_PATH,
+	REDIR,
 	UPLOAD,
 	PATH,
 	METHODS

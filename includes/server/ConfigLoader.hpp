@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 10:42:11 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 11:38:59 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ private:
 	void		parseServer( ServerConfig &config );
 	void		fillServerConfig( ServerConfig &config ) const;
 	void		parseLocations( std::vector<LocationConfig> &locConfig );
-	bool		checkJsonType( JsonValue &value, std::string expected ) const;
+	void		checkJsonType( JsonValue &value, std::string expected, std::string field ) const;
 	bool		checkIpFormat( std::string ip ) const;
 	bool		checkPath( std::string path ) const;
 	std::string	checkMissingField( void ) const;
