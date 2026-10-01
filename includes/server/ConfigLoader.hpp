@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 11:38:59 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 12:28:30 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,11 @@ private:
 	void		buildHostsArray( std::vector<std::string> &hostArray, JsonArray &jsonArray ) const;
 	void		buildErrorPagesMap( std::map<int, std::string> &errorPagesMap, JsonObj &jsonObj ) const;
 	void		buildCgiMap( std::map<std::string, std::string> &cgiMap, JsonObj &jsonObj) const;
+	void		buildRoot( std::string &input, std::string &root, std::string field ) const;
+	void		buildDefaultPage( std::string &input, std::string &output, std::string field ) const;
 	void		parseServer( ServerConfig &config );
 	void		fillServerConfig( ServerConfig &config ) const;
-	void		parseLocations( std::vector<LocationConfig> &locConfig );
+	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
 	void		checkJsonType( JsonValue &value, std::string expected, std::string field ) const;
 	bool		checkIpFormat( std::string ip ) const;
 	bool		checkPath( std::string path ) const;

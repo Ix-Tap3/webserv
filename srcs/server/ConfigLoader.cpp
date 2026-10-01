@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 11:16:46 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 12:30:04 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,40 @@ ServerConfig	ConfigLoader::load( void )
 	return config;
 }
 
+void	ConfigLoader::buildRoot( std::string &input, std::string &root, std::string field ) const
+{
+	std::string	tmp;
+
+	if (field == "locations")
+		tmp = "in locations field";
+	if (input.find_first_of(".") != std::string::npos)
+		throw ConfigException("\"root\" path " + tmp + " link to a file, not a directory");
+	if (!checkPath(input))
+	{
+		if (field == "server")
+			tmp = "in server field";
+		throw ConfigException("Invalid \"root\" path provided " + tmp + ", please use only absolute path");
+	}
+
+	root = input;
+}
+
+void	ConfigLoader::buildDefaultPage( std::string &input, std::string &output, std::string field ) const
+{
+	std::string	tmp;
+
+	if (field == "locations")
+		tmp = "in locations field";
+	if (input.find_first_of(".") == std::string::npos)
+		throw ConfigException("\"default_page\" path " + tmp + " link to a directory, not a file");
+	if (!checkPath(input))
+	{
+		if (field == "server")
+			tmp = "in server field";
+		throw ConfigException("Invalid \"default_page\" path provided " + tmp + ", please use only absolute path");
+	}
+}
+
 void	ConfigLoader::parseServer( ServerConfig &config )
 {
 	JsonObj			*obj = this->_root.getObject();
@@ -73,66 +107,48 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				this->_locationsPos = it;
 				break ;
 			case IP:
-				if (!this->checkJsonType(it->second, "string"))
-					throw ConfigException("\"ip\" field must be a Json string");
+				checkJsonType(it->second, "string", "ip");
+
 				if (!this->checkIpFormat(*(it->second.getString())))
 					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1)");
 
 				config.ip = *(it->second.getString());
 				break ;
 			case ROOT:
-				if (!this->checkJsonType(it->second, "string"))
-					throw ConfigException("\"root\" field must be a Json string");
-				if (it->second.getString()->find_first_of(".") != std::string::npos)
-					throw ConfigException("\"root\" field path link to a file, not a directory");
-				if (!this->checkPath(*(it->second.getString())))
-					throw ConfigException("Invalid path provided in server \"root\" field, please use only absolute path");
-
-				config.root = *(it->second.getString());
+				checkJsonType(it->second, "string", "root");
+				buildRoot(*it->second.getString(), config.root, "server");
 				break ;
 			case DEFAULT_PAGE:
-				if (!this->checkJsonType(it->second, "string"))
-					throw ConfigException("\"default_page\" field must be a Json string");
-				if (it->second.getString()->find_first_of(".") == std::string::npos)
-					throw ConfigException("\"default_page\" field path link to a directory, not a file");
-				if (!this->checkPath(*(it->second.getString())))
-					throw ConfigException("Invalid path provided in server \"default_page\" field, please use only absolute path");
-
-				config.default_page = *it->second.getString();
+				checkJsonType(it->second, "string", "default_page");
+				buildDefaultPage(*it->second.getString(), config.default_page, "server");
 				break ;
 			case PORTS:
-				if (!this->checkJsonType(it->second, "array"))
-					throw ConfigException("\"ports\" field must be a Json array");
+				checkJsonType(it->second, "array", "ports");
 				
 				this->buildPortsArray(config.ports, *it->second.getArray());
 				break ;
 			case HOSTS:
-				if (!this->checkJsonType(it->second, "array"))
-					throw ConfigException("\"hosts\" field must be a Json array");
+				checkJsonType(it->second, "array", "hosts");
 
 				this->buildHostsArray(config.hosts, *it->second.getArray());
 				break ;
 			case CGIS:
-				if (!this->checkJsonType(it->second, "object"))
-					throw ConfigException("\"cgis\" field must be a Json object");
+				checkJsonType(it->second, "object", "cgis");
 
 				this->buildCgiMap(config.cgis, *it->second.getObject());
 				break ;
 			case ERROR_PAGES:
-				if (!this->checkJsonType(it->second, "object"))
-					throw ConfigException("\"error_pages\" field must be a Json object");
+				checkJsonType(it->second, "object", "error_pages");
 
 				this->buildErrorPagesMap(config.error_pages, *it->second.getObject());
 				break ;
 			case MAX_BODY_SIZE:
-				if (!this->checkJsonType(it->second, "number"))
-					throw ConfigException("\"max_body_size\" field must be a Json number");
+				checkJsonType(it->second, "number", "max_body_size");
 
 				config.max_body_size = it->second.getInt();
 				break ;
 			case DIRECTORY_LISTING:
-				if (!this->checkJsonType(it->second, "bool"))
-					throw ConfigException("\"directory_listing\" field must be a json bool");
+				checkJsonType(it->second, "bool", "directory_listing");
 
 				config.directory_listing = it->second.getBool();
 				config.listing_set = true;
@@ -145,8 +161,7 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 
 void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 {
-	if (!this->checkJsonType(this->_locationsPos->second, "array"))
-		throw ConfigException("\"locations\" field must be a Json Array");
+	checkJsonType(this->_locationsPos->second, "array", "locations");
 
 	JsonArray	arr = *this->_locationsPos->second.getArray();
 
@@ -155,7 +170,7 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 
 	for (JsonArray::iterator it = arr.begin(); it != arr.end(); it++)
 	{
-		if (!this->checkJsonType(*it, "object"))
+		if (it->getType() != JSON_OBJECT)
 			throw ConfigException("Entries in \"locations\" field must be Json objects");
 
 		JsonObj	obj = *it->getObject();
@@ -170,6 +185,20 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 			switch (field->second)
 			{
 				case MAX_BODY_SIZE:
+					break ;
+				case ERROR_PAGES:
+					break ;
+				case ROOT:
+					break ;
+				case DEFAULT_PAGE:
+					break ;
+				case UPLOAD:
+					break ;
+				case PATH:
+					break ;
+				case METHODS:
+					break ;
+				case REDIR:
 					break ;
 				default:
 					break ;
@@ -255,36 +284,39 @@ std::string	ConfigLoader::checkMissingField( void ) const
 	return missings;
 }
 
-bool	ConfigLoader::checkJsonType( JsonValue &value, std::string expected ) const
+void	ConfigLoader::checkJsonType( JsonValue &value, std::string expected, std::string field ) const
 {
+	bool	isValid = true;
+	
 	switch (value.getType())
 	{
 		case JSON_STRING:
 			if (expected != "string" )
-				return false;
+				isValid = false;
 			break ;
 		case JSON_ARRAY:
 			if (expected != "array")
-				return false;
+				isValid = false;
 			break ;
 		case JSON_BOOL:
 			if (expected != "bool")
-				return false;
+				isValid = false;
 			break;
 		case JSON_NULL:
 			if (expected != "null")
-				return false;
+				isValid = false;
 			break ;
 		case JSON_NUMBER:
 			if (expected != "number")
-				return false;
+				isValid = false;
 			break ;
 		case JSON_OBJECT:
 			if (expected != "object")
-				return false;
+				isValid = false;
 			break ;
 	}
-	return true;
+	if (!isValid)
+		throw ConfigException("\"" + field + "\" field must be a Json " + expected);
 }
 
 bool	ConfigLoader::checkIpFormat( std::string ip ) const
@@ -361,7 +393,7 @@ void	ConfigLoader::buildPortsArray( std::vector<int> &portsArray, JsonArray &jso
 		throw ConfigException("Empty \"ports\" field, please insert at least one port");
 	for (JsonArray::iterator it = jsonArray.begin(); it != jsonArray.end(); it++)
 	{
-		if (!this->checkJsonType(*it, "number"))
+		if (it->getType() != JSON_NUMBER)
 			throw ConfigException("Invalid Port provided. Please use only integers between 1 and 65 535");
 
 		double	iptr;
@@ -386,8 +418,7 @@ void	ConfigLoader::buildHostsArray( std::vector<std::string> &hostsArray, JsonAr
 
 	for (JsonArray::iterator it = jsonArray.begin(); it != jsonArray.end(); it++)
 	{
-		if (!this->checkJsonType(*it, "string"))
-			throw ConfigException("Invalid hostname provided. hostnames must be a Json string");
+		checkJsonType(*it, "string", "host");
 
 		std::string	*hostname = it->getString();
 		std::size_t	dot = hostname->find_last_of('.');
@@ -408,7 +439,7 @@ void	ConfigLoader::buildCgiMap( std::map<std::string, std::string> &cgiMap, Json
 	{
 		if (it->first.at(0) != '.')
 			throw ConfigException("Keys in \"cgis\" field must be a file extension and start with a dot");
-		if (!this->checkJsonType(it->second, "string"))
+		if (it->second.getType() != JSON_STRING)
 			throw ConfigException("Invalid Cgis Format, please use Json string as key and Json string as value in \"cgis\" field");
 		
 		std::string	path = *it->second.getString();
@@ -440,8 +471,7 @@ void	ConfigLoader::buildErrorPagesMap( std::map<int, std::string> &errorPasgesMa
 		if (code == HUGE_VAL || code == -HUGE_VAL || code > INT_MAX || code < INT_MIN)
 			throw ConfigException("Keys in \"error_pages\" field must be a valid Integers");
 
-		if (!this->checkJsonType(it->second, "string"))
-			throw ConfigException("Invalid \"error_pages\" format, please use Json String as value");
+		checkJsonType(it->second, "string", "error_pages");
 
 		std::string	path = *it->second.getString();
 
