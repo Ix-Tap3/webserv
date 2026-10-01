@@ -6,13 +6,15 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 17:36:42 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 10:01:26 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 #include <sstream>
+#include <climits>
 #include "../../includes/server/ConfigLoader.hpp"
 
 // --- Constructor
@@ -44,6 +46,7 @@ ServerConfig	ConfigLoader::load( void )
 {
 	ServerConfig	config;
 
+	config.listing_set = false;
 	parseServer(config);
 	// parseLocations(config.locations);
 
@@ -66,6 +69,24 @@ ServerConfig	ConfigLoader::load( void )
 			std::cout << ", ";
 	}
 	std::cout << std::endl;
+	std::cout << "server cgis: ";
+	for (std::map<std::string, std::string>::iterator it = config.cgis.begin(); it != config.cgis.end(); it++)
+	{
+		std::cout << "[" << it->first << ", " << it->second << "]";
+		if (std::next(it) != config.cgis.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server error_pages: ";
+	for (std::map<int, std::string>::iterator it = config.error_pages.begin(); it != config.error_pages.end(); it++)
+	{
+		std::cout << "[" << it->first << ", " << it->second << "]";
+		if (std::next(it) != config.error_pages.end())
+			std::cout << ", ";
+	}
+	std::cout << std::endl;
+	std::cout << "server max_body_size: " << config.max_body_size << std::endl;
+	std::cout << "server directory_listing: " << (config.directory_listing ? "true" : "false") << std::endl;
 
 	return config;
 }
@@ -125,6 +146,31 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 					throw ConfigException("\"hosts\" field must be a Json array");
 
 				this->buildHostsArray(config.hosts, *it->second.getArray());
+				break ;
+			case CGIS:
+				if (!this->checkJsonType(it->second, "object"))
+					throw ConfigException("\"cgis\" field must be a Json object");
+
+				this->buildCgiMap(config.cgis, *it->second.getObject());
+				break ;
+			case ERROR_PAGES:
+				if (!this->checkJsonType(it->second, "object"))
+					throw ConfigException("\"error_pages\" field must be a Json object");
+
+				this->buildErrorPagesMap(config.error_pages, *it->second.getObject());
+				break ;
+			case MAX_BODY_SIZE:
+				if (!this->checkJsonType(it->second, "number"))
+					throw ConfigException("\"max_body_size\" field must be a Json number");
+
+				config.max_body_size = it->second.getInt();
+				break ;
+			case DIRECTORY_LISTING:
+				if (!this->checkJsonType(it->second, "bool"))
+					throw ConfigException("\"directory_listing\" field must be a json bool");
+
+				config.directory_listing = it->second.getBool();
+				config.listing_set = true;
 				break ;
 			default:
 				break ;
@@ -330,6 +376,61 @@ void	ConfigLoader::buildHostsArray( std::vector<std::string> &hostsArray, JsonAr
 			throw ConfigException("Hostnames must have a dot followed by a domain extension");
 
 		hostsArray.push_back(*hostname);
+	}
+}
+
+void	ConfigLoader::buildCgiMap( std::map<std::string, std::string> &cgiMap, JsonObj &jsonObj ) const
+{
+	if (jsonObj.empty())
+		return ;
+
+	for (JsonObjIterator it = jsonObj.begin(); it != jsonObj.end(); it++)
+	{
+		if (it->first.at(0) != '.')
+			throw ConfigException("Keys in \"cgis\" field must be a file extension and start with a dot");
+		if (!this->checkJsonType(it->second, "string"))
+			throw ConfigException("Invalid Cgis Format, please use Json string as key and Json string as value in \"cgis\" field");
+		
+		std::string	path = *it->second.getString();
+
+		if (!this->checkPath( path ))
+			throw ConfigException("Invalid path provided in \"cgis\" field at key \"" + it->first + "\"");
+
+		cgiMap[it->first] = path;
+	}
+}
+
+void	ConfigLoader::buildErrorPagesMap( std::map<int, std::string> &errorPasgesMap, JsonObj &jsonObj ) const
+{
+	if (jsonObj.empty())
+		return ;
+
+	for (JsonObjIterator it = jsonObj.begin(); it != jsonObj.end(); it++)
+	{
+		if (it->first.find_first_not_of("0123456789") != std::string::npos)
+			throw ConfigException("Keys in \"error_pages\" field must be a Json String and must be composed only by digits");
+
+		if (it->first[0] == '0')
+			throw ConfigException("Keys in \"error_pages\" cannot start with '0'");
+
+		double	code;
+		char	*endptr;
+
+		code = std::strtod(it->first.c_str(), &endptr);
+		if (code == HUGE_VAL || code == -HUGE_VAL || code > INT_MAX || code < INT_MIN)
+			throw ConfigException("Keys in \"error_pages\" field must be a valid Integers");
+
+		if (!this->checkJsonType(it->second, "string"))
+			throw ConfigException("Invalid \"error_pages\" format, please use Json String as value");
+
+		std::string	path = *it->second.getString();
+
+		if (!this->checkPath(path))
+			throw ConfigException("Invalid Path provided in \"error_pages\" field at key \"" + it->first + "\". Use only absolute path");
+
+		int	key = static_cast<int>(code);
+
+		errorPasgesMap[key] = path;
 	}
 }
 

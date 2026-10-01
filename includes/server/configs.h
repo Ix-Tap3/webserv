@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 09:59:58 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/09/30 15:26:25 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 09:54:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ struct	ServerConfig
 	std::map<int, std::string>			error_pages; // empty = not set, can be unset, "serv_error.html" by default
 	int									max_body_size; // -1 = not set, 1000000 by default ?
 	bool								directory_listing; // false by default
+	bool								listing_set;
 };
 
 enum	FieldsValue
