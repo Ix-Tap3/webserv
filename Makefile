@@ -20,6 +20,8 @@ UTILS_DIR = $(SRCS_DIR)/Utils
 SRCS = main.cpp \
 	$(HTTP_DIR)/HttpParser.cpp \
 	$(HTTP_DIR)/HttpException.cpp \
+	$(HTTP_DIR)/HttpResponse.cpp \
+	$(HTTP_DIR)/HttpRequestHandler.cpp \
 	$(SERV_DIR)/Server.cpp \
 	$(SERV_DIR)/Client.cpp \
 	$(UTILS_DIR)/Utils.cpp \
