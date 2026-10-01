@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 10:24:54 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/01 11:16:46 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,41 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				break ;
 			default:
 				break ;
+		}
+	}
+}
+
+void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
+{
+	if (!this->checkJsonType(this->_locationsPos->second, "array"))
+		throw ConfigException("\"locations\" field must be a Json Array");
+
+	JsonArray	arr = *this->_locationsPos->second.getArray();
+
+	if (arr.empty())
+		throw ConfigException("\"locations\" field is an emty array. Please fill it with at leat one location.");
+
+	for (JsonArray::iterator it = arr.begin(); it != arr.end(); it++)
+	{
+		if (!this->checkJsonType(*it, "object"))
+			throw ConfigException("Entries in \"locations\" field must be Json objects");
+
+		JsonObj	obj = *it->getObject();
+
+		for (JsonObj::iterator it2 = obj.begin(); it2 != obj.end(); it2++)
+		{
+			ConfigFields::const_iterator	field = this->_fields.find(it2->first);
+
+			if (field == this->_fields.end())
+				throw ConfigException("Unknowned " + it2->first + " field in configuration file");
+
+			switch (field->second)
+			{
+				case MAX_BODY_SIZE:
+					break ;
+				default:
+					break ;
+			}
 		}
 	}
 }
