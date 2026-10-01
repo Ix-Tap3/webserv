@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:11:49 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:35:59 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ HttpParser::~HttpParser()
 // ============== //
 // === HEADER === //
 // ============== //
-HttpRequest	HttpParser::ParseHeader(std::string& header)
+HttpRequest	HttpParser::ParseHttpRequest(std::string& header)
 {
 	if (header.empty())
 	{
@@ -639,11 +639,4 @@ bool	HttpParser::isValidCharValue(char c)
 		return (false);
 	}
 	return (true);
-}
-
-Body	HttpParser::ParseBody(std::string&	body)
-{
-	(void)body;
-	Body tmp;
-	return tmp;
 }

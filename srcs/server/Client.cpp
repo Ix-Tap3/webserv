@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:06:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/09/30 22:37:20 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void	Client::stashHeaders()
 	try
 	{
 		this->_parser = HttpParser();
-		this->_httpRequest = this->_parser.ParseHeader(this->_strHeader);
+		this->_httpRequest = this->_parser.ParseHttpRequest(this->_strHeader);
 		printHeader(); // for test purpose
 	}
 	catch(const HttpException& e)
@@ -223,7 +223,8 @@ void	Client::stashBody()
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
 
-	this->_sendBuffer = "yes";
+	this->_sendBuffer = "yes"; // test purpose
+	// this->_sendBuffer = 
 }
 
 void	Client::removeReponseSend(size_t byte_send)
