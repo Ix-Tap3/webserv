@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 19:24:27 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 19:56:34 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,6 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 	std::cout << "field tests passed!" << std::endl;
 
 	this->buildFields();
-
-	std::cout << "fields build." << std::endl;
-
-	for (ConfigFields::iterator it = this->_fields.begin(); it != _fields.end(); it++)
-		std::cout << "key: " << it->first << " value: " << it->second << std::endl;
-
-	std::cout << std::endl;
 }
 
 // --- Member functions
@@ -50,8 +43,8 @@ ServerConfig	ConfigLoader::load( void )
 	config.max_body_size = -1;
 	parseServer(config);
 	fillServerConfig(config);
-	displayServerConfig(config);
 	parseLocations(config.locations);
+	displayServerConfig(config);
 
 	return config;
 }
@@ -317,12 +310,8 @@ void	ConfigLoader::fillServerConfig( ServerConfig &config ) const
 
 void	ConfigLoader::buildFields( void )
 {
-	std::cout << "debug: methods == " << METHODS << std::endl;
 	for (int i = 0; i <= METHODS; i++)
-	{
 		this->_fields[this->_fieldsName[i]] = static_cast<FieldsValue>(i);
-		std::cout << "fieldname: " << this->_fieldsName[i] << ", value: " << static_cast<FieldsValue>(i) << std::endl;
-	}
 }
 
 std::string	ConfigLoader::checkMissingField( void ) const
@@ -621,6 +610,39 @@ void	displayServerConfig( ServerConfig config )
 	std::cout << std::endl;
 	std::cout << "server max_body_size: " << config.max_body_size << std::endl;
 	std::cout << "server directory_listing: " << (config.directory_listing ? "true" : "false") << std::endl;
+	
+	std::cout << "server locations: " << std::endl;
+	int	idx = 1;
+	for (std::vector<LocationConfig>::iterator it = config.locations.begin(); it != config.locations.end(); it++)
+	{
+		std::cout << "\tLocation " << idx << " max_body_size: " << it->max_body_size << std::endl;
+		if (!it->redirect_path.empty())
+			std::cout << "\tLocation " << idx << " redir : code: " << it->redirect_code << ", path: " << it->redirect_path << std::endl;
+		else
+			std::cout << "\tNo redirection set for this location." << std::endl;
+		std::cout << "\tLocation " << idx << " directory_listing: " << (it->directory_listing ? "true" : "false") << std::endl;
+		std::cout << "\tLocation " << idx << " max_body_size: " << it->max_body_size << std::endl;
+		std::cout << "\tLocation " << idx << " root: " << it->root << std::endl;
+		std::cout << "\tLocation " << idx << " default_page: " << it->default_page << std::endl;
+		std::cout << "\tLocation " << idx << " upload storage: " << it->upload << std::endl;
+		std::cout << "\tLocation " << idx << " path: " << it->path << std::endl;
+		std::cout << "\tLocation " << idx << " methods: ";
+		for (std::vector<std::string>::iterator itMeth = it->methods.begin(); itMeth != it->methods.end(); itMeth++)
+		{
+			std::cout << *itMeth;
+			if (itMeth + 1 != it->methods.end())
+				std::cout << ", ";
+		}
+		std::cout << std::endl;
+		std::cout << "\tLocation " << idx << " error_pages: ";
+		for (std::map<int, std::string>::iterator itErr = it->error_pages.begin(); itErr != it->error_pages.end(); itErr++)
+		{
+			std::cout << "[" << itErr->first << ", " << itErr->second << "]";
+			if (std::next(itErr) != it->error_pages.end())
+				std::cout << ", ";
+		}
+		idx++;
+	}
 }
 
 // --- Exceptions

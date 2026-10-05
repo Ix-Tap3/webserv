@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 18:41:53 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 19:55:02 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	main( int ac, char **av )
 		JsonLexer	lexer(filename);
 
 		tokenList = lexer.tokenize();
-		std::cout << lexer.getSrc();
+		// std::cout << lexer.getSrc();
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
 	JsonValue	root;
@@ -43,7 +43,7 @@ int	main( int ac, char **av )
 		JsonParser	parser(tokenList);
 
 		root = parser.parse();
-		displayJsonTree(root);
+		// displayJsonTree(root);
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
 	ServerConfig	data;
