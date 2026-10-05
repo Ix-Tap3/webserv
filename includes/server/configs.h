@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 09:59:58 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 11:27:39 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 18:20:46 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ struct	LocationConfig
 	int									max_body_size; // -1 = not set, inherited from server by default
 	int									redirect_code; // -1 = not set, can be unset, have to be set if redirect_path is set
 	bool								directory_listing; // inherited from server by default
+	bool								listing_set;
 	std::string							redirect_path; // empty = not set, can be unset, have to be set if redirect_code is set
 	std::string							root; // empty = not set, inherited from server by default
 	std::string							default_page; // inherited from server by default

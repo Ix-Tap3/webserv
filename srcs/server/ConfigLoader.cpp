@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 12:30:04 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 19:24:27 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ ServerConfig	ConfigLoader::load( void )
 	parseServer(config);
 	fillServerConfig(config);
 	displayServerConfig(config);
-	// parseLocations(config.locations);
+	parseLocations(config.locations);
 
 	return config;
 }
@@ -139,8 +139,7 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				break ;
 			case ERROR_PAGES:
 				checkJsonType(it->second, "object", "error_pages");
-
-				this->buildErrorPagesMap(config.error_pages, *it->second.getObject());
+				buildErrorPagesMap(config.error_pages, *it->second.getObject());
 				break ;
 			case MAX_BODY_SIZE:
 				checkJsonType(it->second, "number", "max_body_size");
@@ -159,6 +158,22 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 	}
 }
 
+void	ConfigLoader::buildLocationPaths( std::string &input, std::string &output, std::string field ) const
+{
+	if (input.find_first_of(".") != std::string::npos)
+		throw ConfigException("\"" + field + "\" in locations field link to a file, not a directory");
+	if (!checkPath(input))
+	{
+		std::string	tmp;
+
+		if (field == "upload")
+			tmp = " path";
+		throw ConfigException("Invalid \"" + field + "\" " + tmp + " provided in locations field, please use only absolute path");
+	}
+
+	output = input;
+}
+
 void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 {
 	checkJsonType(this->_locationsPos->second, "array", "locations");
@@ -168,42 +183,121 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 	if (arr.empty())
 		throw ConfigException("\"locations\" field is an emty array. Please fill it with at leat one location.");
 
-	for (JsonArray::iterator it = arr.begin(); it != arr.end(); it++)
+	for (JsonArray::iterator itArr = arr.begin(); itArr != arr.end(); itArr++)
 	{
-		if (it->getType() != JSON_OBJECT)
+		LocationConfig	config;
+
+		if (itArr->getType() != JSON_OBJECT)
 			throw ConfigException("Entries in \"locations\" field must be Json objects");
 
-		JsonObj	obj = *it->getObject();
+		JsonObj	obj = *itArr->getObject();
 
-		for (JsonObj::iterator it2 = obj.begin(); it2 != obj.end(); it2++)
+		for (JsonObj::iterator itObj = obj.begin(); itObj != obj.end(); itObj++)
 		{
-			ConfigFields::const_iterator	field = this->_fields.find(it2->first);
+			ConfigFields::const_iterator	field = this->_fields.find(itObj->first);
 
 			if (field == this->_fields.end())
-				throw ConfigException("Unknowned " + it2->first + " field in configuration file");
+				throw ConfigException("Unknowned " + itObj->first + " field in configuration file");
 
 			switch (field->second)
 			{
 				case MAX_BODY_SIZE:
+					checkJsonType(itObj->second, "number", "max_body_size");
+
+					config.max_body_size = itObj->second.getInt();
 					break ;
 				case ERROR_PAGES:
+					checkJsonType(itObj->second, "object", "error_pages");
+					buildErrorPagesMap(config.error_pages, *itObj->second.getObject());
 					break ;
 				case ROOT:
+					checkJsonType(itObj->second, "string", "root");
+					buildRoot(*itObj->second.getString(), config.root, "server");
 					break ;
 				case DEFAULT_PAGE:
+					checkJsonType(itObj->second, "string", "default_page");
+					buildDefaultPage(*itObj->second.getString(), config.default_page, "server");
+					break ;
+				case DIRECTORY_LISTING:
+					checkJsonType(itObj->second, "bool", "directory_listing");
+
+					config.directory_listing = itObj->second.getBool();
+					config.listing_set = true;
 					break ;
 				case UPLOAD:
+					checkJsonType(itObj->second, "string", "upload");
+					buildLocationPaths(*itObj->second.getString(), config.upload, "upload");
 					break ;
 				case PATH:
+					checkJsonType(itObj->second, "string", "upload");
+					buildLocationPaths(*itObj->second.getString(), config.path, "path");
 					break ;
 				case METHODS:
+					std::cout << itObj->second.getType() << std::endl;
+					checkJsonType(itObj->second, "array", "methods");
+					buildMethodsArray(*itObj->second.getArray(), config.methods);
 					break ;
 				case REDIR:
+					if (itObj->second.getType() != JSON_OBJECT && itObj->second.getType() != JSON_NULL)
+						throw ConfigException("\"redir\" field must be a Json Object or \"null\"");
+					if (itObj->second.getType() == JSON_NULL)
+						break ;
+					buildRedir(*itObj->second.getObject(), config.redirect_path, config.redirect_code);
 					break ;
 				default:
 					break ;
 			}
 		}
+
+		// fillLocationConfig(config);
+		locations.push_back(config);
+	}
+}
+
+void	ConfigLoader::buildRedir( JsonObj &input, std::string &pathOutput, int &codeOutput ) const
+{
+	if (input.size() != 1)
+		throw ConfigException("Invalid numbers of redirections in locations field. Only one redirection per location is allowed by the server");
+
+	JsonObj::iterator	redirIt = input.begin();
+
+	if (redirIt->first.find_first_not_of("0123456789") != std::string::npos || redirIt->second.getType() != JSON_STRING)
+		throw ConfigException("Invalid redirection format: \"redir\" field must be formated in the following format: \"REDIR_CODE\": \"REDIR_PATH\"");
+
+	double	res;
+	char	*endptr;
+
+	res = std::strtod(redirIt->first.c_str(), &endptr);
+	if (res == HUGE_VAL || res == -HUGE_VAL || res > INT_MAX || res < INT_MIN)
+		throw ConfigException("Int overflow in \"redir\" in locations field");
+	codeOutput = static_cast<int>(res);
+
+	if (redirIt->second.getString()->find_first_of('.') != std::string::npos)
+		throw ConfigException("\"redirection path\" in locations field link to a directory, not a file");
+	if (!checkPath(*redirIt->second.getString()))
+		throw ConfigException("Invalid redirection path provided in locations field");
+	pathOutput = *redirIt->second.getString();
+
+}
+
+void	ConfigLoader::buildMethodsArray( JsonArray &value, std::vector<std::string> &array) const
+{
+	if (value.empty())
+	{
+		array.push_back("GET");
+		return ;
+	}
+
+	for (JsonArray::iterator it = value.begin(); it != value.end(); it++)
+	{
+		checkJsonType(*it, "string", "methods");
+
+		std::string	tmp = *it->getString();
+
+		if ( tmp != "GET" && tmp != "POST" && tmp != "DELETE")
+			throw ConfigException("Invalid method " + tmp + " provided in locations field, this server support the following methods : GET, POST, DELETE");
+
+		array.push_back(tmp);
 	}
 }
 
@@ -223,8 +317,12 @@ void	ConfigLoader::fillServerConfig( ServerConfig &config ) const
 
 void	ConfigLoader::buildFields( void )
 {
-	for (int i = 0; i != METHODS; i++)
+	std::cout << "debug: methods == " << METHODS << std::endl;
+	for (int i = 0; i <= METHODS; i++)
+	{
 		this->_fields[this->_fieldsName[i]] = static_cast<FieldsValue>(i);
+		std::cout << "fieldname: " << this->_fieldsName[i] << ", value: " << static_cast<FieldsValue>(i) << std::endl;
+	}
 }
 
 std::string	ConfigLoader::checkMissingField( void ) const

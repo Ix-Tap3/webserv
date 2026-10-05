@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/01 12:28:30 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 19:15:31 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ private:
 		"error_pages",
 		"max_body_size",
 		"directory_listing",
-		"redir_code",
-		"redir_path",
+		"redir",
 		"upload",
 		"path",
 		"methods"
@@ -47,6 +46,9 @@ private:
 	void		buildCgiMap( std::map<std::string, std::string> &cgiMap, JsonObj &jsonObj) const;
 	void		buildRoot( std::string &input, std::string &root, std::string field ) const;
 	void		buildDefaultPage( std::string &input, std::string &output, std::string field ) const;
+	void		buildLocationPaths( std::string &input, std::string &output, std::string field ) const;
+	void		buildRedir( JsonObj &input, std::string &pathOutput, int &codeOutput ) const;
+	void		buildMethodsArray( JsonArray &value, std::vector<std::string> &array) const;
 	void		parseServer( ServerConfig &config );
 	void		fillServerConfig( ServerConfig &config ) const;
 	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
