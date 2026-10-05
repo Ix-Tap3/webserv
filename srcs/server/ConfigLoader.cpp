@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 19:56:34 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 20:20:25 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ ServerConfig	ConfigLoader::load( void )
 	parseServer(config);
 	fillServerConfig(config);
 	parseLocations(config.locations);
+	fillLocationsConfig(config);
 	displayServerConfig(config);
 
 	return config;
@@ -180,6 +181,10 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 	{
 		LocationConfig	config;
 
+		config.max_body_size = -1;
+		config.listing_set = false;
+		config.redirect_code = -1;
+
 		if (itArr->getType() != JSON_OBJECT)
 			throw ConfigException("Entries in \"locations\" field must be Json objects");
 
@@ -306,6 +311,27 @@ void	ConfigLoader::fillServerConfig( ServerConfig &config ) const
 		config.max_body_size = 10000;
 	if (config.listing_set == false)
 		config.directory_listing = false;
+}
+
+void	ConfigLoader::fillLocationsConfig( ServerConfig &config ) const
+{
+	for (std::vector<LocationConfig>::iterator it = config.locations.begin(); it != config.locations.end(); it++)
+	{
+		if (it->max_body_size == -1)
+			it->max_body_size = config.max_body_size;
+		if (it->redirect_code == -1 && !it->redirect_path.empty())
+			throw ConfigException("Redirections must have a redirection code associated");
+		if (it->listing_set == false)
+			it->directory_listing = config.directory_listing;
+		if (it->root.empty())
+			it->root = config.root;
+		if (it->default_page.empty())
+			it->default_page = config.default_page;
+		if (it->methods.empty())
+			it->methods.push_back("GET");
+		if (it->error_pages.empty())
+			it->error_pages = config.error_pages;
+	}
 }
 
 void	ConfigLoader::buildFields( void )

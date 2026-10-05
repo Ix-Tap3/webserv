@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 19:15:31 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 20:02:29 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ private:
 	void		buildMethodsArray( JsonArray &value, std::vector<std::string> &array) const;
 	void		parseServer( ServerConfig &config );
 	void		fillServerConfig( ServerConfig &config ) const;
+	void		fillLocationsConfig( ServerConfig &config ) const;
 	void		parseLocations( std::vector<LocationConfig> &locConfig ) const;
 	void		checkJsonType( JsonValue &value, std::string expected, std::string field ) const;
 	bool		checkIpFormat( std::string ip ) const;
