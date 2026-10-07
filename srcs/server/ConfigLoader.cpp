@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 20:20:25 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/07 09:59:59 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 	missings = this->checkMissingField();
 	if (!missings.empty())
 		throw ConfigException("the following fields are missing in the configuration file: " + missings);
-
-	std::cout << "field tests passed!" << std::endl;
 
 	this->buildFields();
 }
@@ -104,7 +102,7 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				checkJsonType(it->second, "string", "ip");
 
 				if (!this->checkIpFormat(*(it->second.getString())))
-					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1)");
+					throw ConfigException("Invalid IP format, please use only IPV4 adresses (eg: 127.0.0.1) or localhost");
 
 				config.ip = *(it->second.getString());
 				break ;
@@ -231,7 +229,6 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 					buildLocationPaths(*itObj->second.getString(), config.path, "path");
 					break ;
 				case METHODS:
-					std::cout << itObj->second.getType() << std::endl;
 					checkJsonType(itObj->second, "array", "methods");
 					buildMethodsArray(*itObj->second.getArray(), config.methods);
 					break ;
@@ -301,7 +298,7 @@ void	ConfigLoader::buildMethodsArray( JsonArray &value, std::vector<std::string>
 
 void	ConfigLoader::fillServerConfig( ServerConfig &config ) const
 {
-	if (config.ip.empty())
+	if (config.ip.empty() || config.ip == "localhost")
 		config.ip = "127.0.0.1";
 	if (config.default_page.empty())
 		config.default_page = "/index.html";
@@ -434,6 +431,8 @@ void	ConfigLoader::checkJsonType( JsonValue &value, std::string expected, std::s
 
 bool	ConfigLoader::checkIpFormat( std::string ip ) const
 {
+	if (ip == "localhost")
+		return true;
 	if (ip.find_first_not_of("0123456789.") != std::string::npos)
 		return false;
 

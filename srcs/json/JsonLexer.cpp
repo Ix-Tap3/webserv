@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/30 20:30:27 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/05 20:22:34 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0)
 	if (!file.is_open())
 		throw JsonLexerException("Cannot open file named: " + filename);
 	if (file.peek() == std::ifstream::traits_type::eof())
-		throw JsonLexerException("Invalid empty configuration file provided");
+		throw JsonLexerException("Invalid empty Json file provided");
 
 	std::string	line;
 
