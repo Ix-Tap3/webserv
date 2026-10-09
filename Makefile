@@ -57,7 +57,7 @@ $(NAME): $(OBJS)
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(FLAGS) -c $< -o $@
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"

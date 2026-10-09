@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JsonLexer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 11:34:42 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 16:43:57 by tseche           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ private:
 
 	public:
 		JsonLexerException	( std::string msg );
-		~JsonLexerException	( void );
+		~JsonLexerException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};
@@ -52,7 +52,7 @@ private:
 
 	public:
 		JsonSyntaxException		( std::string msg );
-		~JsonSyntaxException	( void );
+		~JsonSyntaxException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};
@@ -65,7 +65,7 @@ private:
 	public:
 		JsonUnexpectedTokenException	( Token token );
 		JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col );
-		~JsonUnexpectedTokenException	( void );
+		~JsonUnexpectedTokenException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};

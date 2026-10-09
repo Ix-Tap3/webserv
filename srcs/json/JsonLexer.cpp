@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JsonLexer.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 11:40:21 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 19:53:33 by tseche           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _curre
 	if (!checkFileExtension(filename, "json"))
 		throw JsonLexerException("Invalid file extension, please use only json files");
 
-	std::ifstream	file(filename);
+	std::ifstream	file(filename.c_str());
 
 	if (!file.is_open())
 		throw JsonLexerException("Cannot open file named: " + filename);
@@ -51,8 +51,8 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _curre
 		line.append("\n");
 		this->_input.append(line);
 	}
-	if (this->_input.back() == '\n')
-		this->_input.pop_back();
+	if (this->_input[this->_input.length() - 2] == '\n')
+		this->_input = this->_input.substr(0, this->_input.length() - 2);
 }
 
 // Member functions
@@ -108,6 +108,8 @@ std::vector<Token>	JsonLexer::tokenize()
 		char	c = this->peek();
 		Token	token;
 
+		if (c == '\0')
+			break;
 		switch (c)
 		{
 			case '"':
@@ -141,6 +143,7 @@ std::vector<Token>	JsonLexer::tokenize()
 				if (token.value.empty())
 					throw JsonUnexpectedTokenException(this->peek(), this->_currentLine, this->_currentCol );
 		}
+
 		tokenList.push_back(token);
 	}
 	Token	endTok;
@@ -183,23 +186,22 @@ Token	JsonLexer::lexKeyword( void )
 {
 	std::string	tmp;
 	Token		tok;
-
-	while (!this->isEnd() && std::isalpha(this->_input[this->_pos]))
-		tmp.append(1, this->advance());
+	size_t i = 0;
+	
+	
+	for (; i < this->_input.length() && std::isalpha(this->_input[this->_pos + i]); i++)
+		tmp.append(1, this->_input[this->_pos + i]);
 	if (tmp == "true" || tmp == "false")
 	{
 		tok.type = TOKEN_BOOL;
 		tok.value = tmp;
+		this->_pos += i;
 	}
 	else if (tmp == "null")
 	{
 		tok.type = TOKEN_NULL;
 		tok.value = tmp;
-	}
-	else
-	{
-		this->_pos -= 1;
-		this->_currentCol--;
+		this->_pos += i;
 	}
 	setTokenPos(tok.pos);
 	return tok;
@@ -245,7 +247,6 @@ Token	JsonLexer::lexString( void )
 {
 	bool		quoted = false;
 	std::size_t	start = this->_pos + 1;
-	std::size_t	end;
 	Token		tok;
 
 	this->advance();
@@ -281,14 +282,14 @@ JsonLexer::JsonLexerException::JsonLexerException	( std::string msg )
 {
 	this->_msg = "JsonLexer Error: " + msg;
 }
-JsonLexer::JsonLexerException::~JsonLexerException	( void ) { }
+JsonLexer::JsonLexerException::~JsonLexerException	( void ) throw() { }
 const char	*JsonLexer::JsonLexerException::what( void ) const throw() { return this->_msg.c_str(); }
 
 JsonLexer::JsonSyntaxException::JsonSyntaxException	( std::string msg )
 {
 	this->_msg = "Syntax Error: " + msg;
 }
-JsonLexer::JsonSyntaxException::~JsonSyntaxException	( void ) { }
+JsonLexer::JsonSyntaxException::~JsonSyntaxException	( void ) throw() { }
 const char	*JsonLexer::JsonSyntaxException::what( void ) const throw() { return this->_msg.c_str(); }
 
 
@@ -296,22 +297,28 @@ JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token to
 {
 	std::stringstream	ss;
 
-	ss << "Syntax Error: Unexpected <";
-	ss << strTokenType(token.type) << "> token at line " << token.pos.line << ", col " << token.pos.col;
+	ss << "Syntax Error: Unexpected <'";
+	ss << strTokenType(token.type) << "'> token at line " << token.pos.line << ", col " << token.pos.col;
 	this->_msg = ss.str();
 }
 
 JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col )
 {
 	std::stringstream	ss;
+	std::string msg;
 
-	ss << "Syntax Error: Unexpected <" << value << "> token at line " << line << ", col " << col;
+	if (value == '<' || value == '>')
+		msg = std::string("'").append(1, value).append("'");
+	else
+		msg = value;		
+
+	ss << "Syntax Error: Unexpected <" << msg << "> token at line " << line << ", col " << col;
 	this->_msg = ss.str();
 }
 
 const char	*JsonLexer::JsonUnexpectedTokenException::what( void ) const throw() { return this->_msg.c_str(); }
 
-JsonLexer::JsonUnexpectedTokenException::~JsonUnexpectedTokenException	( void ) { }
+JsonLexer::JsonUnexpectedTokenException::~JsonUnexpectedTokenException	( void ) throw() { }
 
 // --- DEBUG SECTION (REMOVE BEFORE PUSH)
 std::string	JsonLexer::getSrc( void ) const { return this->_input; }

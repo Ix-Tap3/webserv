@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigLoader.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 20:02:29 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 17:22:13 by tseche           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,23 +22,9 @@ private:
 	JsonValue		_root;
 	JsonObjIterator	_locationsPos;
 	ConfigFields	_fields;
-	const std::vector<std::string>	_fieldsName= {
-		"ip",
-		"root",
-		"default_page",
-		"ports",
-		"hosts",
-		"locations",
-		"cgis",
-		"error_pages",
-		"max_body_size",
-		"directory_listing",
-		"redir",
-		"upload",
-		"path",
-		"methods"
-	};
+	std::vector<std::string>	_fieldsName;
 
+	void		init_fieldname();
 	void		buildFields( void );
 	void		buildPortsArray( std::vector<int> &portsArray, JsonArray &jsonArray ) const;
 	void		buildHostsArray( std::vector<std::string> &hostArray, JsonArray &jsonArray ) const;
@@ -65,7 +51,7 @@ private:
 
 	public:
 		ConfigException		( std::string msg );
-		~ConfigException	( void );
+		~ConfigException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};

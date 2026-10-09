@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigLoader.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/07 10:17:56 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 20:08:14 by tseche           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 	missings = this->checkMissingField();
 	if (!missings.empty())
 		throw ConfigException("the following fields are missing in the configuration file: " + missings);
-
+	this->init_fieldname();
 	this->buildFields();
 }
 
@@ -46,6 +46,23 @@ ServerConfig	ConfigLoader::load( void )
 	// displayServerConfig(config);
 
 	return config;
+}
+
+void ConfigLoader::init_fieldname(){
+	this->_fieldsName.push_back("ip");
+	this->_fieldsName.push_back("root");
+	this->_fieldsName.push_back("default_page");
+	this->_fieldsName.push_back("ports");
+	this->_fieldsName.push_back("hosts");
+	this->_fieldsName.push_back("locations");
+	this->_fieldsName.push_back("cgis");
+	this->_fieldsName.push_back("error_pages");
+	this->_fieldsName.push_back("max_body_size");
+	this->_fieldsName.push_back("directory_listing");
+	this->_fieldsName.push_back("redir");
+	this->_fieldsName.push_back("upload");
+	this->_fieldsName.push_back("path");
+	this->_fieldsName.push_back("methods");
 }
 
 void	ConfigLoader::buildRoot( std::string &input, std::string &root, std::string field ) const
@@ -80,6 +97,7 @@ void	ConfigLoader::buildDefaultPage( std::string &input, std::string &output, st
 			tmp = "in server field";
 		throw ConfigException("Invalid \"default_page\" path provided " + tmp + ", please use only absolute path");
 	}
+	output = input;
 }
 
 void	ConfigLoader::parseServer( ServerConfig &config )
@@ -621,7 +639,8 @@ void	displayServerConfig( ServerConfig config )
 	for (std::map<std::string, std::string>::iterator it = config.cgis.begin(); it != config.cgis.end(); it++)
 	{
 		std::cout << "[" << it->first << ", " << it->second << "]";
-		if (std::next(it) != config.cgis.end())
+		std::map<std::string, std::string>::iterator cpy = it;
+		if (cpy++ != config.cgis.end())
 			std::cout << ", ";
 	}
 	std::cout << std::endl;
@@ -629,7 +648,8 @@ void	displayServerConfig( ServerConfig config )
 	for (std::map<int, std::string>::iterator it = config.error_pages.begin(); it != config.error_pages.end(); it++)
 	{
 		std::cout << "[" << it->first << ", " << it->second << "]";
-		if (std::next(it) != config.error_pages.end())
+		std::map<int, std::string>::iterator cpy = it;
+		if (cpy++ != config.error_pages.end())
 			std::cout << ", ";
 	}
 	std::cout << std::endl;
@@ -663,7 +683,8 @@ void	displayServerConfig( ServerConfig config )
 		for (std::map<int, std::string>::iterator itErr = it->error_pages.begin(); itErr != it->error_pages.end(); itErr++)
 		{
 			std::cout << "[" << itErr->first << ", " << itErr->second << "]";
-			if (std::next(itErr) != it->error_pages.end())
+			std::map<int, std::string>::iterator cpy = itErr;
+			if (cpy++ != it->error_pages.end())
 				std::cout << ", ";
 		}
 		idx++;
@@ -672,6 +693,6 @@ void	displayServerConfig( ServerConfig config )
 
 // --- Exceptions
 ConfigLoader::ConfigException::ConfigException	( std::string msg ): _msg("Config Error: ") { _msg.append(msg); }
-ConfigLoader::ConfigException::~ConfigException	( void ) { }
+ConfigLoader::ConfigException::~ConfigException	( void ) throw() { }
 
 const char	*ConfigLoader::ConfigException::what( void ) const throw() { return this->_msg.c_str(); }
