@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 16:57:09 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 11:34:42 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,14 @@ class JsonLexer
 private:
 	std::string	_input;
 	std::size_t	_pos;
+	std::size_t	_currentLine;
+	std::size_t	_currentCol;
 
 	bool		isEnd( void ) const;
 	char		peek( void ) const;
 	char		advance( void );
 	void		skipWhiteSpace( void );
+	void		setTokenPos( TokenPos &pos ) const;
 	Token		lexString( void );
 	Token		lexNumber( void );
 	Token		lexSymbol( void );
@@ -48,8 +51,21 @@ private:
 		std::string	_msg;
 
 	public:
-		JsonSyntaxException		( std::string mdg );
+		JsonSyntaxException		( std::string msg );
 		~JsonSyntaxException	( void );
+
+		const char	*what( void ) const throw();
+	};
+
+	class JsonUnexpectedTokenException:	public std::exception
+	{
+	private:
+		std::string	_msg;
+	
+	public:
+		JsonUnexpectedTokenException	( Token token );
+		JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col );
+		~JsonUnexpectedTokenException	( void );
 
 		const char	*what( void ) const throw();
 	};

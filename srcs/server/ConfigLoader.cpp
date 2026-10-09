@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/07 09:59:59 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/07 10:17:56 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ ServerConfig	ConfigLoader::load( void )
 	fillServerConfig(config);
 	parseLocations(config.locations);
 	fillLocationsConfig(config);
-	displayServerConfig(config);
+	// displayServerConfig(config);
 
 	return config;
 }

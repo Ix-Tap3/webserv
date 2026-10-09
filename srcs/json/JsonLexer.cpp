@@ -6,13 +6,14 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 20:22:34 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 11:40:21 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fstream>
 #include <iostream>
 #include <cctype>
+#include <sstream>
 #include "../../includes/json/JsonLexer.hpp"
 
 static bool	checkFileExtension( std::string &filename, std::string extension)
@@ -29,7 +30,7 @@ static bool	checkFileExtension( std::string &filename, std::string extension)
 }
 
 // Constructor
-JsonLexer::JsonLexer	( std::string &filename ): _pos(0)
+JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _currentCol(1)
 {
 	if (filename.empty())
 		throw JsonLexerException("Empty filename provided");
@@ -46,10 +47,21 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0)
 	std::string	line;
 
 	while (std::getline(file, line))
+	{
+		line.append("\n");
 		this->_input.append(line);
+	}
+	if (this->_input.back() == '\n')
+		this->_input.pop_back();
 }
 
 // Member functions
+void	JsonLexer::setTokenPos( TokenPos &pos ) const
+{
+	pos.line = this->_currentLine;
+	pos.col = this->_currentCol;
+}
+
 bool	JsonLexer::isEnd( void ) const { return this->_pos >= this->_input.length(); }
 
 char	JsonLexer::peek( void ) const
@@ -65,6 +77,7 @@ char	JsonLexer::advance( void )
 		return '\0';
 	std::size_t	idx = this->_pos;
 	this->_pos++;
+	this->_currentCol++;
 	return this->_input[idx];
 }
 
@@ -73,7 +86,16 @@ void	JsonLexer::skipWhiteSpace( void )
 	if (this->isEnd())
 		return;
 	while (!this->isEnd() && std::isspace(this->_input[this->_pos]))
+	{
+		if (this->peek() == '\n')
+		{
+			this->_currentLine++;
+			this->_currentCol = 1;
+		}
+		else
+			this->_currentCol++;
 		this->_pos++;
+	}
 }
 
 std::vector<Token>	JsonLexer::tokenize()
@@ -117,19 +139,14 @@ std::vector<Token>	JsonLexer::tokenize()
 				else if (std::isdigit(c) || c == '-')
 					token = this->lexNumber();
 				if (token.value.empty())
-				{
-					std::string	msg("Unexpected <");
-
-					msg.append(1, this->peek());
-					msg.append("> token.");
-					throw JsonSyntaxException(msg);
-				}
+					throw JsonUnexpectedTokenException(this->peek(), this->_currentLine, this->_currentCol );
 		}
 		tokenList.push_back(token);
 	}
 	Token	endTok;
 
 	endTok.type = TOKEN_END;
+	this->setTokenPos( endTok.pos );
 	tokenList.push_back(endTok);
 
 	return tokenList;
@@ -158,6 +175,7 @@ Token	JsonLexer::lexNumber( void )
 		while (!this->isEnd() && std::isdigit(this->peek()))
 			tok.value.append(1, this->advance());
 	}
+	setTokenPos(tok.pos);
 	return tok;
 }
 
@@ -179,7 +197,11 @@ Token	JsonLexer::lexKeyword( void )
 		tok.value = tmp;
 	}
 	else
+	{
 		this->_pos -= 1;
+		this->_currentCol--;
+	}
+	setTokenPos(tok.pos);
 	return tok;
 }
 
@@ -215,6 +237,7 @@ Token	JsonLexer::lexSymbol( void )
 			tok.value.append(",");
 			break ;
 	}
+	setTokenPos(tok.pos);
 	return tok;
 }
 
@@ -249,6 +272,7 @@ Token	JsonLexer::lexString( void )
 		tok.type = TOKEN_STRING;	
 		tok.value = this->_input.substr(start, this->_pos - 1 - start);
 	}
+	setTokenPos(tok.pos);
 	return tok;
 }
 
@@ -266,6 +290,28 @@ JsonLexer::JsonSyntaxException::JsonSyntaxException	( std::string msg )
 }
 JsonLexer::JsonSyntaxException::~JsonSyntaxException	( void ) { }
 const char	*JsonLexer::JsonSyntaxException::what( void ) const throw() { return this->_msg.c_str(); }
+
+
+JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token )
+{
+	std::stringstream	ss;
+
+	ss << "Syntax Error: Unexpected <";
+	ss << strTokenType(token.type) << "> token at line " << token.pos.line << ", col " << token.pos.col;
+	this->_msg = ss.str();
+}
+
+JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col )
+{
+	std::stringstream	ss;
+
+	ss << "Syntax Error: Unexpected <" << value << "> token at line " << line << ", col " << col;
+	this->_msg = ss.str();
+}
+
+const char	*JsonLexer::JsonUnexpectedTokenException::what( void ) const throw() { return this->_msg.c_str(); }
+
+JsonLexer::JsonUnexpectedTokenException::~JsonUnexpectedTokenException	( void ) { }
 
 // --- DEBUG SECTION (REMOVE BEFORE PUSH)
 std::string	JsonLexer::getSrc( void ) const { return this->_input; }
@@ -324,52 +370,3 @@ void	displayTokenList( std::vector<Token> &tokenList )
 	}
 	std::cout << std::endl;
 }
-
-// void	displayTokenList( std::vector<Token> &tokenList )
-// {
-// 	if (tokenList.empty())
-// 		return ;
-//
-// 	for (std::vector<Token>::iterator it = tokenList.begin(); it != tokenList.end(); it++)
-// 	{
-// 		switch (it->type)
-// 		{
-// 			case TOKEN_LBRACE:
-// 				std::cout << "LBRACE: " << it->value;
-// 				break ;
-// 			case TOKEN_RBRACE:
-// 				std::cout << "RBRACE: " << it->value;
-// 				break ;
-// 			case TOKEN_LBRACKET:
-// 				std::cout << "LBRACKET: " << it->value;
-// 				break ;
-// 			case TOKEN_RBRACKET:
-// 				std::cout << "RBRACKET: " << it->value;
-// 				break ;
-// 			case TOKEN_COLON:
-// 				std::cout << "COLON: " << it->value;
-// 				break ;
-// 			case TOKEN_COMMA:
-// 				std::cout << "COMMA: " << it->value;
-// 				break ;
-// 			case TOKEN_BOOL:
-// 				std::cout << "BOOL: " << it->value;
-// 				break ;
-// 			case TOKEN_NULL:
-// 				std::cout << "NULL: " << it->value;
-// 				break ;
-// 			case TOKEN_STRING:
-// 				std::cout << "STRING: " << it->value;
-// 				break ;
-// 			case TOKEN_NUMBER:
-// 				std::cout << "NUMBER: " << it->value;
-// 				break ;
-// 			case TOKEN_END:
-// 				std::cout << "END";
-// 				break ;
-// 		}
-// 		if (it != tokenList.end() - 1)
-// 			std::cout << ", ";
-// 	}
-// 	std::cout << std::endl;
-// }
