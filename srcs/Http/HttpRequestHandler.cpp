@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:19:30 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:55:05 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,30 +22,39 @@ HttpRequestHandler::~HttpRequestHandler()
 
 ResponseData HttpRequestHandler::handleRequest(HttpRequest httpRequest)
 {
-	const std::string& method = httpRequest._requestLine.method;
+	const std::string& method = httpRequest.requestLine._method;
 
-    if (method == "GET")
-        return handleGet(httpRequest);
-    else if (method == "POST")
-        return handlePost(httpRequest);
-    else if (method == "DELETE")
-        return handleDelete(httpRequest);
+	if (method == "GET")
+	{
+		handleGet(httpRequest);
+		return this->_responseData;
+	}
+	else if (method == "POST")
+	{
+		handlePost(httpRequest);
+		return this->_responseData; 
+	}
+	else if (method == "DELETE")
+	{
+		handleDelete(httpRequest);
+		return this->_responseData;
+	}
 }
 
 // === GET === //
-ResponseData HttpRequestHandler::handleGet(HttpRequest httpRequest)
+void HttpRequestHandler::handleGet(HttpRequest httpRequest)
 {
 	
 }
 
 // === POST === //
-ResponseData HttpRequestHandler::handlePost(HttpRequest httpRequest)
+void HttpRequestHandler::handlePost(HttpRequest httpRequest)
 {
 	
 }
 
 // === DELETE === //
-ResponseData HttpRequestHandler::handleDelete(HttpRequest httpRequest)
+void HttpRequestHandler::handleDelete(HttpRequest httpRequest)
 {
 	
 }

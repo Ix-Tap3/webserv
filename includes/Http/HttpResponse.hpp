@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:37:51 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:37:14 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 21:19:37 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ public:
 	HttpResponse();
 	~HttpResponse();
 
-	std::string CreateHttpResponse(ResponseData& responseData);
+	std::string CreateHttpResponse(const ResponseData& responseData);
 };
 
 

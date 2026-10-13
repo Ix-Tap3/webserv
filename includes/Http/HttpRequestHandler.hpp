@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:37:27 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/01 19:54:54 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,16 @@ private:
 	ResponseData	_responseData;
 
 	// === GET === //
-	ResponseData& handleGet(HttpRequest httpRequest);
+	void handleGet(HttpRequest httpRequest);
 	// === POST === //
-	ResponseData& handlePost(HttpRequest httpRequest);
+	void handlePost(HttpRequest httpRequest);
 	// === DELETE === //
-	ResponseData& handleDelete(HttpRequest httpRequest);
+	void handleDelete(HttpRequest httpRequest);
 public:
 	HttpRequestHandler();
 	~HttpRequestHandler();
 
-	ResponseData& handleRequest(HttpRequest httpRequest);
+	ResponseData handleRequest(HttpRequest httpRequest);
 	
 };
 

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:24:18 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 21:19:45 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ HttpResponse::~HttpResponse()
 {
 }
 
-std::string CreateHttpResponse(ResponseData& responseData)
+std::string HttpResponse::CreateHttpResponse(const ResponseData& responseData)
 {
 	return ("yes");
 }
