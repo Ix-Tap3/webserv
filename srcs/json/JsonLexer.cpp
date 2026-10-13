@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 01:10:00 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/14 01:17:02 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -293,8 +293,10 @@ Token   JsonLexer::lexString( void )
 			case 't':
 				value += '\t';
 				break ;
+			case 'u':
+				throw JsonSyntaxException("\\u escape sequences are not supported");
 			default:
-					   throw JsonUnexpectedTokenException(c, this->_currentLine, this->_currentCol - 1);
+				throw JsonUnexpectedTokenException(c, this->_currentLine, this->_currentCol - 1);
 		}
 	}
 	throw JsonSyntaxException("Missing string end quote");
