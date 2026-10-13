@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 18:24:22 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/13 22:58:09 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,7 @@ int	main( int ac, char **av )
 
 	try
 	{
-		std::string	filename(av[1]);
-		JsonLexer	lexer(filename);
+		JsonLexer	lexer(av[1]);
 
 		tokenList = lexer.tokenize();
 		// std::cout << lexer.getSrc();

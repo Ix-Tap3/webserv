@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/13 19:54:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/13 23:10:26 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,6 @@ std::vector<Token>	JsonLexer::tokenize()
 		{
 			case '"':
 				token = this->lexString();
-				if (token.type != TOKEN_STRING && token.value.empty())
-					throw JsonSyntaxException("Missing string end quote");
 				break ;
 			case '[':
 				token = this->lexSymbol();
@@ -184,8 +182,8 @@ Token	JsonLexer::lexKeyword( void )
 	std::string	tmp;
 	Token		tok;
 	size_t i = 0;
-	
-	
+
+
 	for (; i < this->_input.length() && std::isalpha(this->_input[this->_pos + i]); i++)
 		tmp.append(1, this->_input[this->_pos + i]);
 	if (tmp == "true" || tmp == "false")
@@ -240,38 +238,66 @@ Token	JsonLexer::lexSymbol( void )
 	return tok;
 }
 
-Token	JsonLexer::lexString( void )
+Token   JsonLexer::lexString( void )
 {
-	bool		quoted = false;
-	std::size_t	start = this->_pos + 1;
-	Token		tok;
+	Token           tok;
+	std::string     value;
 
+	setTokenPos(tok.pos);
 	this->advance();
-	if (this->peek() == '"')
+	while (!this->isEnd())
 	{
-		tok.type = TOKEN_STRING;
-		tok.value = std::string();
-		this->advance();
-		return tok;
-	}
-	while (this->_input[this->_pos])
-	{
-		char	c = this->advance();
-		if (c == '"' && (this->_pos != 0 && this->_input[this->_pos - 1] != '\\'))
+		char    c = this->advance();
+
+		if (c == '"')
 		{
-			quoted = true;
-			break ;
+			tok.type = TOKEN_STRING;
+			tok.value = value;
+			return tok;
 		}
 		if (c == '\n')
-			return tok;
+			throw JsonSyntaxException("Missing string end quote");
+		if (static_cast<unsigned char>(c) < 0x20)
+			throw JsonSyntaxException("Control character in string");
+		if (c != '\\')
+		{
+			value += c;
+			continue ;
+		}
+		if (this->isEnd())
+			break ;
+		c = this->advance();
+		switch (c)
+		{
+			case '"':
+				value += '"';
+				break ;
+			case '\\':
+				value += '\\';
+				break ;
+			case '/':
+				value += '/';
+				break ;
+			case 'b':
+				value += '\b';
+				break ;
+			case 'f':
+				value += '\f';
+				break ;
+			case 'n':
+				value += '\n';
+				break ;
+			case 'r':
+				value += '\r';
+				break ;
+			case 't':
+				value += '\t';
+				break ;
+			default:
+					   throw JsonUnexpectedTokenException(c, this->_currentLine, this->_currentCol - 1);
+		}
 	}
-	if (quoted)
-	{
-		tok.type = TOKEN_STRING;	
-		tok.value = this->_input.substr(start, this->_pos - 1 - start);
-	}
-	setTokenPos(tok.pos);
-	return tok;
+	throw JsonSyntaxException("Missing string end quote");
 }
 
 // --- Exceptions
