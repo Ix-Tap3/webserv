@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/13 22:35:45 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 23:41:10 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,46 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 // === GET === //
 void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 {
-	std::string targetFile = httpRequest.requestLine._target;
+	std::string root = "/home/anfouger/Documents/5cercle/WebservCommonRepo/www/";
+	// split the target and the query string if there is one
+	
+	std::string path = root + httpRequest.requestLine._target;
 
 	// Verify if i can access the target
-	// Get the target and his information (type, size and target itself)
-	// Send the responseData
+	if (access(path.c_str(), F_OK) == -1) // 404 Not Found (ENOENT)	
+	{
+	}
+    else if (access(path.c_str(), R_OK) == -1) // 403 Forbidden (EACCES)
+	{
+	}	
+	else // OK file exist and can be opened
+	{
+		// Get the target in binary
+		std::ifstream file(path.c_str(), std::ios::binary);
+		if (!file.is_open()) // 403 Forbidden (EACCES)
+		{
+		}
+
+		char buf[100];
+		file.read(buf, sizeof(buf));
+		std::streamsize n = file.gcount();
+		while (n > 0)
+		{
+			this->_responseData._body.append(buf, n);
+			file.read(buf, sizeof(buf));
+			n = file.gcount();
+		}
+		
+		// Get target size by the size of std::string body
+		this->_responseData._contentLength = this->_responseData._body.size();
+
+		// Get target type by substr the extension and compare it to typeTable
+
+		this->_responseData._statusCode = 200;
+	}
 	
-	// std::ifstream file(targetFile, std::ios::binary);
+	// fill connection
+	// Send the responseData
 }
 
 // === POST === //

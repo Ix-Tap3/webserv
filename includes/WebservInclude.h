@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/13 22:28:11 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 22:54:58 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@
 # include <vector>
 
 # include <sstream>
+# include <fstream>
 
 struct RequestLine
 {
