@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>webserv</title>
+<style>
+  :root {
+    --bg: #14171c;
+    --panel: #1c2027;
+    --line: #2d333d;
+    --text: #d9dee7;
+    --dim: #8791a1;
+    --ok: #6fcf97;
+    --warn: #f2c94c;
+    --err: #eb5757;
+    --accent: #56b6c2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  main { width: 100%; max-width: 720px; }
+  h1 { font-size: 2.6rem; margin: 0; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--dim); margin: 4px 0 32px; }
+  .status { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--ok);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  .term {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .bar {
+    display: flex; gap: 12px; align-items: center;
+    padding: 10px 14px; border-bottom: 1px solid var(--line);
+  }
+  .bar select, .bar input, .bar button {
+    font: inherit; font-size: .9rem;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px;
+  }
+  .bar input { flex: 1; min-width: 0; }
+  .bar button { background: var(--accent); color: #0b1013; border-color: var(--accent); cursor: pointer; }
+  .bar :focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+  pre {
+    margin: 0; padding: 16px; min-height: 220px;
+    white-space: pre-wrap; word-break: break-word;
+    font: inherit; font-size: .88rem; line-height: 1.5;
+  }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .err { color: var(--err); }
+  .dim { color: var(--dim); }
+
+  h2 { font-size: 1rem; margin: 36px 0 10px; color: var(--dim); font-weight: 600; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { padding: 8px 0; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; }
+  li a { color: var(--accent); text-decoration: none; }
+  li a:hover { text-decoration: underline; }
+  footer { margin-top: 40px; color: var(--dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>web<span>serv</span></h1>
+  <p class="sub">An HTTP/1.0 server in C++98.</p>
+
+  <div class="status"><span class="dot"></span><span>It works. Your request reached the server.</span></div>
+
+  <div class="term">
+    <div class="bar">
+      <select id="method" aria-label="HTTP method">
+        <option>GET</option><option>POST</option><option>DELETE</option>
+      </select>
+      <input id="path" value="/" aria-label="Path" spellcheck="false">
+      <button id="send">Send</button>
+    </div>
+    <pre id="out"><span class="dim">Pick a method and path, then press Send. This runs a real fetch() against your server and shows the raw response.</span></pre>
+  </div>
+
+  <h2>Try these routes</h2>
+  <ul>
+    <li><a href="/" data-path="/">/</a><span class="dim">this page, 200</span></li>
+    <li><a href="/does-not-exist" data-path="/does-not-exist">/does-not-exist</a><span class="dim">expect 404</span></li>
+    <li><a href="/upload" data-path="/upload">/upload</a><span class="dim">upload route, if configured</span></li>
+    <li><a href="/cgi-bin/" data-path="/cgi-bin/">/cgi-bin/</a><span class="dim">CGI, if configured</span></li>
+  </ul>
+
+  <footer>Edit this file in your server's root directory. Routes above depend on your config.</footer>
+</main>
+
+<script>
+  const out = document.getElementById('out');
+  const methodEl = document.getElementById('method');
+  const pathEl = document.getElementById('path');
+
+  function esc(s) {
+    return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  }
+
+  async function send() {
+    const method = methodEl.value;
+    const path = pathEl.value || '/';
+    out.innerHTML = '<span class="dim">' + method + ' ' + esc(path) + ' HTTP/1.1 ...</span>';
+    const t0 = performance.now();
+    try {
+      const res = await fetch(path, { method, body: method === 'POST' ? 'hello=webserv' : undefined });
+      const ms = (performance.now() - t0).toFixed(1);
+      const body = await res.text();
+      const cls = res.status < 300 ? 'ok' : res.status < 400 ? 'warn' : 'err';
+      let headers = '';
+      res.headers.forEach((v, k) => { headers += esc(k) + ': ' + esc(v) + '\n'; });
+      out.innerHTML =
+        '<span class="' + cls + '">HTTP/1.1 ' + res.status + ' ' + esc(res.statusText) + '</span>' +
+        '  <span class="dim">' + ms + ' ms</span>\n' +
+        '<span class="dim">' + headers + '</span>\n' +
+        esc(body.length > 600 ? body.slice(0, 600) + '\n... (' + body.length + ' bytes)' : body);
+    } catch (e) {
+      out.innerHTML = '<span class="err">Request failed: ' + esc(String(e)) + '</span>\n<span class="dim">The server closed the connection or is unreachable.</span>';
+    }
+  }
+
+  document.getElementById('send').addEventListener('click', send);
+  pathEl.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+  document.querySelectorAll('li a').forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    pathEl.value = a.dataset.path;
+    methodEl.value = 'GET';
+    send();
+  }));
+</script>
+</body>
+</html>

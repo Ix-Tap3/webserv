@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:30:39 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 22:28:11 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,11 @@ struct HttpRequest
 
 struct ResponseData
 {
+	int			_statusCode;
 	int 		_contentLength;
-	std::string _body;
-	std::string _contentType;
+	int			_connection;
+	std::string	_body;
+	std::string	_contentType;
 };
 
 #endif

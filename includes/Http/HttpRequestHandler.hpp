@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:54:54 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/13 22:32:52 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,22 @@ class HttpRequestHandler
 {
 private:
 	ResponseData	_responseData;
+	std::map<std::string, std::string> _typeTable;
 
+	// === INIT === //
+	void	initTypeTable(void);
 	// === GET === //
-	void handleGet(HttpRequest httpRequest);
+	void handleGet(HttpRequest& httpRequest);
 	// === POST === //
-	void handlePost(HttpRequest httpRequest);
+	void handlePost(HttpRequest& httpRequest);
 	// === DELETE === //
-	void handleDelete(HttpRequest httpRequest);
+	void handleDelete(HttpRequest& httpRequest);
 public:
 	HttpRequestHandler();
 	~HttpRequestHandler();
 
-	ResponseData handleRequest(HttpRequest httpRequest);
-	
+	// === MAIN FUNCTION === //
+	ResponseData handleRequest(HttpRequest& httpRequest);
+
 };
-
-
 #endif
