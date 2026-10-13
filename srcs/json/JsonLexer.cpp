@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 19:53:33 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/13 19:54:43 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 #include <iostream>
 #include <cctype>
 #include <sstream>
+#include <string>
 #include "../../includes/json/JsonLexer.hpp"
 
-static bool	checkFileExtension( std::string &filename, std::string extension)
+static bool	checkFileExtension( const std::string &filename, std::string extension)
 {
 	std::size_t	found = filename.find_last_of(".");
 	if (found == std::string::npos)
@@ -30,7 +31,7 @@ static bool	checkFileExtension( std::string &filename, std::string extension)
 }
 
 // Constructor
-JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _currentCol(1)
+JsonLexer::JsonLexer	( const std::string &filename ): _pos(0), _currentLine(1), _currentCol(1)
 {
 	if (filename.empty())
 		throw JsonLexerException("Empty filename provided");
@@ -41,18 +42,14 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _curre
 
 	if (!file.is_open())
 		throw JsonLexerException("Cannot open file named: " + filename);
-	if (file.peek() == std::ifstream::traits_type::eof())
+
+	std::stringstream	ss;
+	ss << file.rdbuf();
+	if (file.bad())
+		throw JsonLexerException("Cannot read file: " + filename);
+	this->_input = ss.str();
+	if (this->_input.find_first_not_of(" \t\r\n") == std::string::npos)
 		throw JsonLexerException("Invalid empty Json file provided");
-
-	std::string	line;
-
-	while (std::getline(file, line))
-	{
-		line.append("\n");
-		this->_input.append(line);
-	}
-	if (this->_input[this->_input.length() - 2] == '\n')
-		this->_input = this->_input.substr(0, this->_input.length() - 2);
 }
 
 // Member functions
