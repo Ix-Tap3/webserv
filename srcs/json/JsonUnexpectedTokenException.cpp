@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/14 12:02:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 12:05:03 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 14:12:49 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,44 @@
 #include <sstream>
 
 
-JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token )
+JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token, ErrorType error )
 {
 	std::stringstream	ss;
+	std::string			src;
 
-	ss << "Syntax Error: Unexpected <'";
+	switch (error)
+	{
+		case SYNTAX_ERROR:
+			src = "Syntax Error: ";
+			break ;
+		case PARSE_ERROR:
+			src = "Parse Error: ";
+			break ;
+	}
+	ss << src;
+	ss << "Unexpected <'";
 	ss << strTokenType(token.type) << "'> token at line " << token.pos.line << ", col " << token.pos.col;
+	this->_msg = ss.str();
+}
+
+JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token, TokenType expect, ErrorType error )
+{
+	std::stringstream	ss;
+	std::string			src;
+
+	switch (error)
+	{
+		case SYNTAX_ERROR:
+			src = "Syntax Error: ";
+			break ;
+		case PARSE_ERROR:
+			src = "Parse Error: ";
+			break ;
+	}
+	ss << src;
+	ss << "Unexpected <'";
+	ss << strTokenType(token.type) << "'> token at line " << token.pos.line << ", col " << token.pos.col;
+	ss << ". Expect: " << strTokenType(expect);
 	this->_msg = ss.str();
 }
 

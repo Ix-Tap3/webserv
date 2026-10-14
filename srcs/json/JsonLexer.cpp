@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 13:16:54 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 14:43:28 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,6 @@ Token	JsonLexer::lexNumber( void )
 		while (!this->isEnd() && std::isdigit(this->peek()))
 			tok.value.append(1, this->advance());
 	}
-	std::cout << "NUMBER: " << tok.value << ", POS: " << tok.pos.line << ", " << tok.pos.col << std::endl;
 	return tok;
 }
 
@@ -186,26 +185,29 @@ Token	JsonLexer::lexKeyword( void )
 	size_t i = 0;
 
 
+	setTokenPos(tok.pos);
 	for (; i < this->_input.length() && std::isalpha(this->_input[this->_pos + i]); i++)
+	{
 		tmp.append(1, this->_input[this->_pos + i]);
+		this->_currentCol++;
+	}
 	if (tmp == "true" || tmp == "false")
 	{
 		tok.type = TOKEN_BOOL;
 		tok.value = tmp;
 		this->_pos += i;
-		if (tmp == "true")
-			this->_currentCol += 4;
-		else
-			this->_currentCol += 5;
+		// if (tmp == "true")
+		// 	this->_currentCol += 4;
+		// else
+		// 	this->_currentCol += 5;
 	}
 	else if (tmp == "null")
 	{
 		tok.type = TOKEN_NULL;
 		tok.value = tmp;
 		this->_pos += i;
-		this->_currentCol += 4;
+		// this->_currentCol += 4;
 	}
-	setTokenPos(tok.pos);
 	return tok;
 }
 

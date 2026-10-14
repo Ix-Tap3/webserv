@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 20:06:24 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/14 14:38:24 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cstdlib>
 #include "../../includes/json/JsonParser.hpp"
+#include "../../includes/json/JsonUnexpectedTokenException.hpp"
 
 JsonParser::JsonParser	( std::vector<Token> &tokenList ): _tokenList(tokenList), _pos(0) { }
 
@@ -27,26 +28,12 @@ Token	JsonParser::peek( void ) const
 	return this->_tokenList[this->_pos];
 }
 
-static std::string	getUnexpectedTokenError(const Token &token, std::size_t pos)
-{
-	std::stringstream	ss;
-
-	ss << "Unexpected " << strTokenType(token.type) << " token, value: <" << token.value << "> at index: " << pos;
-
-	return ss.str();
-}
-
 Token	JsonParser::expect( TokenType type )
 {
 	Token	current = this->peek();
 
 	if (current.type != type)
-	{
-		std::string	msg = getUnexpectedTokenError(current, this->_pos);
-
-		msg += ", expected " + strTokenType(type) + " token";
-		throw JsonParseException(msg);
-	}
+		throw JsonUnexpectedTokenException(current, type, PARSE_ERROR);
 	return this->advance();
 }
 
@@ -89,7 +76,7 @@ JsonValue	JsonParser::parseValue( void )
 		case TOKEN_NULL:
 			return this->parseNull();
 		default:
-			throw JsonParseException(getUnexpectedTokenError(current, this->_pos));
+			throw JsonUnexpectedTokenException(current, PARSE_ERROR);
 	}
 }
 

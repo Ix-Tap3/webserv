@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 12:22:01 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 14:39:14 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@ int	main( int ac, char **av )
 		JsonLexer	lexer(av[1]);
 
 		tokenList = lexer.tokenize();
-		displayTokenList(tokenList);
-		std::cout << strTokenType(tokenList[9].type) << " " << tokenList[9].pos.line << " " << tokenList[9].pos.col << std::endl;
 		// std::cout << lexer.getSrc();
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
