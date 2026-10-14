@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/13 23:41:10 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/14 20:00:44 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,25 @@ void	HttpRequestHandler::initTypeTable(void)
 	this->_typeTable.insert(".gif", "image/gif");
 	this->_typeTable.insert(".svg", "image/svg+xml");
 	this->_typeTable.insert(".ico", "image/x-icon");
+}
+
+std::string HttpRequestHandler::getRequestTarget(std::string& target)
+{
+	std::vector<std::string> tmp = Utils::strSplit(target, '?');
+	target = tmp[0];
+	return (tmp[1]);
+}
+
+std::string HttpRequestHandler::getExtension(const std::string& target)
+{
+	std::string extension;
+
+	size_t pos_extension = target.find_last_of('.');
+	if (pos_extension == std::string::npos)
+		return (extension);
+	
+	extension = target.substr(pos_extension, target.size() - 1);
+	return (extension);
 }
 
 // === MAIN FUNCTION === //
@@ -66,7 +85,7 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 {
 	std::string root = "/home/anfouger/Documents/5cercle/WebservCommonRepo/www/";
 	// split the target and the query string if there is one
-	
+	std::string requestTarget = getRequestTarget(httpRequest.requestLine._target);
 	std::string path = root + httpRequest.requestLine._target;
 
 	// Verify if i can access the target
@@ -98,11 +117,14 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 		this->_responseData._contentLength = this->_responseData._body.size();
 
 		// Get target type by substr the extension and compare it to typeTable
-
+		std::string extension = getExtension(httpRequest.requestLine._target);
+		std::map<std::string, std::string>::iterator it = this->_typeTable.find(extension);
+		this->_responseData._contentType = it->second;
+		// Set the status code
 		this->_responseData._statusCode = 200;
-	}
-	
+	}	
 	// fill connection
+	this->_responseData._connection = 0;
 	// Send the responseData
 }
 
