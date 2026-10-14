@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 14:38:24 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 15:26:51 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,16 @@ JsonValue	JsonParser::parseObject( void )
 	while (true && !empty)
 	{
 		std::string	key = expect(TOKEN_STRING).value;
-		expect(TOKEN_COLON);
 		if (map.count(key) > 0)
 			throw JsonParseException("Invalid duplicated key " + key );
+		expect(TOKEN_COLON);
 		map[key] = this->parseValue();
 		if (!this->check(TOKEN_COMMA))
+		{
+			if (this->check(TOKEN_STRING))
+				throw JsonUnexpectedTokenException(this->peek(), TOKEN_COMMA, PARSE_ERROR);
 			break ;
+		}
 		this->advance();
 	}
 	this->expect(TOKEN_RBRACE);

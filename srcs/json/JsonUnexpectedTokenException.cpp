@@ -6,7 +6,7 @@
 /*   By: pcaplat </var/spool/mail/pcaplat>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/14 12:02:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 14:12:49 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 15:34:37 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token, TokenT
 	ss << src;
 	ss << "Unexpected <'";
 	ss << strTokenType(token.type) << "'> token at line " << token.pos.line << ", col " << token.pos.col;
-	ss << ". Expect: " << strTokenType(expect);
+	ss << ". Expected: " << strTokenType(expect);
 	this->_msg = ss.str();
 }
 
