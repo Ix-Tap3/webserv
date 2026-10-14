@@ -1,7 +1,7 @@
 #==================================== MAKEFILE ====================================#
 
 NAME = webserv
-CC = c++
+CXX = c++
 FLAGS = -g -Wall -Werror -Wextra -std=c++98 -I includes/server -I includes/json -I includes
 SRCS_DIR = srcs
 SRCS = main.cpp $(SRCS_DIR)/json/JsonLexer.cpp $(SRCS_DIR)/json/JsonValue.cpp $(SRCS_DIR)/json/JsonParser.cpp \
@@ -50,13 +50,13 @@ header:
 $(NAME): $(OBJS)
 	@printf "\n"
 	@printf "$(INFO)Linking %s...$(RESET)\n" "$(NAME)"
-	@$(CC) $(OBJS) -o $(NAME)
+	@$(CXX) $(OBJS) -o $(NAME)
 	@printf "$(PRIMARY)%s Ready !$(RESET)\n" "$(NAME)"
 
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"

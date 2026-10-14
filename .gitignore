@@ -1,0 +1,5 @@
+objs/
+*.o
+webserv
+.vscode/
+*.d
