@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/18 16:25:23 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 01:18:05 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 # include <map>
 # include <iostream>
 # include <cstring>
-# include <stdlib.h>
-# include <stdio.h>
+# include <cstdlib>
+# include <cstdio>
 
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -29,7 +29,6 @@
 # include <poll.h>
 
 # include <unistd.h>
-# include <string.h>
 # include <vector>
 
 #endif

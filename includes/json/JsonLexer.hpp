@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 16:43:57 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/13 19:54:08 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ private:
 	};
 
 public:
-	JsonLexer	( std::string &fileName );
+	JsonLexer	( const std::string &fileName );
 
 	std::string	getSrc( void ) const;
 

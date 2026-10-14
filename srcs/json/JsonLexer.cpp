@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 19:53:33 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/14 01:17:02 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 #include <iostream>
 #include <cctype>
 #include <sstream>
+#include <string>
 #include "../../includes/json/JsonLexer.hpp"
 
-static bool	checkFileExtension( std::string &filename, std::string extension)
+static bool	checkFileExtension( const std::string &filename, std::string extension)
 {
 	std::size_t	found = filename.find_last_of(".");
 	if (found == std::string::npos)
@@ -30,7 +31,7 @@ static bool	checkFileExtension( std::string &filename, std::string extension)
 }
 
 // Constructor
-JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _currentCol(1)
+JsonLexer::JsonLexer	( const std::string &filename ): _pos(0), _currentLine(1), _currentCol(1)
 {
 	if (filename.empty())
 		throw JsonLexerException("Empty filename provided");
@@ -41,18 +42,14 @@ JsonLexer::JsonLexer	( std::string &filename ): _pos(0), _currentLine(1), _curre
 
 	if (!file.is_open())
 		throw JsonLexerException("Cannot open file named: " + filename);
-	if (file.peek() == std::ifstream::traits_type::eof())
+
+	std::stringstream	ss;
+	ss << file.rdbuf();
+	if (file.bad())
+		throw JsonLexerException("Cannot read file: " + filename);
+	this->_input = ss.str();
+	if (this->_input.find_first_not_of(" \t\r\n") == std::string::npos)
 		throw JsonLexerException("Invalid empty Json file provided");
-
-	std::string	line;
-
-	while (std::getline(file, line))
-	{
-		line.append("\n");
-		this->_input.append(line);
-	}
-	if (this->_input[this->_input.length() - 2] == '\n')
-		this->_input = this->_input.substr(0, this->_input.length() - 2);
 }
 
 // Member functions
@@ -114,8 +111,6 @@ std::vector<Token>	JsonLexer::tokenize()
 		{
 			case '"':
 				token = this->lexString();
-				if (token.type != TOKEN_STRING && token.value.empty())
-					throw JsonSyntaxException("Missing string end quote");
 				break ;
 			case '[':
 				token = this->lexSymbol();
@@ -172,7 +167,7 @@ Token	JsonLexer::lexNumber( void )
 		tok.value.append(1, this->advance());
 	if (this->peek() == 'e' || this->peek() == 'E')
 	{
-		this->advance();
+		tok.value.append(1, this->advance());
 		if(this->peek() == '+' || this->peek() == '-')
 			tok.value.append(1, this->advance());
 		while (!this->isEnd() && std::isdigit(this->peek()))
@@ -187,8 +182,8 @@ Token	JsonLexer::lexKeyword( void )
 	std::string	tmp;
 	Token		tok;
 	size_t i = 0;
-	
-	
+
+
 	for (; i < this->_input.length() && std::isalpha(this->_input[this->_pos + i]); i++)
 		tmp.append(1, this->_input[this->_pos + i]);
 	if (tmp == "true" || tmp == "false")
@@ -243,38 +238,68 @@ Token	JsonLexer::lexSymbol( void )
 	return tok;
 }
 
-Token	JsonLexer::lexString( void )
+Token   JsonLexer::lexString( void )
 {
-	bool		quoted = false;
-	std::size_t	start = this->_pos + 1;
-	Token		tok;
+	Token           tok;
+	std::string     value;
 
+	setTokenPos(tok.pos);
 	this->advance();
-	if (this->peek() == '"')
+	while (!this->isEnd())
 	{
-		tok.type = TOKEN_STRING;
-		tok.value = std::string();
-		this->advance();
-		return tok;
-	}
-	while (this->_input[this->_pos])
-	{
-		char	c = this->advance();
-		if (c == '"' && (this->_pos != 0 && this->_input[this->_pos - 1] != '\\'))
+		char    c = this->advance();
+
+		if (c == '"')
 		{
-			quoted = true;
-			break ;
+			tok.type = TOKEN_STRING;
+			tok.value = value;
+			return tok;
 		}
 		if (c == '\n')
-			return tok;
+			throw JsonSyntaxException("Missing string end quote");
+		if (static_cast<unsigned char>(c) < 0x20)
+			throw JsonSyntaxException("Control character in string");
+		if (c != '\\')
+		{
+			value += c;
+			continue ;
+		}
+		if (this->isEnd())
+			break ;
+		c = this->advance();
+		switch (c)
+		{
+			case '"':
+				value += '"';
+				break ;
+			case '\\':
+				value += '\\';
+				break ;
+			case '/':
+				value += '/';
+				break ;
+			case 'b':
+				value += '\b';
+				break ;
+			case 'f':
+				value += '\f';
+				break ;
+			case 'n':
+				value += '\n';
+				break ;
+			case 'r':
+				value += '\r';
+				break ;
+			case 't':
+				value += '\t';
+				break ;
+			case 'u':
+				throw JsonSyntaxException("\\u escape sequences are not supported");
+			default:
+				throw JsonUnexpectedTokenException(c, this->_currentLine, this->_currentCol - 1);
+		}
 	}
-	if (quoted)
-	{
-		tok.type = TOKEN_STRING;	
-		tok.value = this->_input.substr(start, this->_pos - 1 - start);
-	}
-	setTokenPos(tok.pos);
-	return tok;
+	throw JsonSyntaxException("Missing string end quote");
 }
 
 // --- Exceptions
