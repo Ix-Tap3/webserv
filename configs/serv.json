@@ -1,5 +1,4 @@
 {	
-	null,
 	"ip": "localhost",
 	"ports": [ 4242, 8080 ],
 	"hosts": [ "example.com.", "castorland.castor" ],
@@ -31,7 +30,6 @@
 			"redir": {
 				"303": "/test"
 			}
-			null;
 		},
 		{
 			"path": "/upload",

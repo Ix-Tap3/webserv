@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 11:53:40 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 12:05:34 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sstream>
 #include <string>
 #include "../../includes/json/JsonLexer.hpp"
+#include "../../includes/json/JsonUnexpectedTokenException.hpp"
 
 static bool	checkFileExtension( const std::string &filename, std::string extension)
 {
@@ -194,7 +195,7 @@ Token	JsonLexer::lexKeyword( void )
 		if (tmp == "true")
 			this->_currentCol += 4;
 		else
-			this->_currentCol += 4;
+			this->_currentCol += 5;
 	}
 	else if (tmp == "null")
 	{
@@ -323,32 +324,6 @@ JsonLexer::JsonSyntaxException::~JsonSyntaxException	( void ) throw() { }
 const char	*JsonLexer::JsonSyntaxException::what( void ) const throw() { return this->_msg.c_str(); }
 
 
-JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( Token token )
-{
-	std::stringstream	ss;
-
-	ss << "Syntax Error: Unexpected <'";
-	ss << strTokenType(token.type) << "'> token at line " << token.pos.line << ", col " << token.pos.col;
-	this->_msg = ss.str();
-}
-
-JsonLexer::JsonUnexpectedTokenException::JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col )
-{
-	std::stringstream	ss;
-	std::string msg;
-
-	if (value == '<' || value == '>')
-		msg = std::string("'").append(1, value).append("'");
-	else
-		msg = value;		
-
-	ss << "Syntax Error: Unexpected <" << msg << "> token at line " << line << ", col " << col;
-	this->_msg = ss.str();
-}
-
-const char	*JsonLexer::JsonUnexpectedTokenException::what( void ) const throw() { return this->_msg.c_str(); }
-
-JsonLexer::JsonUnexpectedTokenException::~JsonUnexpectedTokenException	( void ) throw() { }
 
 // --- DEBUG SECTION (REMOVE BEFORE PUSH)
 std::string	JsonLexer::getSrc( void ) const { return this->_input; }

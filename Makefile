@@ -6,7 +6,7 @@ FLAGS = -g -Wall -Werror -Wextra -std=c++98 -I includes/server -I includes/json 
 SRCS_DIR = srcs
 SRCS = main.cpp $(SRCS_DIR)/json/JsonLexer.cpp $(SRCS_DIR)/json/JsonValue.cpp $(SRCS_DIR)/json/JsonParser.cpp \
 	   $(SRCS_DIR)/server/Client.cpp $(SRCS_DIR)/server/Server.cpp $(SRCS_DIR)/server/ConfigLoader.cpp \
-	   $(SRCS_DIR)/json/JsonUtils.cpp
+	   $(SRCS_DIR)/json/JsonUtils.cpp $(SRCS_DIR)/json/JsonUnexpectedTokenException.cpp
 OBJS_DIR = objs
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 

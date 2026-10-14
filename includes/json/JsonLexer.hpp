@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/13 19:54:08 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/14 12:03:00 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,18 +57,6 @@ private:
 		const char	*what( void ) const throw();
 	};
 
-	class JsonUnexpectedTokenException:	public std::exception
-	{
-	private:
-		std::string	_msg;
-	
-	public:
-		JsonUnexpectedTokenException	( Token token );
-		JsonUnexpectedTokenException	( char value, std::size_t line, std::size_t col );
-		~JsonUnexpectedTokenException	( void ) throw();
-
-		const char	*what( void ) const throw();
-	};
 
 public:
 	JsonLexer	( const std::string &fileName );
