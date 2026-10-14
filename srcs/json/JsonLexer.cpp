@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 12:05:34 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 13:16:54 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,6 +156,7 @@ Token	JsonLexer::lexNumber( void )
 	Token	tok;
 
 	tok.type = TOKEN_NUMBER;
+	setTokenPos(tok.pos);
 
 	if (this->peek() == '-')
 		tok.value.append(1, this->advance());
@@ -174,7 +175,7 @@ Token	JsonLexer::lexNumber( void )
 		while (!this->isEnd() && std::isdigit(this->peek()))
 			tok.value.append(1, this->advance());
 	}
-	setTokenPos(tok.pos);
+	std::cout << "NUMBER: " << tok.value << ", POS: " << tok.pos.line << ", " << tok.pos.col << std::endl;
 	return tok;
 }
 
