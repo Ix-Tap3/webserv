@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 01:17:02 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/14 11:53:40 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,12 +191,17 @@ Token	JsonLexer::lexKeyword( void )
 		tok.type = TOKEN_BOOL;
 		tok.value = tmp;
 		this->_pos += i;
+		if (tmp == "true")
+			this->_currentCol += 4;
+		else
+			this->_currentCol += 4;
 	}
 	else if (tmp == "null")
 	{
 		tok.type = TOKEN_NULL;
 		tok.value = tmp;
 		this->_pos += i;
+		this->_currentCol += 4;
 	}
 	setTokenPos(tok.pos);
 	return tok;
