@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:32:20 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/15 19:10:22 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ void		HttpParser::VerifyTarget(std::string target)
 
 void		HttpParser::VerifyVersion(std::string version)
 {
-	if (version.empty() || version != "HTTP/1.0")
+	if (version.empty() || version != "HTTP/1.0" || version != "HTTP/1.1")
 	{
 		throw HttpException(400, RED "Version isn't accepted: " YELLOW + version + RESET);
 	}	
