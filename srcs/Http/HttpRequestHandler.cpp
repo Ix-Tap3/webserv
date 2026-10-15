@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/14 20:00:44 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/14 20:13:22 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 HttpRequestHandler::HttpRequestHandler()
 {
 	initTypeTable();
+	this->_responseData._connection = 0;
 }
 
 HttpRequestHandler::~HttpRequestHandler()
@@ -76,8 +77,8 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 		handleDelete(httpRequest);
 		return this->_responseData;
 	}
-	// else
-		// Unknown method
+	else
+		return (this->_responseData);
 }
 
 // === GET === //
@@ -91,9 +92,13 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 	// Verify if i can access the target
 	if (access(path.c_str(), F_OK) == -1) // 404 Not Found (ENOENT)	
 	{
+		this->_responseData._statusCode = 404;
+		return ;
 	}
     else if (access(path.c_str(), R_OK) == -1) // 403 Forbidden (EACCES)
 	{
+		this->_responseData._statusCode = 403;
+		return ;
 	}	
 	else // OK file exist and can be opened
 	{
@@ -101,9 +106,11 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 		std::ifstream file(path.c_str(), std::ios::binary);
 		if (!file.is_open()) // 403 Forbidden (EACCES)
 		{
+			this->_responseData._statusCode = 403;
+			return ;
 		}
 
-		char buf[100];
+		char buf[1000];
 		file.read(buf, sizeof(buf));
 		std::streamsize n = file.gcount();
 		while (n > 0)
@@ -119,23 +126,22 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 		// Get target type by substr the extension and compare it to typeTable
 		std::string extension = getExtension(httpRequest.requestLine._target);
 		std::map<std::string, std::string>::iterator it = this->_typeTable.find(extension);
-		this->_responseData._contentType = it->second;
+		if (it != this->_typeTable.end())
+			this->_responseData._contentType = it->second;
+
 		// Set the status code
 		this->_responseData._statusCode = 200;
-	}	
-	// fill connection
-	this->_responseData._connection = 0;
-	// Send the responseData
+	}
 }
 
 // === POST === //
 void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 {
-	
+	(void)httpRequest;
 }
 
 // === DELETE === //
 void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 {
-	
+	(void)httpRequest;
 }
