@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/14 20:13:22 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/15 19:01:31 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,16 @@ HttpRequestHandler::~HttpRequestHandler()
 
 void	HttpRequestHandler::initTypeTable(void)
 {
-	this->_typeTable.insert(".html", "text/html");
-	this->_typeTable.insert(".css", "text/css");
-	this->_typeTable.insert(".js", "application/javascript");
-	this->_typeTable.insert(".txt", "text/plain");
-	this->_typeTable.insert(".json", "application/json");
-	this->_typeTable.insert(".png", "image/png");
-	this->_typeTable.insert(".jpg", "image/jpeg");
-	this->_typeTable.insert(".gif", "image/gif");
-	this->_typeTable.insert(".svg", "image/svg+xml");
-	this->_typeTable.insert(".ico", "image/x-icon");
+	this->_typeTable[".html"] = "text/html";
+	this->_typeTable[".css"] = "text/css";
+	this->_typeTable[".js"] = "application/javascript";
+	this->_typeTable[".txt"] = "text/plain";
+	this->_typeTable[".json"] = "application/json";
+	this->_typeTable[".png"] = "image/png";
+	this->_typeTable[".jpg"] = "image/jpeg";
+	this->_typeTable[".gif"] = "image/gif";
+	this->_typeTable[".svg"] = "image/svg+xml";
+	this->_typeTable[".ico"] = "image/x-icon";
 }
 
 std::string HttpRequestHandler::getRequestTarget(std::string& target)

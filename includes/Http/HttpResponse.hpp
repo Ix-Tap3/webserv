@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:37:51 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/15 18:08:52 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/15 18:50:36 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 class HttpResponse
 {
 private:
-	std::string	_response;
 	std::map<int, std::string> _reasonPhraseTable;
 
 	// INIT //
@@ -27,6 +26,8 @@ private:
 
 	// STATUS LINE //
 	std::string	createStatusLine(const ResponseData& responseData);
+	std::string	createHeader(const ResponseData& responseData);
+	std::string	createHeaderFields(const ResponseData& responseData);
 	
 public:
 	HttpResponse();
