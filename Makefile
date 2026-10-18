@@ -5,7 +5,8 @@ CXX = c++
 FLAGS = -g -Wall -Werror -Wextra -std=c++98 -I includes/server -I includes/json -I includes
 SRCS_DIR = srcs
 SRCS = main.cpp $(SRCS_DIR)/json/JsonLexer.cpp $(SRCS_DIR)/json/JsonValue.cpp $(SRCS_DIR)/json/JsonParser.cpp \
-	   $(SRCS_DIR)/server/Client.cpp $(SRCS_DIR)/server/Server.cpp $(SRCS_DIR)/server/ConfigLoader.cpp
+	   $(SRCS_DIR)/server/Client.cpp $(SRCS_DIR)/server/Server.cpp $(SRCS_DIR)/server/ConfigLoader.cpp \
+	   $(SRCS_DIR)/json/JsonUtils.cpp $(SRCS_DIR)/json/JsonUnexpectedTokenException.cpp
 OBJS_DIR = objs
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
 
@@ -56,7 +57,7 @@ $(NAME): $(OBJS)
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CXX) $(CXXFLAGS) -c $< -o $@
+	@$(CXX) $(FLAGS) -c $< -o $@
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"

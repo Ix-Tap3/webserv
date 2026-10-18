@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 19:55:02 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 14:39:14 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
 #include "includes/json/JsonLexer.hpp"
 #include "includes/json/JsonParser.hpp"
+#include "includes/json/JsonToken.hpp"
 #include "includes/server/configs.h"
 #include "includes/server/ConfigLoader.hpp"
 #include "includes/server/Server.hpp"
@@ -29,8 +30,7 @@ int	main( int ac, char **av )
 
 	try
 	{
-		std::string	filename(av[1]);
-		JsonLexer	lexer(filename);
+		JsonLexer	lexer(av[1]);
 
 		tokenList = lexer.tokenize();
 		// std::cout << lexer.getSrc();
