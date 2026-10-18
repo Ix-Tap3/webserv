@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/02 17:20:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:57:33 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ private:
 	bool	watchClientsSocket(int index);
 	bool	clientPOLLIN(Client *client, int clientFd, int index);
 	bool	clientPOLLOUT(Client *client, int clientFd, int index);
+	void	removeClient(int index);
 
 public:
 	Server();

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:13:44 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/18 17:01:50 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,27 +218,10 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	int	res = recv(clientFd, buff, sizeof(buff), 0);
 	// std::cout << "Data received: " << std::string(buff, res) << std::endl; // test purpose
 	// Error
-	if (res == -1)
+	if (res <= 0)
 	{
-		std::cerr << "recv: " << std::strerror(errno) << std::endl;
-		if (close(clientFd) == -1)
-		{
-			std::cerr << "close: " << std::strerror(errno) << std::endl;
-			return (false);
-		}
-		return (false);
-	}
-	// Disconnect
-	else if (res == 0)
-	{
-		if (close(clientFd) == -1)
-		{
-			std::cerr << "close: " << std::strerror(errno) << std::endl;
-			return (false);
-		}
-		this->_pollFds.erase(this->_pollFds.begin() + index);
-		this->_clients.erase(index);
 		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
+		this->removeClient(index);
 		return (true);
 	}
 	// No problem
@@ -267,15 +250,7 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	if (!client->hasSomethingToSend())
 	{
 		if (!client->getConnectionState())
-		{
-			if (close(clientFd) == -1)
-			{
-				std::cerr << "close: " << std::strerror(errno) << std::endl;
-				return (false);
-			}
-			this->_pollFds.erase(this->_pollFds.begin() + index);
-			this->_clients.erase(index);
-		}
+			this->removeClient(index);
 		else
 			this->_pollFds[index].events = POLLIN;
 		return (true);
@@ -283,12 +258,22 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 
 	const std::string &response = client->getSendBuffer();;
 	ssize_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
-	if (byte_send == -1)
+	if (byte_send <= 0)
 	{
-		return (false); // error
+		this->removeClient(index);
+		return (true);
 	}
 	
 	client->removeReponseSend(byte_send);
 
 	return (true);
+}
+
+void	Server::removeClient(int index)
+{
+	int	fd = this->_pollFds[index].fd;
+
+	close(fd);
+	this->_clients.erase(fd);
+	this->_pollFds.erase(this->_pollFds.begin() + index);
 }
