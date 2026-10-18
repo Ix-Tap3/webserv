@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:01:04 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 18:01:22 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/09 11:22:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,3 +41,5 @@ struct Token
 	std::string	value;
 	TokenPos	pos;
 };
+
+std::string	strTokenType( TokenType type );

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JsonParser.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/30 20:32:13 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 15:26:51 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cstdlib>
 #include "../../includes/json/JsonParser.hpp"
+#include "../../includes/json/JsonUnexpectedTokenException.hpp"
 
 JsonParser::JsonParser	( std::vector<Token> &tokenList ): _tokenList(tokenList), _pos(0) { }
 
@@ -27,56 +28,12 @@ Token	JsonParser::peek( void ) const
 	return this->_tokenList[this->_pos];
 }
 
-static std::string	strTokenType( TokenType type )
-{
-	switch (type)
-	{
-		case TOKEN_LBRACE:
-			return std::string("LBRACE");
-		case TOKEN_RBRACE:
-			return std::string("RBRACE");
-		case TOKEN_LBRACKET:
-			return std::string("LBRACKET");
-		case TOKEN_RBRACKET:
-			return std::string("RBRACKET");
-		case TOKEN_COLON:
-			return std::string("COLON");
-		case TOKEN_COMMA:
-			return std::string("COMMA");
-		case TOKEN_BOOL:
-			return std::string("BOOL");
-		case TOKEN_STRING:
-			return std::string("STRING");
-		case TOKEN_NUMBER:
-			return std::string("NUMBER");
-		case TOKEN_END:
-			return std::string("END");
-		case TOKEN_NULL:
-			return std::string("NULL");
-	}
-	return std::string();
-}
-
-static std::string	getUnexpectedTokenError(const Token &token, std::size_t pos)
-{
-	std::stringstream	ss;
-
-	ss << "Unexpected " << strTokenType(token.type) << " token, value: <" << token.value << "> at index: " << pos;
-
-	return ss.str();
-}
-
 Token	JsonParser::expect( TokenType type )
 {
 	Token	current = this->peek();
 
 	if (current.type != type)
-	{
-		std::string	msg = getUnexpectedTokenError(current, this->_pos);
-
-		msg += ", expected " + strTokenType(type) + " token";
-		throw JsonParseException(msg);
-	}
+		throw JsonUnexpectedTokenException(current, type, PARSE_ERROR);
 	return this->advance();
 }
 
@@ -119,7 +76,7 @@ JsonValue	JsonParser::parseValue( void )
 		case TOKEN_NULL:
 			return this->parseNull();
 		default:
-			throw JsonParseException(getUnexpectedTokenError(current, this->_pos));
+			throw JsonUnexpectedTokenException(current, PARSE_ERROR);
 	}
 }
 
@@ -135,12 +92,16 @@ JsonValue	JsonParser::parseObject( void )
 	while (true && !empty)
 	{
 		std::string	key = expect(TOKEN_STRING).value;
-		expect(TOKEN_COLON);
 		if (map.count(key) > 0)
 			throw JsonParseException("Invalid duplicated key " + key );
+		expect(TOKEN_COLON);
 		map[key] = this->parseValue();
 		if (!this->check(TOKEN_COMMA))
+		{
+			if (this->check(TOKEN_STRING))
+				throw JsonUnexpectedTokenException(this->peek(), TOKEN_COMMA, PARSE_ERROR);
 			break ;
+		}
 		this->advance();
 	}
 	this->expect(TOKEN_RBRACE);

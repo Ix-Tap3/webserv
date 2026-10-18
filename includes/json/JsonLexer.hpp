@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   JsonLexer.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:05:19 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/08/27 16:57:09 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 14:16:45 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,14 @@ class JsonLexer
 private:
 	std::string	_input;
 	std::size_t	_pos;
+	std::size_t	_currentLine;
+	std::size_t	_currentCol;
 
 	bool		isEnd( void ) const;
 	char		peek( void ) const;
 	char		advance( void );
 	void		skipWhiteSpace( void );
+	void		setTokenPos( TokenPos &pos ) const;
 	Token		lexString( void );
 	Token		lexNumber( void );
 	Token		lexSymbol( void );
@@ -37,7 +40,7 @@ private:
 
 	public:
 		JsonLexerException	( std::string msg );
-		~JsonLexerException	( void );
+		~JsonLexerException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};
@@ -48,14 +51,15 @@ private:
 		std::string	_msg;
 
 	public:
-		JsonSyntaxException		( std::string mdg );
-		~JsonSyntaxException	( void );
+		JsonSyntaxException		( std::string msg );
+		~JsonSyntaxException	( void ) throw();
 
 		const char	*what( void ) const throw();
 	};
 
+
 public:
-	JsonLexer	( std::string &fileName );
+	JsonLexer	( const std::string &fileName );
 
 	std::string	getSrc( void ) const;
 
