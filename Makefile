@@ -1,14 +1,41 @@
 #==================================== MAKEFILE ====================================#
 
 NAME = webserv
+
 CXX = c++
-FLAGS = -g -Wall -Werror -Wextra -std=c++98 -I includes/server -I includes/json -I includes
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+
+INCLUDES = -I includes \
+		   -I includes/server \
+		   -I includes/Http \
+		   -I includes/Utils \
+		   -I includes/json
+
 SRCS_DIR = srcs
-SRCS = main.cpp $(SRCS_DIR)/json/JsonLexer.cpp $(SRCS_DIR)/json/JsonValue.cpp $(SRCS_DIR)/json/JsonParser.cpp \
-	   $(SRCS_DIR)/server/Client.cpp $(SRCS_DIR)/server/Server.cpp $(SRCS_DIR)/server/ConfigLoader.cpp \
-	   $(SRCS_DIR)/json/JsonUtils.cpp $(SRCS_DIR)/json/JsonUnexpectedTokenException.cpp
+JSON_DIR = $(SRCS_DIR)/json
+SERV_DIR = $(SRCS_DIR)/server
+HTTP_DIR = $(SRCS_DIR)/Http
+UTILS_DIR = $(SRCS_DIR)/Utils
+
+SRCS = main.cpp \
+	$(HTTP_DIR)/HttpParser.cpp \
+	$(HTTP_DIR)/HttpException.cpp \
+	$(HTTP_DIR)/HttpResponse.cpp \
+	$(HTTP_DIR)/HttpRequestHandler.cpp \
+	$(SERV_DIR)/Server.cpp \
+	$(SERV_DIR)/Client.cpp \
+	$(SERV_DIR)/ConfigLoader.cpp \
+	$(UTILS_DIR)/Utils.cpp \
+	$(JSON_DIR)/JsonLexer.cpp \
+	$(JSON_DIR)/JsonValue.cpp \
+	$(JSON_DIR)/JsonParser.cpp \
+	$(JSON_DIR)/JsonUtils.cpp \
+	$(JSON_DIR)/JsonUnexpectedTokenException.cpp
+
 OBJS_DIR = objs
+
 OBJS = $(SRCS:%.cpp=$(OBJS_DIR)/%.o)
+DEPS = $(OBJS:.o=.d)
 
 #==================================== COLORS ====================================#
 
@@ -37,7 +64,7 @@ endef
 
 #==================================== PHONY ====================================#
 
-.PHONY: all bonus clean fclean re
+.PHONY: all clean fclean re
 
 #==================================== RULES ====================================#
 
@@ -46,18 +73,20 @@ all: header $(NAME)
 
 header:
 	$(HEADER)
-	@printf "\n";
+	@printf "\n"
 
 $(NAME): $(OBJS)
 	@printf "\n"
 	@printf "$(INFO)Linking %s...$(RESET)\n" "$(NAME)"
-	@$(CXX) $(OBJS) -o $(NAME)
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 	@printf "$(PRIMARY)%s Ready !$(RESET)\n" "$(NAME)"
 
 $(OBJS_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r$(ACCENT)Compiling: %-40s$(RESET)$(ESC)[K" "$<"
-	@$(CXX) $(FLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+
+-include $(DEPS)
 
 clean: header
 	@printf "$(INFO)Cleaning $(NAME) objects...$(RESET)\n"
@@ -68,4 +97,4 @@ fclean: header clean
 	@printf "$(ERROR)Cleanning %s...$(RESET)\n" "$(NAME)"
 	@rm -rf $(NAME)
 
-re: header fclean all
+re: fclean all

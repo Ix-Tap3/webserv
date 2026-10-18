@@ -6,15 +6,15 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/08/31 17:50:27 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:57:33 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "../../includes/WebservInclude.h"
-# include "../../includes/server/Client.hpp"
+# include <WebservInclude.h>
+# include <Client.hpp>
 
 class Server
 {
@@ -24,6 +24,10 @@ private:
 	std::map<int, Client>		_clients;
 
 	// === SETUP PART === //
+	struct pollfd	setupServerPoll();
+	bool			setupListen(struct addrinfo *res);
+	bool			setupBind(struct addrinfo *res);
+	bool			setupSocket(struct addrinfo *res);
 
 	// === RUN PART === //
 	// Server Socket //
@@ -31,6 +35,9 @@ private:
 	bool	acceptNewClient();
 	// Clients Socket //
 	bool	watchClientsSocket(int index);
+	bool	clientPOLLIN(Client *client, int clientFd, int index);
+	bool	clientPOLLOUT(Client *client, int clientFd, int index);
+	void	removeClient(int index);
 
 public:
 	Server();
