@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 17:01:50 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/18 18:20:11 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,8 +132,7 @@ bool	Server::run()
 			// Add a function to close all the fds
 			return (false);
 		}
-
-		for (size_t i = 0; i < this->_pollFds.size(); i++)
+		for (size_t i = this->_pollFds.size(); i-- > 0; )
 		{
 			// If server fd
 			if (this->_pollFds[i].fd == this->_socketFd)
