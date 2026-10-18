@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/15 17:52:47 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:10:47 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,8 @@ struct ResponseData
 	int			_connection;
 	std::string	_body;
 	std::string	_contentType;
+
+	ResponseData(): _statusCode(0), _contentLength(0), _connection(0) {}
 };
 
 #endif

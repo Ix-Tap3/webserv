@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:37:44 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:11:09 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ void	Client::appendSendData(std::string data)
 	this->_sendBuffer += data;
 }
 
-void	Client::stashHeaders()
+bool	Client::stashHeaders()
 {
 	size_t endOfHeader = this->_recvBuffer.find("\r\n\r\n");
 	this->_strHeader = this->_recvBuffer.substr(0, endOfHeader + 4);
@@ -201,8 +201,13 @@ void	Client::stashHeaders()
 	}
 	catch(const HttpException& e)
 	{
-		std::cerr << e.getStatusCode() << " ";
-		std::cerr << e.what() << std::endl;
+		ResponseData	err;
+		err._statusCode	= e.getStatusCode();
+		err._connection = 0;
+		this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(err);
+		this->_state.connection = false;
+		this->_recvBuffer.clear();
+		return (false);
 	}
 	this->_contentLength = extractContentLength();
 	if (this->_contentLength > 0)
@@ -211,6 +216,7 @@ void	Client::stashHeaders()
 		this->_state.body = true;
 	}
 	this->_state.connection = extractConnection();
+	return (true);
 }
 
 void	Client::stashBody()

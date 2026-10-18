@@ -6,11 +6,12 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/15 19:01:31 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 15:58:53 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <HttpRequestHandler.hpp>
+#include <string>
 
 // === INIT === //
 
@@ -40,9 +41,15 @@ void	HttpRequestHandler::initTypeTable(void)
 
 std::string HttpRequestHandler::getRequestTarget(std::string& target)
 {
-	std::vector<std::string> tmp = Utils::strSplit(target, '?');
-	target = tmp[0];
-	return (tmp[1]);
+	size_t		q = target.find('?');
+	std::string	query;
+
+	if (q != std::string::npos)
+	{
+		query = target.substr(q + 1);
+		target.erase(q);
+	}
+	return (query);
 }
 
 std::string HttpRequestHandler::getExtension(const std::string& target)
@@ -60,6 +67,7 @@ std::string HttpRequestHandler::getExtension(const std::string& target)
 // === MAIN FUNCTION === //
 ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 {
+	this->_responseData = ResponseData();
 	const std::string& method = httpRequest.requestLine._method;
 
 	if (method == "GET")

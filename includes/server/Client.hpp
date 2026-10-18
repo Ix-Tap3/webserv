@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 19:33:15 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:10:57 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ public:
 	// === RECEIVE DATA === //
 	void	appendReceivedData(char	*buff, int len);
 	bool	hasCompleteHeaders() const;
-	void	stashHeaders();
+	bool	stashHeaders();
 	void	stashBody();
 
 	// === SEND DATA === //

@@ -6,11 +6,13 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/09/30 22:04:04 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/18 16:13:44 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <Server.hpp>
+#include <fcntl.h>
+#include <netdb.h>
 
 Server::Server()
 {
@@ -69,6 +71,12 @@ bool			Server::setupSocket(struct addrinfo *res)
 	if (this->_socketFd == -1)
 	{
 		std::cerr << "socket: " << std::strerror(errno) << std::endl;
+		freeaddrinfo(res);
+		return (false);
+	}
+	if (fcntl(this->_socketFd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		close(this->_socketFd);
 		freeaddrinfo(res);
 		return (false);
 	}
@@ -165,11 +173,16 @@ bool	Server::acceptNewClient()
 
 	if (client_fd == -1)
 	{
-		std::cerr << "accept: " << std::strerror(errno) << std::endl;
-		close(this->_socketFd);
-		return (false);
+		//std::cerr << "accept: " << std::strerror(errno) << std::endl;
+		//close(this->_socketFd);
+		//return (false);
+		return (true);
 	}
-
+	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		close(client_fd);
+		return (true);
+	}
 	struct pollfd newClient = {client_fd, POLLIN, 0};
 
 	this->_pollFds.push_back(newClient);
@@ -235,7 +248,11 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 		// We received all of the HTTP header
 		// that not mean that we received all, there's maybe a body so if we read enougth bytes
 		// (number of bytes are indicated by Content-Length)
-		client->stashHeaders();
+		if (!client->stashHeaders())
+		{
+			this->_pollFds[index].events = POLLOUT;
+			return (true);
+		}
 	}
 	if (client->getContentLength() <= client->getNbBodyByte())
 	{
