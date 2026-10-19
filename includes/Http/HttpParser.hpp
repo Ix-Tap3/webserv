@@ -6,15 +6,15 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/01 18:44:35 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/19 12:45:05 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPPARSER_HPP
 # define HTTPPARSER_HPP
-# include <WebservInclude.h>
-# include <HttpException.hpp>
-# include <Utils.hpp>
+# include "../../includes/WebservInclude.h"
+# include "../../includes/Http/HttpException.hpp"
+# include "../../includes/Utils/Utils.hpp"
 
 class HttpParser
 {

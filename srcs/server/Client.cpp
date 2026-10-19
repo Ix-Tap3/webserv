@@ -6,11 +6,12 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:11:09 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 12:54:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Client.hpp>
+# include "../../includes/server/Client.hpp"
+
 
 void	Client::printHeader()
 {
@@ -138,10 +139,10 @@ bool		Client::extractConnection()
 		std::string value = Utils::strToMin((*it).second);
 		if (name == "connection")
 		{
-			size_t pos = value.find("close");
+			// size_t pos = value.find("close");
 			if (isClose(value))
 				return (false);
-			pos = value.find("keep-alive");
+			// pos = value.find("keep-alive");
 			if (isKeepAlive(value))
 				state = true;
 		}
