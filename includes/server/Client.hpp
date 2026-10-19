@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:10:57 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:22:17 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ private:
 public:
 
 	Client();
-	Client(int fd);
+	Client(int fd, const ServerConfig *config);
 	~Client();
 
 	void	printHeader();

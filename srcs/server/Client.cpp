@@ -38,7 +38,7 @@ Client::Client()
 	this->_nbBodyByte = 0;
 }
 
-Client::Client(int fd)
+Client::Client(int fd, const ServerConfig *config): _httpRequestHandler(config)
 {
 	this->_fd = fd;
 	this->_contentLength = -1;
@@ -201,9 +201,7 @@ bool	Client::stashHeaders()
 	}
 	catch(const HttpException& e)
 	{
-		ResponseData	err;
-		err._statusCode	= e.getStatusCode();
-		err._connection = 0;
+		ResponseData	err = this->_httpRequestHandler.handleError(e.getStatusCode());
 		this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(err);
 		this->_state.connection = false;
 		this->_recvBuffer.clear();

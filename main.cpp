@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/18 17:00:20 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:19:56 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int	main( int ac, char **av )
 
 	std::signal(SIGPIPE, SIG_IGN);
 
-	Server server;
+	Server server(data);
 
 	if (!server.setup())
 		return (1);

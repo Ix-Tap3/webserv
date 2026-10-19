@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/15 18:52:18 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:20:15 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,18 @@ void	HttpResponse::initReasonPhraseTable(void)
 	// 3xx Redirection
 	this->_reasonPhraseTable[301] = "Moved Permanently";
 	this->_reasonPhraseTable[302] = "Moved Temporarily";
+	this->_reasonPhraseTable[303] = "See Other";
 	this->_reasonPhraseTable[304] = "Not Modified";
+	this->_reasonPhraseTable[307] = "Temporary Redirect";
+	this->_reasonPhraseTable[308] = "Permanent Redirect";
 
 	// 4xx Client Error
 	this->_reasonPhraseTable[400] = "Bad Request";
 	this->_reasonPhraseTable[401] = "Unauthorized";
 	this->_reasonPhraseTable[403] = "Forbidden";
 	this->_reasonPhraseTable[404] = "Not Found";
+	this->_reasonPhraseTable[405] = "Method Not Allowed";
+	this->_reasonPhraseTable[413] = "Payload Too Large";
 
 	// 5xx Server Error
 	this->_reasonPhraseTable[500] = "Internal Server Error";
@@ -70,8 +75,14 @@ std::string	HttpResponse::createHeader(const ResponseData& responseData)
 
 std::string	HttpResponse::createHeaderFields(const ResponseData& responseData)
 {
-	// this function will be improved to add location fields for 3xx code (redirection)
 	std::string	headerFields;
+
+	if (!responseData._location.empty())
+	{
+		headerFields.append("Location: ");
+		headerFields.append(responseData._location);
+		headerFields.append("\r\n");
+	}
 
 	headerFields.append("Content-Length: ");
 	headerFields.append(Utils::intToString(responseData._contentLength));

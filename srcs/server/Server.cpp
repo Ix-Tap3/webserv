@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 
-Server::Server()
+Server::Server(const ServerConfig &config): _config(config)
 {
 }
 
@@ -25,14 +25,25 @@ Server::~Server()
 // === SETUP PART === //
 bool	Server::setup()
 {
+	for (size_t i = 0; i < this->_config.ports.size(); i++)
+	{
+		if (!setupListener(this->_config.ports[i]))
+			return (false);
+	}
+	return (true);
+}
+
+bool	Server::setupListener(int port)
+{
 	struct addrinfo hints = {};
 	struct addrinfo *res = NULL;
+	std::string		portStr = Utils::intToString(port);
 
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	
-	int status = getaddrinfo("127.0.0.1", "8080", &hints, &res);
+
+	int status = getaddrinfo(this->_config.ip.c_str(), portStr.c_str(), &hints, &res);
 	if (status != 0)
 	{
 		std::cerr << "getaddrinfo: " << gai_strerror(status) << std::endl;
@@ -41,27 +52,30 @@ bool	Server::setup()
 
 	if (!setupSocket(res))
 		return (false);
-	std::cout << "Socket successful" << std::endl;
 
 	int opt = 1;
 	if (setsockopt(this->_socketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 	{
 		perror("setsockopt");
+		close(this->_socketFd);
+		freeaddrinfo(res);
 		return (false);
 	}
 
 	if (!setupBind(res))
+	{
+		std::cerr << "Cannot listen on " << this->_config.ip << ":" << port << std::endl;
 		return (false);
-	std::cout << "Bind successful" << std::endl;
+	}
 
 	if (!setupListen(res))
 		return (false);
-	std::cout << "Listen successful" << std::endl;
 
-	
 	this->_pollFds.push_back(setupServerPoll());
+	this->_socketFds.push_back(this->_socketFd);
 
 	freeaddrinfo(res);
+	std::cout << "Listening on " << this->_config.ip << ":" << port << std::endl;
 	return (true);
 }
 
@@ -135,7 +149,7 @@ bool	Server::run()
 		for (size_t i = this->_pollFds.size(); i-- > 0; )
 		{
 			// If server fd
-			if (this->_pollFds[i].fd == this->_socketFd)
+			if (isServerSocket(this->_pollFds[i].fd))
 			{
 				if (!watchServerSocket(i))
 				{
@@ -156,19 +170,29 @@ bool	Server::run()
 }
 
 // Server Socket //
+bool	Server::isServerSocket(int fd) const
+{
+	for (size_t i = 0; i < this->_socketFds.size(); i++)
+	{
+		if (this->_socketFds[i] == fd)
+			return (true);
+	}
+	return (false);
+}
+
 bool	Server::watchServerSocket(int index)
 {
 	if (this->_pollFds[index].revents & POLLIN)
 	{
-		if (!acceptNewClient())
+		if (!acceptNewClient(this->_pollFds[index].fd))
 			return (false);
 	}
 	return (true);
 }
 
-bool	Server::acceptNewClient()
+bool	Server::acceptNewClient(int serverFd)
 {
-	int	client_fd = accept(this->_socketFd, NULL, NULL);
+	int	client_fd = accept(serverFd, NULL, NULL);
 
 	if (client_fd == -1)
 	{
@@ -185,7 +209,7 @@ bool	Server::acceptNewClient()
 	struct pollfd newClient = {client_fd, POLLIN, 0};
 
 	this->_pollFds.push_back(newClient);
-	this->_clients.insert(std::make_pair(client_fd, Client(client_fd)));
+	this->_clients.insert(std::make_pair(client_fd, Client(client_fd, &this->_config)));
 
 	std::cout << "Client connected!" << std::endl;
 	return (true);

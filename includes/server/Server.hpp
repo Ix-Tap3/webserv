@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:57:33 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:22:48 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,19 @@
 
 # include <WebservInclude.h>
 # include <Client.hpp>
+# include <configs.h>
 
 class Server
 {
 private:
-	int	_socketFd;
-	std::vector<struct pollfd> _pollFds;
+	const ServerConfig			&_config;
+	int							_socketFd;
+	std::vector<int>			_socketFds;
+	std::vector<struct pollfd>	_pollFds;
 	std::map<int, Client>		_clients;
 
 	// === SETUP PART === //
+	bool			setupListener(int port);
 	struct pollfd	setupServerPoll();
 	bool			setupListen(struct addrinfo *res);
 	bool			setupBind(struct addrinfo *res);
@@ -31,8 +35,9 @@ private:
 
 	// === RUN PART === //
 	// Server Socket //
+	bool	isServerSocket(int fd) const;
 	bool	watchServerSocket(int index);
-	bool	acceptNewClient();
+	bool	acceptNewClient(int serverFd);
 	// Clients Socket //
 	bool	watchClientsSocket(int index);
 	bool	clientPOLLIN(Client *client, int clientFd, int index);
@@ -40,7 +45,7 @@ private:
 	void	removeClient(int index);
 
 public:
-	Server();
+	Server(const ServerConfig &config);
 	~Server();
 
 	bool	setup();
