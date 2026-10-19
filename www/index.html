@@ -96,8 +96,8 @@
   <ul>
     <li><a href="/" data-path="/">/</a><span class="dim">this page, 200</span></li>
     <li><a href="/does-not-exist" data-path="/does-not-exist">/does-not-exist</a><span class="dim">expect 404</span></li>
-    <li><a href="/upload" data-path="/upload">/upload</a><span class="dim">upload route, if configured</span></li>
-    <li><a href="/cgi-bin/" data-path="/cgi-bin/">/cgi-bin/</a><span class="dim">CGI, if configured</span></li>
+    <li><a href="/upload/index.html" data-path="/upload/index.html">/upload/index.html</a><span class="dim">upload form, 200</span></li>
+    <li><a href="/old" data-path="/old">/old</a><span class="dim">redirect, expect 301 to /</span></li>
   </ul>
 
   <footer>Edit this file in your server's root directory. Routes above depend on your config.</footer>

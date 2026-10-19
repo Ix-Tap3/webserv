@@ -1,17 +1,17 @@
-{	
-	"ip": "localhost",
-	"ports": [ 4242, 8080 ],
-	"hosts": [ "example.com.", "castorland.castor" ],
-	"root": "/heheboys",
-	"default_page": "/webserv.html",
-	"directory_listing": true,
+{
+	"ip": "127.0.0.1",
+	"ports": [ 8080, 8081 ],
+	"hosts": [ "localhost", "webserv.local" ],
+	"root": "/home/marudlof/cursus/SCHOOL/webserv/www",
+	"default_page": "/index.html",
+	"directory_listing": false,
 
 	"error_pages": {
 		"404": "/errors/404.html",
-		"505": "/errors/505.html"
+		"500": "/errors/500.html"
 	},
 
-	"max_body_size": 10000000
+	"max_body_size": 10000000,
 
 	"cgis": {
 		".php": "/usr/bin/php-cgi",
@@ -21,20 +21,21 @@
 	"locations":
 	[
 		{
-			"path": "/www",
-			"root": "/user/home/mon_site",
-			"methods": [ "GET", "POST" ],
-			"directory_listing": false,
-			"default_page": "/index.html",
-			"upload": "/",
-			"redir": {
-				"303": "/test"
-			}
+			"path": "/",
+			"methods": [ "GET" ]
 		},
 		{
 			"path": "/upload",
-			"methods": [ "POST" ],
-			"upload": "/user/www/upload"
+			"methods": [ "GET", "POST", "DELETE" ],
+			"directory_listing": true,
+			"upload": "/home/marudlof/cursus/SCHOOL/webserv/www/upload",
+			"max_body_size": 50000000
+		},
+		{
+			"path": "/old",
+			"redir": {
+				"301": "/"
+			}
 		}
 	]
 }

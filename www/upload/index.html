@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload</title>
+<style>
+  :root {
+    --bg: #14171c;
+    --panel: #1c2027;
+    --line: #2d333d;
+    --text: #d9dee7;
+    --dim: #8791a1;
+    --accent: #56b6c2;
+    --warn: #f2c94c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  main { width: 100%; max-width: 720px; }
+  h1 { font-size: 2rem; margin: 0; }
+  .sub { color: var(--dim); margin: 4px 0 28px; }
+  form {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  input[type=file] { flex: 1; min-width: 0; color: var(--dim); font: inherit; font-size: .9rem; }
+  button {
+    font: inherit; font-size: .9rem;
+    background: var(--accent); color: #0b1013;
+    border: 1px solid var(--accent); border-radius: 4px; padding: 6px 14px; cursor: pointer;
+  }
+  :focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  footer { margin-top: 40px; color: var(--dim); font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Upload</h1>
+  <p class="sub">POST a file to <code>/upload</code>. Max size: 50 MB.</p>
+
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" aria-label="File to upload" required>
+    <button type="submit">Send</button>
+  </form>
+
+  <footer><a href="/">&larr; Back to home</a></footer>
+</main>
+</body>
+</html>
