@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 17:27:42 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 14:43:28 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/14 15:43:21 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,8 +213,9 @@ Token	JsonLexer::lexKeyword( void )
 
 Token	JsonLexer::lexSymbol( void )
 {
-	char	c = this->advance();
 	Token	tok;
+	setTokenPos(tok.pos);
+	char	c = this->advance();
 
 	switch (c)
 	{
@@ -243,7 +244,6 @@ Token	JsonLexer::lexSymbol( void )
 			tok.value.append(",");
 			break ;
 	}
-	setTokenPos(tok.pos);
 	return tok;
 }
 
