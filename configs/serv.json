@@ -2,7 +2,7 @@
 	"ip": "127.0.0.1",
 	"ports": [ 8080, 8081 ],
 	"hosts": [ "localhost", "webserv.local" ],
-	"root": "/home/marudlof/cursus/SCHOOL/webserv/www",
+	"root": "/home/pcaplat/Documents/code/cpp/webserv/www",
 	"default_page": "/index.html",
 	"directory_listing": false,
 
