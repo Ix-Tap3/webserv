@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 20:22:45 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/14 15:26:51 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/19 13:48:02 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,7 +232,10 @@ static void	debugJsonTree( const JsonValue &value, int depth )
             std::cout << value.getFloat();
             break ;
         case JSON_BOOL:
-            std::cout << (value.getBool() ? "true" : "false");
+            if (value.getBool())
+                std::cout << "true";
+            else
+                std::cout << "false";
             break ;
         case JSON_NULL:
             std::cout << "null";

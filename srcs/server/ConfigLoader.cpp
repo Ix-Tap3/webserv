@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 20:08:14 by tseche           ###   ########.fr       */
+/*   Updated: 2026/10/19 13:48:56 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -654,7 +654,11 @@ void	displayServerConfig( ServerConfig config )
 	}
 	std::cout << std::endl;
 	std::cout << "server max_body_size: " << config.max_body_size << std::endl;
-	std::cout << "server directory_listing: " << (config.directory_listing ? "true" : "false") << std::endl;
+	std::cout << "server directory_listing: ";
+	if (config.directory_listing)
+		std::cout << "true" << std::endl;
+	else
+		std::cout << "false" << std::endl;
 	
 	std::cout << "server locations: " << std::endl;
 	int	idx = 1;
@@ -665,7 +669,11 @@ void	displayServerConfig( ServerConfig config )
 			std::cout << "\tLocation " << idx << " redir : code: " << it->redirect_code << ", path: " << it->redirect_path << std::endl;
 		else
 			std::cout << "\tNo redirection set for this location." << std::endl;
-		std::cout << "\tLocation " << idx << " directory_listing: " << (it->directory_listing ? "true" : "false") << std::endl;
+		std::cout << "\tLocation " << idx << " directory_listing: ";
+		if (it->directory_listing)
+			std::cout << "true" << std::endl;
+		else
+			std::cout << "false" << std::endl;
 		std::cout << "\tLocation " << idx << " max_body_size: " << it->max_body_size << std::endl;
 		std::cout << "\tLocation " << idx << " root: " << it->root << std::endl;
 		std::cout << "\tLocation " << idx << " default_page: " << it->default_page << std::endl;
