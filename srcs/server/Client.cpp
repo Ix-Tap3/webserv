@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:11:09 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:48:53 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,6 +228,7 @@ void	Client::stashBody()
 	this->_state.body = false;
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
+	this->_contentLength = -1;
 
 	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
 }

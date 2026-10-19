@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 18:20:11 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 13:50:36 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,18 +225,16 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	}
 	// No problem
 	client->appendReceivedData(buff, res);
-	if (client->hasCompleteHeaders())
+	if (client->getContentLength() == -1 && client->hasCompleteHeaders())
 	{
-		// We received all of the HTTP header
-		// that not mean that we received all, there's maybe a body so if we read enougth bytes
-		// (number of bytes are indicated by Content-Length)
 		if (!client->stashHeaders())
 		{
 			this->_pollFds[index].events = POLLOUT;
 			return (true);
 		}
 	}
-	if (client->getContentLength() <= client->getNbBodyByte())
+	if (client->getContentLength() != -1
+		&& client->getContentLength() <= client->getNbBodyByte())
 	{
 		client->stashBody();
 		this->_pollFds[index].events = POLLOUT | POLLIN;
