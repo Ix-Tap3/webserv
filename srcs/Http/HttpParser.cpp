@@ -6,12 +6,11 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:14:02 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 12:49:28 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <HttpParser.hpp>
-
+#include "../../includes/Http/HttpParser.hpp"
 // ============== //
 // === BORING === //
 // ============== //
@@ -398,14 +397,14 @@ bool		HttpParser::isValidHostname(std::string& value)
 			return (false);
 		if (value[i] == '.')
 		{
-			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
+			if (i + 1 >= value.length() || i == 0) // is there chars around
 				return (false);
 			if (!isalnum(static_cast<unsigned char>(value[i + 1])) || !isalnum(static_cast<unsigned char>(value[i - 1]))) // is the chars around aren't alphanum
 				return (false);
 		}
 		if (value[i] == '-') // all char are authorized around except for '.'
 		{
-			if (i + 1 >= value.length() || i - 1 < 0) // is there chars around
+			if (i + 1 >= value.length() || i == 0) // is there chars around
 				return (false);
 			if (value[i - 1] == '.' || value[i + 1] == '.')
 				return (false);

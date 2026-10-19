@@ -6,19 +6,19 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:22:17 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/19 14:24:43 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include <WebservInclude.h>
-# include <Utils.hpp>
+# include "../../includes/WebservInclude.h"
+# include "../../includes/Utils/Utils.hpp"
 
-# include <HttpParser.hpp>
-# include <HttpRequestHandler.hpp>
-# include <HttpResponse.hpp>
+# include "../../includes/Http/HttpParser.hpp"
+# include "../../includes/Http/HttpRequestHandler.hpp"
+# include "../../includes/Http/HttpResponse.hpp"
 
 struct State
 {
