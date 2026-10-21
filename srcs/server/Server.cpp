@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:50:36 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/21 18:06:14 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,63 @@ struct pollfd	Server::setupServerPoll()
 
 
 // === RUN PART === //
+
+void	Server::addFdToCloseList( int fd )
+{
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return ;
+	this->_fdsToClose.push_back(fd);
+}
+
+void	Server::clearFds( void )
+{
+	if (this->_fdsToClose.empty())
+		return ;
+
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+	{
+		close(*it);
+		if (isClientFd(*it))
+			this->_clients.erase(*it);
+	}
+
+	// for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+	// 	if (isInFdCloseList(it->fd))
+	// 		this->_pollFds.erase(it);
+
+	rebuildPollFds();
+
+	this->_fdsToClose.clear();
+}
+
+bool	Server::isClientFd( int fd ) const
+{
+	if (this->_clients.count(fd) > 0)
+		return true;
+	return false;
+}
+
+bool	Server::isInFdCloseList( int fd ) const
+{
+	for (std::vector<int>::const_iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return true;
+
+	return false;
+}
+
+void	Server::rebuildPollFds( void )
+{
+	std::vector<struct pollfd>	newPollFds;
+
+	for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+		if (!isInFdCloseList(it->fd))
+			newPollFds.push_back(*it);
+
+	this->_pollFds = newPollFds;
+}
+
 bool	Server::run()
 {
 	while (true)
@@ -148,6 +205,8 @@ bool	Server::run()
 		}
 		for (size_t i = this->_pollFds.size(); i-- > 0; )
 		{
+			if (isInFdCloseList(this->_pollFds[i].fd))
+				continue ;
 			// If server fd
 			if (isServerSocket(this->_pollFds[i].fd))
 			{
@@ -157,14 +216,21 @@ bool	Server::run()
 				}
 			}
 			// If client fd
-			else 
+			else if (Server::isClientFd(this->_pollFds[i].fd))
 			{
 				if (!watchClientsSocket(i))
 				{
 					return (false);
 				}
 			}
+			else
+			{
+				addFdToCloseList(this->_pollFds[i].fd);
+				std::cout << "Unknown fd encouter in run() fuction" << std::endl;
+			}
+			// If CGI fd
 		}
+		clearFds();
 	}
 	return (true);
 }
@@ -221,6 +287,11 @@ bool	Server::watchClientsSocket(int index)
 	int		client_fd = this->_pollFds[index].fd;
 	Client	*client = &this->_clients[client_fd];
 
+	if (this->_pollFds[index].revents & (POLLERR | POLLHUP | POLLNVAL))
+	{
+		addFdToCloseList(this->_pollFds[index].fd);
+		return (true);
+	}
 	if (this->_pollFds[index].revents & POLLIN)
 	{
 		if (!this->clientPOLLIN(client, client_fd, index))
@@ -244,7 +315,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	if (res <= 0)
 	{
 		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
-		this->removeClient(index);
+		this->addFdToCloseList(this->_pollFds[index].fd);
 		return (true);
 	}
 	// No problem
@@ -271,7 +342,7 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	if (!client->hasSomethingToSend())
 	{
 		if (!client->getConnectionState())
-			this->removeClient(index);
+			this->addFdToCloseList(this->_pollFds[index].fd);
 		else
 			this->_pollFds[index].events = POLLIN;
 		return (true);
@@ -281,20 +352,11 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	ssize_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
 	if (byte_send <= 0)
 	{
-		this->removeClient(index);
+		this->addFdToCloseList(this->_pollFds[index].fd);
 		return (true);
 	}
 	
 	client->removeReponseSend(byte_send);
 
 	return (true);
-}
-
-void	Server::removeClient(int index)
-{
-	int	fd = this->_pollFds[index].fd;
-
-	close(fd);
-	this->_clients.erase(fd);
-	this->_pollFds.erase(this->_pollFds.begin() + index);
 }

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:22:48 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/21 17:36:56 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ private:
 	int							_socketFd;
 	std::vector<int>			_socketFds;
 	std::vector<struct pollfd>	_pollFds;
+	std::map<int, int>			_cgisFds; // int: pipeFd, int: clientFd
+	std::vector<int>			_fdsToClose;
 	std::map<int, Client>		_clients;
 
 	// === SETUP PART === //
@@ -42,7 +44,12 @@ private:
 	bool	watchClientsSocket(int index);
 	bool	clientPOLLIN(Client *client, int clientFd, int index);
 	bool	clientPOLLOUT(Client *client, int clientFd, int index);
-	void	removeClient(int index);
+	// Utils //
+	bool	isInFdCloseList( int fd ) const;
+	bool	isClientFd( int fd ) const;
+	void	clearFds( void );
+	void	addFdToCloseList( int fd );
+	void	rebuildPollFds( void );
 
 public:
 	Server(const ServerConfig &config);
