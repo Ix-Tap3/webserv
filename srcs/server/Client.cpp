@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 09:49:48 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 10:57:17 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,10 +211,7 @@ bool	Client::stashHeaders()
 	}
 	catch(const HttpException& e)
 	{
-		ResponseData	err = this->_httpRequestHandler.handleError(e.getStatusCode());
-		this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(err);
-		this->_state.connection = false;
-		this->_recvBuffer.clear();
+		this->prepareErrorResponse(e.getStatusCode());
 		return (false);
 	}
 	this->_contentLength = extractContentLength();
@@ -245,4 +242,25 @@ void	Client::stashBody()
 void	Client::removeReponseSend(size_t byte_send)
 {
 	this->_sendBuffer.erase(0, byte_send);
+}
+
+bool	Client::hasPendingRequest( void ) const
+{
+	if (!this->_recvBuffer.empty() || this->_state.body)
+		return true;
+	return false;
+}
+
+void	Client::prepareErrorResponse( int code )
+{
+	ResponseData	err = this->_httpRequestHandler.handleError(code);
+
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(err);
+
+	this->_state.connection = false;
+	this->_state.body = false;
+	this->_state.header = true;
+	this->_recvBuffer.clear();
+	this->_contentLength = -1;
+	this->_nbBodyByte = 0;
 }

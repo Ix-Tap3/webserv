@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 09:49:49 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 10:52:45 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,10 @@ public:
 	void	stashBody();
 
 	// === SEND DATA === //
-	void		appendSendData(std::string data);
-	bool		hasSomethingToSend() const;
+	void				appendSendData(std::string data);
+	bool				hasSomethingToSend() const;
 	const std::string&	getSendBuffer() const;
-	void		removeReponseSend(size_t byte_send);
+	void				removeReponseSend(size_t byte_send);
 
 	// === GETTER === //
 	int		getFd() const;
@@ -79,9 +79,15 @@ public:
 	int		getContentLength() const;
 	bool	getConnectionState() const;
 	time_t	getLastActivityTime() const;
-
+	
 	// === SETTER === //
 	void	setActivityTime();
+
+	// === CLIENT TIMEOUT === //
+	bool	hasPendingRequest() const;
+
+	// === ERRORS === //
+	void	prepareErrorResponse( int code );
 };
 
 #endif
