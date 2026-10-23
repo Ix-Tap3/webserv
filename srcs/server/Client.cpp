@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 10:57:17 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 13:09:29 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,10 @@ const std::string&	Client::getSendBuffer() const
 	return (this->_sendBuffer);
 }
 
-time_t	Client::getLastActivityTime() const { return this->_lastActivity; }
+time_t	Client::getLastActivityTime() const
+{
+	return this->_lastActivity;
+}
 
 //======================//
 // ====== SETTER ====== //

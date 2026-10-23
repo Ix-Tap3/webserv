@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 09:49:46 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 11:34:01 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ private:
 	void	addFdToCloseList( int fd );
 	void	rebuildPollFds( void );
 	void	handleInactiveClient( void );
+	int		getClientPosByFd(int fd) const;
 
 public:
 	Server(const ServerConfig &config);

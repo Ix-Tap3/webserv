@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 10:03:17 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 13:09:27 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,7 @@ bool	Server::acceptNewClient(int serverFd)
 	this->_pollFds.push_back(newClient);
 	this->_clients.insert(std::make_pair(client_fd, Client(client_fd, &this->_config)));
 
-	std::cout << "Client connected!" << std::endl;
+	std::cout << "Client " << client_fd << " connected!" << std::endl;
 	return (true);
 }
 
@@ -262,7 +262,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	// Error
 	if (res <= 0)
 	{
-		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
+		std::cout << "Client closed connection" << std::endl; // test purpose
 		this->addFdToCloseList(this->_pollFds[index].fd);
 		return (true);
 	}
@@ -329,12 +329,11 @@ void	Server::clearFds( void )
 	{
 		close(*it);
 		if (isClientFd(*it))
+		{
+			std::cout << "Client " << *it << " disconnected!" << std::endl;
 			this->_clients.erase(*it);
+		}
 	}
-
-	// for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
-	// 	if (isInFdCloseList(it->fd))
-	// 		this->_pollFds.erase(it);
 
 	rebuildPollFds();
 
@@ -373,10 +372,41 @@ void	Server::handleInactiveClient( void )
 	time_t	now = std::time(NULL);
 	double	limit = 60;
 
-	if (MAX_TIMEOUT > 0 && MAX_TIMEOUT <= 300)
+	if (MAX_TIMEOUT > 0 && MAX_TIMEOUT <= 60)
 		limit = static_cast<double>(MAX_TIMEOUT);
 
 	for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
 		if (std::difftime(now, it->second.getLastActivityTime()) > limit)
-			addFdToCloseList(it->first);
+		{
+			if (it->second.hasPendingRequest())
+			{
+				if (it->second.hasSomethingToSend())
+				{
+					addFdToCloseList(it->first);
+					continue ;
+				}
+				int	currentIndex = getClientPosByFd(it->first);
+
+				if (currentIndex == -1)
+				{
+					addFdToCloseList(it->first);
+					continue ;
+				}
+				this->_pollFds[currentIndex].events = POLLOUT;
+				it->second.setActivityTime();
+				it->second.prepareErrorResponse(408);
+			}
+			else
+				addFdToCloseList(it->first);
+		}
+	}
+}
+
+int	Server::getClientPosByFd( int fd ) const
+{
+	for (std::size_t i = 0; i < this->_pollFds.size(); i++)
+		if (this->_pollFds[i].fd == fd)
+			return static_cast<int>(i);
+	return -1;
 }

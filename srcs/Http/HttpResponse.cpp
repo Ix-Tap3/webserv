@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:20:15 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/23 11:00:40 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void	HttpResponse::initReasonPhraseTable(void)
 	this->_reasonPhraseTable[403] = "Forbidden";
 	this->_reasonPhraseTable[404] = "Not Found";
 	this->_reasonPhraseTable[405] = "Method Not Allowed";
+	this->_reasonPhraseTable[408] = "Request Timeout";
 	this->_reasonPhraseTable[413] = "Payload Too Large";
 
 	// 5xx Server Error

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 09:49:50 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 12:50:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # define MAGENTA "\033[1;35m"
 # define CYAN "\033[1;36m"
 # define WHITE "\033[1;37m"
-# define MAX_TIMEOUT 60 // in second for std::difftime()
+# define MAX_TIMEOUT 5 // in second for std::difftime()
 
 # include <map>
 # include <iostream>

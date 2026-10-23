@@ -1,41 +1,49 @@
 {
-	"ip": "127.0.0.1",
-	"ports": [ 8080, 8081 ],
-	"hosts": [ "localhost", "webserv.local" ],
-	"root": "/home/pcaplat/Documents/code/cpp/webserv/www",
-	"default_page": "/index.html",
-	"directory_listing": false,
-
-	"error_pages": {
-		"404": "/errors/404.html",
-		"500": "/errors/500.html"
-	},
-
-	"max_body_size": 10000000,
-
-	"cgis": {
-		".php": "/usr/bin/php-cgi",
-		".py": "/usr/bin/python3"
-	},
-
-	"locations":
-	[
-		{
-			"path": "/",
-			"methods": [ "GET" ]
-		},
-		{
-			"path": "/upload",
-			"methods": [ "GET", "POST", "DELETE" ],
-			"directory_listing": true,
-			"upload": "/home/marudlof/cursus/SCHOOL/webserv/www/upload",
-			"max_body_size": 50000000
-		},
-		{
-			"path": "/old",
-			"redir": {
-				"301": "/"
-			}
-		}
-	]
+  "ip": "127.0.0.1",
+  "ports": [
+    8080,
+    8081
+  ],
+  "hosts": [
+    "localhost",
+    "webserv.local"
+  ],
+  "root": "/home/pcaplat/Work/webserv/www/",
+  "default_page": "/index.html",
+  "directory_listing": false,
+  "error_pages": {
+    "404": "/errors/404.html",
+    "408": "/errors/408.html",
+    "500": "/errors/500.html"
+  },
+  "max_body_size": 10000000,
+  "cgis": {
+    ".php": "/usr/bin/php-cgi",
+    ".py": "/usr/bin/python3"
+  },
+  "locations": [
+    {
+      "path": "/",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/upload",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE"
+      ],
+      "directory_listing": true,
+      "upload": "/home/marudlof/cursus/SCHOOL/webserv/www/upload",
+      "max_body_size": 50000000
+    },
+    {
+      "path": "/old",
+      "redir": {
+        "301": "/"
+      }
+    }
+  ]
 }
