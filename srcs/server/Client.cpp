@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 14:25:07 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/23 09:49:48 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Client::Client()
 	this->_state.body = false;
 	this->_state.connection = true;
 	this->_nbBodyByte = 0;
+	this->_lastActivity = std::time(NULL);
 }
 
 Client::Client(int fd, const ServerConfig *config): _httpRequestHandler(config)
@@ -47,6 +48,7 @@ Client::Client(int fd, const ServerConfig *config): _httpRequestHandler(config)
 	this->_state.body = false;
 	this->_state.connection = true;
 	this->_nbBodyByte = 0;
+	this->_lastActivity = std::time(NULL);
 }
 
 Client::~Client()
@@ -80,6 +82,13 @@ const std::string&	Client::getSendBuffer() const
 {
 	return (this->_sendBuffer);
 }
+
+time_t	Client::getLastActivityTime() const { return this->_lastActivity; }
+
+//======================//
+// ====== SETTER ====== //
+//======================//
+void	Client::setActivityTime() { this->_lastActivity = std::time(NULL); }
 
 //======================//
 // === RECEIVE DATA === //

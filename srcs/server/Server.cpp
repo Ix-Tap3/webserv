@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/21 18:06:14 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/23 10:03:17 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,72 +135,19 @@ struct pollfd	Server::setupServerPoll()
 
 // === RUN PART === //
 
-void	Server::addFdToCloseList( int fd )
-{
-	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
-		if (*it == fd)
-			return ;
-	this->_fdsToClose.push_back(fd);
-}
-
-void	Server::clearFds( void )
-{
-	if (this->_fdsToClose.empty())
-		return ;
-
-	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
-	{
-		close(*it);
-		if (isClientFd(*it))
-			this->_clients.erase(*it);
-	}
-
-	// for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
-	// 	if (isInFdCloseList(it->fd))
-	// 		this->_pollFds.erase(it);
-
-	rebuildPollFds();
-
-	this->_fdsToClose.clear();
-}
-
-bool	Server::isClientFd( int fd ) const
-{
-	if (this->_clients.count(fd) > 0)
-		return true;
-	return false;
-}
-
-bool	Server::isInFdCloseList( int fd ) const
-{
-	for (std::vector<int>::const_iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
-		if (*it == fd)
-			return true;
-
-	return false;
-}
-
-void	Server::rebuildPollFds( void )
-{
-	std::vector<struct pollfd>	newPollFds;
-
-	for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
-		if (!isInFdCloseList(it->fd))
-			newPollFds.push_back(*it);
-
-	this->_pollFds = newPollFds;
-}
 
 bool	Server::run()
 {
 	while (true)
 	{
-		int ret = poll(&_pollFds[0], this->_pollFds.size(), -1);
+		int ret = poll(&_pollFds[0], this->_pollFds.size(), 1000);
 
 		if (ret == -1)
 		{
 			std::cerr << "poll: " << std::strerror(errno) << std::endl;
-			// Add a function to close all the fds
+			for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+				addFdToCloseList(it->fd);
+			clearFds();
 			return (false);
 		}
 		for (size_t i = this->_pollFds.size(); i-- > 0; )
@@ -230,6 +177,7 @@ bool	Server::run()
 			}
 			// If CGI fd
 		}
+		handleInactiveClient();
 		clearFds();
 	}
 	return (true);
@@ -319,6 +267,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 		return (true);
 	}
 	// No problem
+	client->setActivityTime();
 	client->appendReceivedData(buff, res);
 	if (client->getContentLength() == -1 && client->hasCompleteHeaders())
 	{
@@ -356,7 +305,78 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 		return (true);
 	}
 	
+	client->setActivityTime();
 	client->removeReponseSend(byte_send);
 
 	return (true);
+}
+
+// --- Utils
+void	Server::addFdToCloseList( int fd )
+{
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return ;
+	this->_fdsToClose.push_back(fd);
+}
+
+void	Server::clearFds( void )
+{
+	if (this->_fdsToClose.empty())
+		return ;
+
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+	{
+		close(*it);
+		if (isClientFd(*it))
+			this->_clients.erase(*it);
+	}
+
+	// for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+	// 	if (isInFdCloseList(it->fd))
+	// 		this->_pollFds.erase(it);
+
+	rebuildPollFds();
+
+	this->_fdsToClose.clear();
+}
+
+bool	Server::isClientFd( int fd ) const
+{
+	if (this->_clients.count(fd) > 0)
+		return true;
+	return false;
+}
+
+bool	Server::isInFdCloseList( int fd ) const
+{
+	for (std::vector<int>::const_iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return true;
+
+	return false;
+}
+
+void	Server::rebuildPollFds( void )
+{
+	std::vector<struct pollfd>	newPollFds;
+
+	for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+		if (!isInFdCloseList(it->fd))
+			newPollFds.push_back(*it);
+
+	this->_pollFds = newPollFds;
+}
+
+void	Server::handleInactiveClient( void )
+{
+	time_t	now = std::time(NULL);
+	double	limit = 60;
+
+	if (MAX_TIMEOUT > 0 && MAX_TIMEOUT <= 300)
+		limit = static_cast<double>(MAX_TIMEOUT);
+
+	for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+		if (std::difftime(now, it->second.getLastActivityTime()) > limit)
+			addFdToCloseList(it->first);
 }

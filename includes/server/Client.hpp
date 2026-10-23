@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 14:24:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/23 09:49:49 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "../../includes/Http/HttpParser.hpp"
 # include "../../includes/Http/HttpRequestHandler.hpp"
 # include "../../includes/Http/HttpResponse.hpp"
+# include <ctime>
 
 struct State
 {
@@ -30,6 +31,8 @@ struct State
 class Client
 {
 private:
+
+	time_t		_lastActivity;
 	int _fd;
 	std::string _recvBuffer;
 
@@ -75,6 +78,10 @@ public:
 	int		getNbBodyByte() const;
 	int		getContentLength() const;
 	bool	getConnectionState() const;
+	time_t	getLastActivityTime() const;
+
+	// === SETTER === //
+	void	setActivityTime();
 };
 
 #endif
