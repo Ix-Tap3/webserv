@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:47:20 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 16:53:56 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -322,6 +322,20 @@ void HttpRequestHandler::createListing(const std::string& target, const std::str
 void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 {
 	(void)httpRequest;
+}
+
+std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const
+{
+	for (std::vector<std::pair<std::string, std::string> >::const_iterator it =
+		req.header._headersFields.begin();
+		it != req.header._headersFields.end();
+		++it)
+	{
+		std::string fieldName = it->first;
+		if (Utils::strToMin(fieldName) == name)
+			return (it->second);
+	}
+	return ("");
 }
 
 // === DELETE === //

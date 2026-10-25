@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 14:24:20 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 16:53:46 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ private:
 	void createListing(const std::string& target, const std::string& path);
 	// === POST === //
 	void handlePost(HttpRequest& httpRequest);
+	std::string	getHeader(const HttpRequest& req, const std::string& name) const;
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
 public:
