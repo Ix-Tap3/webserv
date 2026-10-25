@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:19:10 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:24:09 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -422,6 +422,39 @@ bool	HttpRequestHandler::parseMultipart(const std::string& body, const std::stri
 		parts.push_back(part);
 		pos = next + 2;
 	}
+}
+
+std::string	HttpRequestHandler::extractFilename(const std::string& partHeaders) const
+{
+	std::string	lower = partHeaders;
+
+	lower = Utils::strToMin(lower);
+	size_t	start = lower.find("filename=\"");
+	if (start == std::string::npos)
+		return ("");
+	start += 10;
+	size_t	end = partHeaders.find('"', start);
+	if (end == std::string::npos)
+		return ("");
+	return (partHeaders.substr(start, end - start));
+}
+
+std::string	HttpRequestHandler::sanitizeFilename(const std::string& raw) const
+{
+	std::string	name = raw;
+
+	size_t	slash = name.find_last_of("/\\");
+	if (slash != std::string::npos)
+		name = name.substr(slash + 1);
+	if (name.empty() || name == "." || name == "..")
+		return ("");
+	for (size_t i = 0; i < name.size(); i++)
+	{
+		unsigned char	c = static_cast<unsigned char>(name[i]);
+		if (c < ' ' || c > '~')
+			return ("");
+	}
+	return (name);
 }
 
 void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
