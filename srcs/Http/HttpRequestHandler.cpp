@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:39:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:50:17 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,7 +334,7 @@ void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 	std::string contentType = getHeader(httpRequest, "content-type");
 	if (!isMultipart(contentType))
 	{
-		this->_responseData._statusCode = 415;
+		handleRawPost(httpRequest);
 		return ;
 	}
 	handleMultipart(httpRequest._body, contentType);
@@ -507,6 +507,30 @@ void	HttpRequestHandler::setUploadSuccess(const std::string& filename)
 	this->_responseData._contentLength = body.size();
 	this->_responseData._contentType = "text/html";
 	this->_responseData._statusCode = 201;
+}
+
+void	HttpRequestHandler::handleRawPost(HttpRequest& httpRequest)
+{
+	const std::string&	target = httpRequest.requestLine._target;
+
+	std::string	filename = sanitizeFilename(target.substr(this->_location->path.size()));
+	if (filename.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	std::string	path = this->_location->upload + "/" + filename;
+	if (access(path.c_str(), F_OK) == 0)
+	{
+		this->_responseData._statusCode = 409;
+		return ;
+	}
+	if (!writeFile(path, httpRequest._body))
+	{
+		this->_responseData._statusCode = 500;
+		return ;
+	}
+	setUploadSuccess(filename);
 }
 
 void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
