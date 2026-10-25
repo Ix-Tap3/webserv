@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 16:53:56 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:06:45 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -321,7 +321,42 @@ void HttpRequestHandler::createListing(const std::string& target, const std::str
 // === POST === //
 void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 {
-	(void)httpRequest;
+	if (this->_location->upload.empty())
+	{
+		this->_responseData._statusCode = 403; // plus tard : CGI
+		return ;
+	}
+	if (!isUploadDirUsable(this->_location->upload))
+	{
+		this->_responseData._statusCode = 500;
+		return ;
+	}
+	std::string contentType = getHeader(httpRequest, "content-type");
+	if (!isMultipart(contentType))
+	{
+		this->_responseData._statusCode = 415;
+		return ;
+	}
+	this->_responseData._statusCode = 501;
+}
+
+bool	HttpRequestHandler::isUploadDirUsable(const std::string& dir) const
+{
+	struct stat	st;
+
+	if (stat(dir.c_str(), &st) != 0)
+		return (false);
+	if (!S_ISDIR(st.st_mode))
+		return (false);
+	return (access(dir.c_str(), W_OK | X_OK) == 0);
+}
+
+bool	HttpRequestHandler::isMultipart(const std::string& contentType) const
+{
+	std::string	type = contentType;
+
+	type = Utils::strToMin(type);
+	return (type.compare(0, 19, "multipart/form-data") == 0);
 }
 
 std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const
