@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:06:45 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:12:21 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,7 +337,7 @@ void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 		this->_responseData._statusCode = 415;
 		return ;
 	}
-	this->_responseData._statusCode = 501;
+	handleMultipart(httpRequest._body, contentType);
 }
 
 bool	HttpRequestHandler::isUploadDirUsable(const std::string& dir) const
@@ -357,6 +357,49 @@ bool	HttpRequestHandler::isMultipart(const std::string& contentType) const
 
 	type = Utils::strToMin(type);
 	return (type.compare(0, 19, "multipart/form-data") == 0);
+}
+
+std::string	HttpRequestHandler::extractBoundary(const std::string& contentType) const
+{
+	std::string	lower = contentType;
+
+	lower = Utils::strToMin(lower);
+	size_t	start = lower.find("boundary=");
+	if (start == std::string::npos)
+		return ("");
+	start += 9;
+
+	std::string	boundary;
+	if (start < contentType.size() && contentType[start] == '"')
+	{
+		size_t	end = contentType.find('"', start + 1);
+		if (end == std::string::npos)
+			return ("");
+		boundary = contentType.substr(start + 1, end - start - 1);
+	}
+	else
+	{
+		size_t	end = contentType.find(';', start);
+		if (end == std::string::npos)
+			end = contentType.size();
+		boundary = contentType.substr(start, end - start);
+	}
+	Utils::DeleteUselessSpace(boundary);
+	return (boundary);
+}
+
+void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
+{
+	std::string	boundary = extractBoundary(contentType);
+	if (boundary.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	std::string	delim = "--" + boundary;
+	(void)body;
+	(void)delim;
+	this->_responseData._statusCode = 501;
 }
 
 std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const

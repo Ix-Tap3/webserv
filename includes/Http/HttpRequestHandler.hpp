@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:03:50 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:12:12 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ private:
 	std::string	getHeader(const HttpRequest& req, const std::string& name) const;
 	bool	isUploadDirUsable(const std::string& dir) const;
 	bool	isMultipart(const std::string& contentType) const;
+	std::string	extractBoundary(const std::string& contentType) const;
+	void	handleMultipart(const std::string& body, const std::string& contentType);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
 public:
