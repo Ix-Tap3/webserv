@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:45:35 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 22:46:34 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ public:
 	// === MAIN FUNCTION === //
 	ResponseData handleRequest(HttpRequest& httpRequest);
 	ResponseData handleError(int statusCode);
+	int		getMaxBodySize(const std::string& target) const;
 
 };
 #endif

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 14:24:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 22:46:45 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ private:
 	HttpResponse		_httpResponseMaker;
 
 	int			extractContentLength();
+	bool		checkBodySize();
 	bool		extractConnection();
 	bool		isClose(std::string value);
 	bool		isKeepAlive(std::string value);

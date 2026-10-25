@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:50:17 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 22:46:55 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,16 @@ ResponseData HttpRequestHandler::handleError(int statusCode)
 }
 
 // === LOCATION === //
+int	HttpRequestHandler::getMaxBodySize(const std::string& target) const
+{
+	if (this->_config == NULL)
+		return (-1);
+	const LocationConfig	*location = findLocation(target.substr(0, target.find('?')));
+	if (location == NULL)
+		return (this->_config->max_body_size);
+	return (location->max_body_size);
+}
+
 const LocationConfig	*HttpRequestHandler::findLocation(const std::string& target) const
 {
 	const LocationConfig	*best = NULL;
@@ -582,5 +592,24 @@ std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::str
 // === DELETE === //
 void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 {
-	(void)httpRequest;
+	std::string	path = this->_location->root + httpRequest.requestLine._target;
+	struct stat	st;
+
+	if (stat(path.c_str(), &st) == -1)
+		this->_responseData._statusCode = 404;
+	else if (S_ISDIR(st.st_mode))
+		this->_responseData._statusCode = 403;
+	else if (std::remove(path.c_str()) != 0)
+	{
+		if (errno == EACCES)
+			this->_responseData._statusCode = 403;
+		else
+			this->_responseData._statusCode = 500;
+	}
+	else
+	{
+		this->_responseData._statusCode = 204;
+		this->_responseData._body.clear();
+		this->_responseData._contentLength = 0;
+	}
 }
