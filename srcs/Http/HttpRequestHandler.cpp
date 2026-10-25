@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:47:20 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 15:22:25 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,16 @@ const LocationConfig	*HttpRequestHandler::findLocation(const std::string& target
 			best = &(*it);
 	}
 	return (best);
+}
+
+int	HttpRequestHandler::getMaxContentLength( std::string target )
+{
+	getRequestTarget(target); 
+	const LocationConfig	*location = findLocation(target);
+
+	if (!location)
+		return this->_config->max_body_size;
+	return location->max_body_size;
 }
 
 bool	HttpRequestHandler::isMethodAllowed(const std::string& method) const

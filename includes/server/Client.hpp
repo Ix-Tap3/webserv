@@ -6,12 +6,13 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 11:29:09 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/25 15:33:42 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
+# define CONTENT_LENGTH_TOO_LARGE	-2
 
 # include "../../includes/WebservInclude.h"
 # include "../../includes/Utils/Utils.hpp"
@@ -20,6 +21,7 @@
 # include "../../includes/Http/HttpRequestHandler.hpp"
 # include "../../includes/Http/HttpResponse.hpp"
 # include <ctime>
+# include <limits>
 
 struct State
 {
@@ -53,6 +55,7 @@ private:
 	bool		extractConnection();
 	bool		isClose(std::string value);
 	bool		isKeepAlive(std::string value);
+	int			parseContentLength(const std::string &value) const;
 public:
 
 	Client();

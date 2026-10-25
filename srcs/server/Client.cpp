@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 13:09:29 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/25 15:34:55 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ int		Client::extractContentLength()
 	{
 		std::string name = Utils::strToMin((*it).first);
 		if (name == "content-length")
-			return (Utils::stringToInt((*it).second));
+			return (parseContentLength((*it).second));
 	}
 	return (0);
 }
@@ -217,7 +217,16 @@ bool	Client::stashHeaders()
 		this->prepareErrorResponse(e.getStatusCode());
 		return (false);
 	}
+	
 	this->_contentLength = extractContentLength();
+
+	int contentLengthLimit = this->_httpRequestHandler.getMaxContentLength(this->_httpRequest.requestLine._target);
+
+	if (this->_contentLength > contentLengthLimit || this->_contentLength == CONTENT_LENGTH_TOO_LARGE)
+	{
+		prepareErrorResponse(413);
+		return (false);
+	}
 	if (this->_contentLength > 0)
 	{
 		this->_state.header = false;
@@ -266,4 +275,16 @@ void	Client::prepareErrorResponse( int code )
 	this->_recvBuffer.clear();
 	this->_contentLength = -1;
 	this->_nbBodyByte = 0;
+}
+
+int	Client::parseContentLength(const std::string &value) const
+{
+	std::stringstream	ss(value);
+	long				nb;
+
+	ss >> nb;
+	if (ss.fail() || nb > std::numeric_limits<int>::max())
+		return (CONTENT_LENGTH_TOO_LARGE);
+
+	return (static_cast<int>(nb));
 }
