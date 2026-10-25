@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:12:21 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:19:10 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,6 +388,42 @@ std::string	HttpRequestHandler::extractBoundary(const std::string& contentType) 
 	return (boundary);
 }
 
+bool	HttpRequestHandler::parseMultipart(const std::string& body, const std::string& delim,
+			std::vector<MultipartPart>& parts) const
+{
+	size_t	pos = body.find(delim);
+	if (pos == std::string::npos)
+		return (false);
+	while (42)
+	{
+		pos += delim.size();
+		if (body.compare(pos, 2, "--") == 0)
+			return (true);
+		if (body.compare(pos, 2, "\r\n") != 0)
+			return (false);
+		pos += 2;
+
+		MultipartPart	part;
+		size_t			dataStart;
+		if (body.compare(pos, 2, "\r\n") == 0)
+			dataStart = pos + 2;
+		else
+		{
+			size_t	headersEnd = body.find("\r\n\r\n", pos);
+			if (headersEnd == std::string::npos)
+				return (false);
+			part.headers = body.substr(pos, headersEnd - pos);
+			dataStart = headersEnd + 4;
+		}
+		size_t	next = body.find("\r\n" + delim, dataStart);
+		if (next == std::string::npos)
+			return (false);
+		part.data = body.substr(dataStart, next - dataStart);
+		parts.push_back(part);
+		pos = next + 2;
+	}
+}
+
 void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
 {
 	std::string	boundary = extractBoundary(contentType);
@@ -396,9 +432,12 @@ void	HttpRequestHandler::handleMultipart(const std::string& body, const std::str
 		this->_responseData._statusCode = 400;
 		return ;
 	}
-	std::string	delim = "--" + boundary;
-	(void)body;
-	(void)delim;
+	std::vector<MultipartPart>	parts;
+	if (!parseMultipart(body, "--" + boundary, parts))
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
 	this->_responseData._statusCode = 501;
 }
 

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:12:12 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:18:33 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@
 # include <WebservInclude.h>
 # include <Utils.hpp>
 # include <configs.h>
+
+struct MultipartPart
+{
+	std::string	headers;
+	std::string	data;
+};
 
 class HttpRequestHandler
 {
@@ -47,6 +53,8 @@ private:
 	bool	isUploadDirUsable(const std::string& dir) const;
 	bool	isMultipart(const std::string& contentType) const;
 	std::string	extractBoundary(const std::string& contentType) const;
+	bool	parseMultipart(const std::string& body, const std::string& delim,
+				std::vector<MultipartPart>& parts) const;
 	void	handleMultipart(const std::string& body, const std::string& contentType);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
