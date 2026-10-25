@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:24:09 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:39:43 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,6 +457,58 @@ std::string	HttpRequestHandler::sanitizeFilename(const std::string& raw) const
 	return (name);
 }
 
+bool	HttpRequestHandler::writeFile(const std::string& path, const std::string& data) const
+{
+	std::ofstream	out(path.c_str(), std::ios::binary | std::ios::trunc);
+	if (!out.is_open())
+		return (false);
+	out.write(data.data(), data.size());
+	if (!out)
+	{
+		out.close();
+		std::remove(path.c_str());
+		return (false);
+	}
+	return (true);
+}
+
+int	HttpRequestHandler::handlePart(const MultipartPart& part, std::string& savedName)
+{
+	std::string	raw = extractFilename(part.headers);
+	if (raw.empty())
+		return (0);
+	std::string	filename = sanitizeFilename(raw);
+	if (filename.empty())
+		return (400);
+	std::string	path = this->_location->upload + "/" + filename;
+	if (access(path.c_str(), F_OK) == 0)
+		return (409);
+	if (!writeFile(path, part.data))
+		return (500);
+	savedName = filename;
+	return (201);
+}
+
+void	HttpRequestHandler::setUploadSuccess(const std::string& filename)
+{
+	std::string	url = this->_location->path;
+	if (url.empty() || url[url.size() - 1] != '/')
+		url += "/";
+	url += filename;
+
+	std::string&	body = this->_responseData._body;
+	body = "<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"><title>Upload</title></head>\n";
+	body += "<body>\n<h1>Fichier uploadé</h1>\n";
+	body += "<p><a href=\"" + htmlEscape(url) + "\">" + htmlEscape(filename) + "</a></p>\n";
+	body += "<p><a href=\"" + htmlEscape(this->_location->path) + "\">Retour</a></p>\n";
+	body += "</body>\n</html>\n";
+
+	this->_responseData._location = url;
+	this->_responseData._contentLength = body.size();
+	this->_responseData._contentType = "text/html";
+	this->_responseData._statusCode = 201;
+}
+
 void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
 {
 	std::string	boundary = extractBoundary(contentType);
@@ -471,7 +523,22 @@ void	HttpRequestHandler::handleMultipart(const std::string& body, const std::str
 		this->_responseData._statusCode = 400;
 		return ;
 	}
-	this->_responseData._statusCode = 501;
+	std::string	savedName;
+	for (size_t i = 0; i < parts.size(); i++)
+	{
+		int	code = handlePart(parts[i], savedName);
+		if (code >= 400)
+		{
+			this->_responseData._statusCode = code;
+			return ;
+		}
+	}
+	if (savedName.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	setUploadSuccess(savedName);
 }
 
 std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const

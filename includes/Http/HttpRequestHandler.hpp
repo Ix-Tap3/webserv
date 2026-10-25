@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:22:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:39:50 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,9 @@ private:
 				std::vector<MultipartPart>& parts) const;
 	std::string	extractFilename(const std::string& partHeaders) const;
 	std::string	sanitizeFilename(const std::string& raw) const;
+	bool	writeFile(const std::string& path, const std::string& data) const;
+	int		handlePart(const MultipartPart& part, std::string& savedName);
+	void	setUploadSuccess(const std::string& filename);
 	void	handleMultipart(const std::string& body, const std::string& contentType);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
