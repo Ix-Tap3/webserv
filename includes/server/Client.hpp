@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:10:57 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:35:29 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ public:
 	int		getNbBodyByte() const;
 	int		getContentLength() const;
 	bool	getConnectionState() const;
+	bool	getBodyState() const;
+	bool	getHeaderState() const;
 };
 
 #endif

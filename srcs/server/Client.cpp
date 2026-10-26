@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/18 16:11:09 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:40:35 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	Client::printHeader()
 
 Client::Client()
 {
-	this->_contentLength = -1;
+	this->_contentLength = 0;
 	this->_state.header = true;
 	this->_state.body = false;
 	this->_state.connection = true;
@@ -41,7 +41,7 @@ Client::Client()
 Client::Client(int fd)
 {
 	this->_fd = fd;
-	this->_contentLength = -1;
+	this->_contentLength = 0;
 	this->_state.header = true;
 	this->_state.body = false;
 	this->_state.connection = true;
@@ -75,6 +75,16 @@ bool	Client::getConnectionState() const
 	return (this->_state.connection);
 }
 
+bool	Client::getBodyState() const
+{
+	return (this->_state.body);
+}
+
+bool	Client::getHeaderState() const
+{
+	return (this->_state.header);
+}
+
 const std::string&	Client::getSendBuffer() const
 {
 	return (this->_sendBuffer);
@@ -86,27 +96,24 @@ const std::string&	Client::getSendBuffer() const
 void	Client::appendReceivedData(char	*buff, int len)
 {
 	if (this->_state.body)
-	{
 		this->_nbBodyByte += len;
-		this->_recvBuffer.append(buff, len);
-	}
-	else
-		this->_recvBuffer.append(buff, len);
+	
+	this->_recvBuffer.append(buff, len);
 }
 
 bool	Client::hasCompleteHeaders() const
 {    
-    size_t pos = this->_recvBuffer.find("\r\n\r\n"); // test purpose
+	// size_t pos = this->_recvBuffer.find("\r\n\r\n"); // test purpose
 
-    if (pos != std::string::npos) // test purpose
-    {
-        std::cout << "The header is complete at position " // test purpose
-                  << pos << std::endl; // test purpose
-        return (true); // test purpose
-    }
+	// if (pos != std::string::npos) // test purpose
+	// {
+	// 	std::cout << "The header is complete at position " // test purpose
+	// 			  << pos << std::endl; // test purpose
+	// 	return (true); // test purpose
+	// }
 
-    return (false); // test purpose
-	// return (this->_recvBuffer.find("\r\n\r\n") != std::string::npos); // real code
+	// return (false); // test purpose
+	return (this->_recvBuffer.find("\r\n\r\n") != std::string::npos); // real code
 }
 
 //======================//
@@ -197,7 +204,7 @@ bool	Client::stashHeaders()
 	{
 		this->_parser = HttpParser();
 		this->_httpRequest = this->_parser.ParseHttpRequest(this->_strHeader);
-		printHeader(); // for test purpose
+		// printHeader(); // for test purpose
 	}
 	catch(const HttpException& e)
 	{
@@ -210,17 +217,17 @@ bool	Client::stashHeaders()
 		return (false);
 	}
 	this->_contentLength = extractContentLength();
-	if (this->_contentLength > 0)
-	{
-		this->_state.header = false;
-		this->_state.body = true;
-	}
 	this->_state.connection = extractConnection();
+	
+	this->_state.header = false;
+	this->_state.body = true;
+	
 	return (true);
 }
 
 void	Client::stashBody()
 {
+	std::cout << "flag";
 	std::string body = this->_recvBuffer.substr(0, this->_contentLength);
 	this->_recvBuffer.erase(0, this->_contentLength);
 	this->_httpRequest._body = body;
@@ -230,6 +237,7 @@ void	Client::stashBody()
 	this->_nbBodyByte = 0;
 
 	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
+	std::cout << this->_sendBuffer;
 }
 
 //this->_httpRequestHandler.handleRequest(this->_httpRequest)
