@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:20:15 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 21:04:00 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,9 @@ void	HttpResponse::initReasonPhraseTable(void)
 	this->_reasonPhraseTable[403] = "Forbidden";
 	this->_reasonPhraseTable[404] = "Not Found";
 	this->_reasonPhraseTable[405] = "Method Not Allowed";
+	this->_reasonPhraseTable[409] = "Conflict";
 	this->_reasonPhraseTable[413] = "Payload Too Large";
+	this->_reasonPhraseTable[415] = "Unsupported Media Type";
 
 	// 5xx Server Error
 	this->_reasonPhraseTable[500] = "Internal Server Error";

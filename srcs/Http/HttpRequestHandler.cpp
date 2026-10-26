@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 13:47:20 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 22:46:55 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,16 @@ ResponseData HttpRequestHandler::handleError(int statusCode)
 }
 
 // === LOCATION === //
+int	HttpRequestHandler::getMaxBodySize(const std::string& target) const
+{
+	if (this->_config == NULL)
+		return (-1);
+	const LocationConfig	*location = findLocation(target.substr(0, target.find('?')));
+	if (location == NULL)
+		return (this->_config->max_body_size);
+	return (location->max_body_size);
+}
+
 const LocationConfig	*HttpRequestHandler::findLocation(const std::string& target) const
 {
 	const LocationConfig	*best = NULL;
@@ -321,11 +331,285 @@ void HttpRequestHandler::createListing(const std::string& target, const std::str
 // === POST === //
 void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 {
-	(void)httpRequest;
+	if (this->_location->upload.empty())
+	{
+		this->_responseData._statusCode = 403; // plus tard : CGI
+		return ;
+	}
+	if (!isUploadDirUsable(this->_location->upload))
+	{
+		this->_responseData._statusCode = 500;
+		return ;
+	}
+	std::string contentType = getHeader(httpRequest, "content-type");
+	if (!isMultipart(contentType))
+	{
+		handleRawPost(httpRequest);
+		return ;
+	}
+	handleMultipart(httpRequest._body, contentType);
+}
+
+bool	HttpRequestHandler::isUploadDirUsable(const std::string& dir) const
+{
+	struct stat	st;
+
+	if (stat(dir.c_str(), &st) != 0)
+		return (false);
+	if (!S_ISDIR(st.st_mode))
+		return (false);
+	return (access(dir.c_str(), W_OK | X_OK) == 0);
+}
+
+bool	HttpRequestHandler::isMultipart(const std::string& contentType) const
+{
+	std::string	type = contentType;
+
+	type = Utils::strToMin(type);
+	return (type.compare(0, 19, "multipart/form-data") == 0);
+}
+
+std::string	HttpRequestHandler::extractBoundary(const std::string& contentType) const
+{
+	std::string	lower = contentType;
+
+	lower = Utils::strToMin(lower);
+	size_t	start = lower.find("boundary=");
+	if (start == std::string::npos)
+		return ("");
+	start += 9;
+
+	std::string	boundary;
+	if (start < contentType.size() && contentType[start] == '"')
+	{
+		size_t	end = contentType.find('"', start + 1);
+		if (end == std::string::npos)
+			return ("");
+		boundary = contentType.substr(start + 1, end - start - 1);
+	}
+	else
+	{
+		size_t	end = contentType.find(';', start);
+		if (end == std::string::npos)
+			end = contentType.size();
+		boundary = contentType.substr(start, end - start);
+	}
+	Utils::DeleteUselessSpace(boundary);
+	return (boundary);
+}
+
+bool	HttpRequestHandler::parseMultipart(const std::string& body, const std::string& delim,
+			std::vector<MultipartPart>& parts) const
+{
+	size_t	pos = body.find(delim);
+	if (pos == std::string::npos)
+		return (false);
+	while (42)
+	{
+		pos += delim.size();
+		if (body.compare(pos, 2, "--") == 0)
+			return (true);
+		if (body.compare(pos, 2, "\r\n") != 0)
+			return (false);
+		pos += 2;
+
+		MultipartPart	part;
+		size_t			dataStart;
+		if (body.compare(pos, 2, "\r\n") == 0)
+			dataStart = pos + 2;
+		else
+		{
+			size_t	headersEnd = body.find("\r\n\r\n", pos);
+			if (headersEnd == std::string::npos)
+				return (false);
+			part.headers = body.substr(pos, headersEnd - pos);
+			dataStart = headersEnd + 4;
+		}
+		size_t	next = body.find("\r\n" + delim, dataStart);
+		if (next == std::string::npos)
+			return (false);
+		part.data = body.substr(dataStart, next - dataStart);
+		parts.push_back(part);
+		pos = next + 2;
+	}
+}
+
+std::string	HttpRequestHandler::extractFilename(const std::string& partHeaders) const
+{
+	std::string	lower = partHeaders;
+
+	lower = Utils::strToMin(lower);
+	size_t	start = lower.find("filename=\"");
+	if (start == std::string::npos)
+		return ("");
+	start += 10;
+	size_t	end = partHeaders.find('"', start);
+	if (end == std::string::npos)
+		return ("");
+	return (partHeaders.substr(start, end - start));
+}
+
+std::string	HttpRequestHandler::sanitizeFilename(const std::string& raw) const
+{
+	std::string	name = raw;
+
+	size_t	slash = name.find_last_of("/\\");
+	if (slash != std::string::npos)
+		name = name.substr(slash + 1);
+	if (name.empty() || name == "." || name == "..")
+		return ("");
+	for (size_t i = 0; i < name.size(); i++)
+	{
+		unsigned char	c = static_cast<unsigned char>(name[i]);
+		if (c < ' ' || c > '~')
+			return ("");
+	}
+	return (name);
+}
+
+bool	HttpRequestHandler::writeFile(const std::string& path, const std::string& data) const
+{
+	std::ofstream	out(path.c_str(), std::ios::binary | std::ios::trunc);
+	if (!out.is_open())
+		return (false);
+	out.write(data.data(), data.size());
+	if (!out)
+	{
+		out.close();
+		std::remove(path.c_str());
+		return (false);
+	}
+	return (true);
+}
+
+int	HttpRequestHandler::handlePart(const MultipartPart& part, std::string& savedName)
+{
+	std::string	raw = extractFilename(part.headers);
+	if (raw.empty())
+		return (0);
+	std::string	filename = sanitizeFilename(raw);
+	if (filename.empty())
+		return (400);
+	std::string	path = this->_location->upload + "/" + filename;
+	if (access(path.c_str(), F_OK) == 0)
+		return (409);
+	if (!writeFile(path, part.data))
+		return (500);
+	savedName = filename;
+	return (201);
+}
+
+void	HttpRequestHandler::setUploadSuccess(const std::string& filename)
+{
+	std::string	url = this->_location->path;
+	if (url.empty() || url[url.size() - 1] != '/')
+		url += "/";
+	url += filename;
+
+	std::string&	body = this->_responseData._body;
+	body = "<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"><title>Upload</title></head>\n";
+	body += "<body>\n<h1>Fichier uploadé</h1>\n";
+	body += "<p><a href=\"" + htmlEscape(url) + "\">" + htmlEscape(filename) + "</a></p>\n";
+	body += "<p><a href=\"" + htmlEscape(this->_location->path) + "\">Retour</a></p>\n";
+	body += "</body>\n</html>\n";
+
+	this->_responseData._location = url;
+	this->_responseData._contentLength = body.size();
+	this->_responseData._contentType = "text/html";
+	this->_responseData._statusCode = 201;
+}
+
+void	HttpRequestHandler::handleRawPost(HttpRequest& httpRequest)
+{
+	const std::string&	target = httpRequest.requestLine._target;
+
+	std::string	filename = sanitizeFilename(target.substr(this->_location->path.size()));
+	if (filename.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	std::string	path = this->_location->upload + "/" + filename;
+	if (access(path.c_str(), F_OK) == 0)
+	{
+		this->_responseData._statusCode = 409;
+		return ;
+	}
+	if (!writeFile(path, httpRequest._body))
+	{
+		this->_responseData._statusCode = 500;
+		return ;
+	}
+	setUploadSuccess(filename);
+}
+
+void	HttpRequestHandler::handleMultipart(const std::string& body, const std::string& contentType)
+{
+	std::string	boundary = extractBoundary(contentType);
+	if (boundary.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	std::vector<MultipartPart>	parts;
+	if (!parseMultipart(body, "--" + boundary, parts))
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	std::string	savedName;
+	for (size_t i = 0; i < parts.size(); i++)
+	{
+		int	code = handlePart(parts[i], savedName);
+		if (code >= 400)
+		{
+			this->_responseData._statusCode = code;
+			return ;
+		}
+	}
+	if (savedName.empty())
+	{
+		this->_responseData._statusCode = 400;
+		return ;
+	}
+	setUploadSuccess(savedName);
+}
+
+std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const
+{
+	for (std::vector<std::pair<std::string, std::string> >::const_iterator it =
+		req.header._headersFields.begin();
+		it != req.header._headersFields.end();
+		++it)
+	{
+		std::string fieldName = it->first;
+		if (Utils::strToMin(fieldName) == name)
+			return (it->second);
+	}
+	return ("");
 }
 
 // === DELETE === //
 void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 {
-	(void)httpRequest;
+	std::string	path = this->_location->root + httpRequest.requestLine._target;
+	struct stat	st;
+
+	if (stat(path.c_str(), &st) == -1)
+		this->_responseData._statusCode = 404;
+	else if (S_ISDIR(st.st_mode))
+		this->_responseData._statusCode = 403;
+	else if (std::remove(path.c_str()) != 0)
+	{
+		if (errno == EACCES)
+			this->_responseData._statusCode = 403;
+		else
+			this->_responseData._statusCode = 500;
+	}
+	else
+	{
+		this->_responseData._statusCode = 204;
+		this->_responseData._body.clear();
+		this->_responseData._contentLength = 0;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 14:25:07 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/25 22:50:17 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,8 @@ bool	Client::hasCompleteHeaders() const
 
     if (pos != std::string::npos) // test purpose
     {
-        std::cout << "The header is complete at position " // test purpose
-                  << pos << std::endl; // test purpose
+        // std::cout << "The header is complete at position " // test purpose
+        //           << pos << std::endl; // test purpose
         return (true); // test purpose
     }
 
@@ -122,9 +122,32 @@ int		Client::extractContentLength()
 	{
 		std::string name = Utils::strToMin((*it).first);
 		if (name == "content-length")
-			return (Utils::stringToInt((*it).second));
+		{
+			const std::string&	value = (*it).second;
+			long				n = 0;
+			for (size_t i = 0; i < value.size(); i++)
+			{
+				n = n * 10 + (value[i] - '0');
+				if (n > INT_MAX)
+					return (INT_MAX);
+			}
+			return (static_cast<int>(n));
+		}
 	}
 	return (0);
+}
+
+bool	Client::checkBodySize()
+{
+	int	maxBodySize = this->_httpRequestHandler.getMaxBodySize(this->_httpRequest.requestLine._target);
+
+	if (maxBodySize == -1 || this->_contentLength <= maxBodySize)
+		return (true);
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleError(413));
+	this->_state.connection = false;
+	this->_recvBuffer.clear();
+	this->_contentLength = -1;
+	return (false);
 }
 
 bool		Client::extractConnection()
@@ -209,6 +232,8 @@ bool	Client::stashHeaders()
 		return (false);
 	}
 	this->_contentLength = extractContentLength();
+	if (!checkBodySize())
+		return (false);
 	if (this->_contentLength > 0)
 	{
 		this->_state.header = false;
