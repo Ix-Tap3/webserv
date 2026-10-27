@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/19 12:49:28 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/10/25 16:29:08 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,11 +214,30 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 	else if (name == "connection")
 		VerifyConnection(headerFields);
 	else if (name == "transfer-encoding")
-		throw HttpException(501, RED "The header \"Transfer-Encoding\" isn't implemented" RESET);
+		VerifyTransfertEncoding(headerFields, name);
+		// throw HttpException(501, RED "The header \"Transfer-Encoding\" isn't implemented" RESET);
 	else if (name == "host")
 		VerifyHost(headerFields, name);
 	else if (name == "content-type")
 		VerifyContentType(headerFields, name);
+}
+
+void	HttpParser::VerifyTransfertEncoding(std::vector<std::pair<std::string, std::string> >::iterator &headerFields, std::string &name)
+{
+	std::string	value = Utils::strToMin(headerFields->second);
+	Utils::DeleteUselessSpace(value);
+
+	if (value != "chunked")
+		throw HttpException(501, RED "The server doesn't handle '" + value + "' encoding" RESET);
+	if (isWrongDupplicate(headerFields, name))
+		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
+	for (std::vector<std::pair<std::string, std::string>>::iterator it = this->_httpRequest.header._headersFields.begin(); it != this->_httpRequest.header._headersFields.end(); it++)
+	{
+		std::string	fieldName = Utils::strToMin(it->first);
+		Utils::DeleteUselessSpace(fieldName);
+		if (fieldName == "content-length")
+			throw HttpException(400, RED "Non authorized content-length field with transfer-encoding = chunked" RESET);
+	}
 }
 
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
