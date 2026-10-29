@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/29 13:40:48 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/29 14:10:34 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -617,19 +617,65 @@ void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 	}
 }
 
-void HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
+void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 {
-	// is header cookie?
-	// yes so search session ID and add new cookies if there is
-	// no so create new session ID and new cookies
+	int	flagCookie = 0;
+	std::srand(std::time(NULL)); // set the seed for the randomisation
+	initLanguageTable();
+
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	httpRequest.header._headersFields.begin(); 
+	it != httpRequest.header._headersFields.end(); 
+	++it)
+	{
+
+		std::string name = Utils::strToMin(it->first);
+		if (name == "cookie") // there is a cookie header
+		{
+			// search session ID and add new cookies if there is
+			flagCookie++;
+		}
+	}
+	if (flagCookie != 0) // there is no cookie header
+	{
+		// create new session ID and new cookies
+	}
+
+	// format cookie
+	this->_responseData._cookie = assembleCookie();
 }
 
-std::string	generateSessionID(void)
+void	HttpRequestHandler::initLanguageTable(void)
 {
+	static const char	*languages[] = {
+		"en", "fr", "de", "es", "it", "pt", "nl", "sv", "da", "no",
+		"fi", "pl", "cs", "sk", "hu", "ro", "bg", "el", "tr", "ru",
+		"uk", "he", "ar", "fa", "hi", "bn", "th", "vi", "id", "ms",
+		"zh", "ja", "ko", "ca", "hr", "sr", "sl", "lt", "lv", "et"
+	};
 
+	this->_languageTable.assign(languages, languages + sizeof(languages) / sizeof(languages[0]));
 }
 
-std::string getRandomLanguage(void)
+std::string	HttpRequestHandler::generateSessionID(void)
 {
+	std::string sessionID = "";
 
+	for (size_t i = 0; i < 32; i++)
+	{
+		char r = 33 + std::rand() % (122 - 33 + 1);
+		sessionID += r;
+	}
+	
+	return (sessionID);
+}
+
+std::string	HttpRequestHandler::getRandomLanguage(void)
+{
+	return (this->_languageTable[std::rand() % this->_languageTable.size()]);
+}
+
+std::string	HttpRequestHandler::assembleCookie(void)
+{
+	
 }

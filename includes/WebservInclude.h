@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/29 13:35:54 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/29 13:55:29 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <cstring>
 # include <cstdlib>
 # include <cstdio>
+# include <ctime>
 
 # include <sys/types.h>
 # include <sys/socket.h>
