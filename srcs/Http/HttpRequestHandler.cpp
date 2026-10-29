@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:46:55 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/29 13:40:48 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,9 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 
 	if (this->_responseData._statusCode >= 400)
 		setErrorPage();
+
+	handleCookie(httpRequest);
+
 	return (this->_responseData);
 }
 
@@ -612,4 +615,21 @@ void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 		this->_responseData._body.clear();
 		this->_responseData._contentLength = 0;
 	}
+}
+
+void HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
+{
+	// is header cookie?
+	// yes so search session ID and add new cookies if there is
+	// no so create new session ID and new cookies
+}
+
+std::string	generateSessionID(void)
+{
+
+}
+
+std::string getRandomLanguage(void)
+{
+
 }

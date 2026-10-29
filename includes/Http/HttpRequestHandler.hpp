@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:46:34 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/29 13:38:52 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class HttpRequestHandler
 private:
 	ResponseData	_responseData;
 	std::map<std::string, std::string> _typeTable;
+	std::map<std::string, std::map<std::string, std::string>> _cookiesTable;
 	const ServerConfig		*_config;
 	const LocationConfig	*_location;
 
@@ -64,6 +65,10 @@ private:
 	void	handleMultipart(const std::string& body, const std::string& contentType);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
+	// === COOKIE === //
+	void handleCookie(HttpRequest& httpRequest);
+	std::string	generateSessionID(void);
+	std::string getRandomLanguage(void);
 public:
 	HttpRequestHandler();
 	HttpRequestHandler(const ServerConfig *config);
