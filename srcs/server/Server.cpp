@@ -277,6 +277,17 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 			return (true);
 		}
 	}
+	if (client->isReadingChunks())
+	{
+		if (client->processChunkedBody())
+		{
+			if (client->getConnectionState())
+				this->_pollFds[index].events = POLLOUT | POLLIN;
+			else
+				this->_pollFds[index].events = POLLOUT;
+		}
+		return (true);
+	}
 	if (client->getContentLength() != -1
 		&& client->getContentLength() <= client->getNbBodyByte())
 	{

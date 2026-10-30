@@ -231,7 +231,7 @@ void	HttpParser::VerifyTransfertEncoding(std::vector<std::pair<std::string, std:
 		throw HttpException(501, RED "The server doesn't handle '" + value + "' encoding" RESET);
 	if (isWrongDupplicate(headerFields, name))
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
-	for (std::vector<std::pair<std::string, std::string>>::iterator it = this->_httpRequest.header._headersFields.begin(); it != this->_httpRequest.header._headersFields.end(); it++)
+	for (std::vector<std::pair<std::string, std::string> >::iterator it = this->_httpRequest.header._headersFields.begin(); it != this->_httpRequest.header._headersFields.end(); it++)
 	{
 		std::string	fieldName = Utils::strToMin(it->first);
 		Utils::DeleteUselessSpace(fieldName);
