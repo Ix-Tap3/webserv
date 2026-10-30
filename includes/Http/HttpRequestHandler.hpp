@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 13:58:00 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:32:21 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ private:
 	void handleDelete(HttpRequest& httpRequest);
 	
 	// === COOKIE === //
-	std::map<std::string, std::map<std::string, std::string>> _cookiesTable;
+	std::map<std::string, std::map<std::string, std::string> > _cookiesTable;
 	std::vector<std::string> _languageTable;
 	std::vector<std::string> _attributsTable;
 	
@@ -74,10 +74,6 @@ private:
 	void	initLanguageTable(void);
 	void	initAttributsVector(void);
 	std::string	generateSessionID(void);
-void	HttpRequestHandler::initAttributsVector(void)
-{
-	
-}
 	std::string getRandomLanguage(void);
 	std::string	assembleCookie(std::string& sessionID);
 	std::string	getSessionID(std::string& cookie);

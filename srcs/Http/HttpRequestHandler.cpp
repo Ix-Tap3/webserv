@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 14:25:47 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:37:27 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -642,8 +642,7 @@ void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 			this->_responseData._cookie = assembleCookie(sessionID);
 			return ;
 		}
-	} 
-	// there's no cookie header
+	}
 	// create new session ID and new cookies
 	std::string sessionID = generateSessionID();
 	this->_cookiesTable[sessionID]["lang"] = getRandomLanguage();
@@ -676,9 +675,9 @@ void	HttpRequestHandler::initAttributsVector(void)
 std::string	HttpRequestHandler::generateSessionID(void)
 {
 	std::string sessionID = "";
+	bool noRepeat = false;
 
-	std::map<std::string, std::map<std::string, std::string> >::iterator it = this->_cookiesTable.find(sessionID);
-	while (this->_cookiesTable.end() == it)
+	do
 	{
 		for (size_t i = 0; i < 32; i++)
 		{
@@ -686,8 +685,10 @@ std::string	HttpRequestHandler::generateSessionID(void)
 			sessionID += r;
 		}
 		std::map<std::string, std::map<std::string, std::string> >::iterator it = this->_cookiesTable.find(sessionID);
-	}
-	
+		if (this->_cookiesTable.end() == it)
+			noRepeat = true;
+	} while (!noRepeat);
+
 	return (sessionID);
 }
 
