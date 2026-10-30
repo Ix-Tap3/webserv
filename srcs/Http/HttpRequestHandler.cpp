@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 14:37:27 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:45:38 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -681,7 +681,7 @@ std::string	HttpRequestHandler::generateSessionID(void)
 	{
 		for (size_t i = 0; i < 32; i++)
 		{
-			char r = 33 + std::rand() % (122 - 33 + 1);
+			char r = 97 + std::rand() % (122 - 97 + 1);
 			sessionID += r;
 		}
 		std::map<std::string, std::map<std::string, std::string> >::iterator it = this->_cookiesTable.find(sessionID);
@@ -702,13 +702,19 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 	std::string cookie = "Set-Cookie: sessionID=";
 
 	cookie+= sessionID;
-	cookie+= ";";
+	cookie+= "; ";
+	for (std::vector<std::string>::iterator it = this->_attributsTable.begin();
+		it != this->_attributsTable.end(); it++)
+	{
+		cookie += *(it);
+		cookie += " ";
+	}
+	cookie += "\r\n";
 	for (std::map<std::string, std::string>::iterator it = 
 		this->_cookiesTable[sessionID].begin();
 		it != this->_cookiesTable[sessionID].end()
 		; it++)
 	{
-		cookie += "\r\n";
 		cookie += "Set-Cookie: ";
 		cookie += it->first;
 		cookie += "=";
@@ -720,6 +726,7 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 			cookie += *(it);
 			cookie += " ";
 		}
+		cookie += "\r\n";
 	}
 	return (cookie);
 }

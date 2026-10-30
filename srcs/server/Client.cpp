@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:50:17 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:43:22 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,6 +255,7 @@ void	Client::stashBody()
 	this->_contentLength = -1;
 
 	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
+	std::cout << "// === RESPONSE === //" << std::endl << this->_sendBuffer << std::endl; // test purpose
 }
 
 //this->_httpRequestHandler.handleRequest(this->_httpRequest)

@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 21:04:00 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:41:09 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,8 @@ std::string	HttpResponse::createHeaderFields(const ResponseData& responseData)
 	else
 		headerFields.append("close");
 	headerFields.append("\r\n");
+
+	headerFields.append(responseData._cookie);
 
 	return (headerFields);
 }
