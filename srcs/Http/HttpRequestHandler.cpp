@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 11:43:50 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 11:50:03 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -638,9 +638,10 @@ void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 	}
 	if (flagCookie != 0) // there's no cookie header
 	{
-		std::string sessionID = generateSessionID();
-		
 		// create new session ID and new cookies
+		std::string sessionID = generateSessionID();
+		this->_cookiesTable[sessionID]["lang"] = getRandomLanguage();
+		this->_cookiesTable[sessionID]["theme"] = "dark";
 	}
 
 	// assemble cookie

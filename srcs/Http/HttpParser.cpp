@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/29 13:17:09 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 11:57:08 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,7 +192,7 @@ void	HttpParser::ParseHeaders(void)
 		VerifyHeaderValue(it->second);
 
 		std::string name = Utils::strToMin(it->first);
-		if (name == "content-length" || name == "connection" ||
+		if (name == "content-length" || name == "connection" || name == "cookie" ||
 			name == "content-type" || name == "host" || name == "transfer-encoding")
 			VerifyKnownHeaders(it, name);
 	}
@@ -219,6 +219,8 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 		VerifyHost(headerFields, name);
 	else if (name == "content-type")
 		VerifyContentType(headerFields, name);
+	else if (name == "cookie")
+		VerifyCookie(headerFields, name);
 }
 
 void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
@@ -233,6 +235,16 @@ void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::st
 	if (isWrongDupplicate(headerFields, name))
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
 	
+}
+
+void		HttpParser::VerifyCookie(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+{
+	if (headerFields->second.empty())
+		throw HttpException(400, RED "Cookie header fields value is empty" RESET);
+	if (std::string::npos == headerFields->second.find("sessionID="))
+		throw HttpException(400, RED "Cookie header doesnt have sessionID: " YELLOW + headerFields->second + RESET);
+	if (isDupplicate(headerFields, name))
+		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
 }
 
 void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
