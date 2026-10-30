@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/29 14:10:34 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/10/30 11:43:50 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -630,18 +630,20 @@ void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 	{
 
 		std::string name = Utils::strToMin(it->first);
-		if (name == "cookie") // there is a cookie header
+		if (name == "cookie") // there's a cookie header
 		{
 			// search session ID and add new cookies if there is
 			flagCookie++;
 		}
 	}
-	if (flagCookie != 0) // there is no cookie header
+	if (flagCookie != 0) // there's no cookie header
 	{
+		std::string sessionID = generateSessionID();
+		
 		// create new session ID and new cookies
 	}
 
-	// format cookie
+	// assemble cookie
 	this->_responseData._cookie = assembleCookie();
 }
 
@@ -661,10 +663,15 @@ std::string	HttpRequestHandler::generateSessionID(void)
 {
 	std::string sessionID = "";
 
-	for (size_t i = 0; i < 32; i++)
+	std::map<std::string, std::map<std::string, std::string>>::iterator it = this->_cookiesTable.find(sessionID);
+	while (this->_cookiesTable.end() == it)
 	{
-		char r = 33 + std::rand() % (122 - 33 + 1);
-		sessionID += r;
+		for (size_t i = 0; i < 32; i++)
+		{
+			char r = 33 + std::rand() % (122 - 33 + 1);
+			sessionID += r;
+		}
+		std::map<std::string, std::map<std::string, std::string>>::iterator it = this->_cookiesTable.find(sessionID);
 	}
 	
 	return (sessionID);
