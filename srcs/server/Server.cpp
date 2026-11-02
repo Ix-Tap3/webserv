@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:27:38 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 15:34:42 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,7 +281,8 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 		if (!client->getConnectionState())
 			this->addFdToCloseList(this->_pollFds[index].fd);
 		else
-			this->_pollFds[index].events = POLLIN;
+			if (!client->handleReceivedData())
+				this->_pollFds[index].events = POLLIN;
 		return (true);
 	}
 
