@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 13:09:27 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 12:37:52 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,7 +255,7 @@ bool	Server::watchClientsSocket(int index)
 
 bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 {
-	char	buff[100];
+	char	buff[65536];
 
 	int	res = recv(clientFd, buff, sizeof(buff), 0);
 	// std::cout << "Data received: " << std::string(buff, res) << std::endl; // test purpose

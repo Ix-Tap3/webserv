@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 12:50:06 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 12:18:06 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <cerrno>
+# include <climits>
 # include <poll.h>
 
 # include <unistd.h>

@@ -5,3 +5,6 @@ objs/
 webserv
 .vscode/
 *.d
+YoupiBanane/
+cgi_tester
+tester

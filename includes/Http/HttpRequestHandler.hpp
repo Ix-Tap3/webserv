@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:16:26 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 12:44:46 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@
 # include <WebservInclude.h>
 # include <Utils.hpp>
 # include <configs.h>
+
+struct MultipartPart
+{
+	std::string	headers;
+	std::string	data;
+};
 
 class HttpRequestHandler
 {
@@ -43,6 +49,19 @@ private:
 	void createListing(const std::string& target, const std::string& path);
 	// === POST === //
 	void handlePost(HttpRequest& httpRequest);
+	std::string	getHeader(const HttpRequest& req, const std::string& name) const;
+	bool	isUploadDirUsable(const std::string& dir) const;
+	bool	isMultipart(const std::string& contentType) const;
+	std::string	extractBoundary(const std::string& contentType) const;
+	bool	parseMultipart(const std::string& body, const std::string& delim,
+				std::vector<MultipartPart>& parts) const;
+	std::string	extractFilename(const std::string& partHeaders) const;
+	std::string	sanitizeFilename(const std::string& raw) const;
+	bool	writeFile(const std::string& path, const std::string& data) const;
+	int		handlePart(const MultipartPart& part, std::string& savedName);
+	void	setUploadSuccess(const std::string& filename);
+	void	handleRawPost(HttpRequest& httpRequest);
+	void	handleMultipart(const std::string& body, const std::string& contentType);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
 public:
@@ -54,6 +73,7 @@ public:
 	ResponseData	handleRequest(HttpRequest& httpRequest);
 	ResponseData	handleError(int statusCode);
 	int				getMaxContentLength( std::string target );
+	int		getMaxBodySize(const std::string& target) const;
 
 };
 #endif

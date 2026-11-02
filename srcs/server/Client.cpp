@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:34:55 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 12:35:37 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,8 +117,8 @@ bool	Client::hasCompleteHeaders() const
 
     if (pos != std::string::npos) // test purpose
     {
-        std::cout << "The header is complete at position " // test purpose
-                  << pos << std::endl; // test purpose
+        // std::cout << "The header is complete at position " // test purpose
+        //           << pos << std::endl; // test purpose
         return (true); // test purpose
     }
 
@@ -141,6 +141,19 @@ int		Client::extractContentLength()
 			return (parseContentLength((*it).second));
 	}
 	return (0);
+}
+
+bool	Client::checkBodySize()
+{
+	int	maxBodySize = this->_httpRequestHandler.getMaxBodySize(this->_httpRequest.requestLine._target);
+
+	if (maxBodySize == -1 || this->_contentLength <= maxBodySize)
+		return (true);
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleError(413));
+	this->_state.connection = false;
+	this->_recvBuffer.clear();
+	this->_contentLength = -1;
+	return (false);
 }
 
 bool		Client::extractConnection()
@@ -230,7 +243,9 @@ bool	Client::stashHeaders()
 		prepareErrorResponse(413);
 		return (false);
 	}
+
 	this->_state.connection = extractConnection();
+
 	if (isChunked())
 	{
 		this->_state.header = false;
@@ -238,6 +253,10 @@ bool	Client::stashHeaders()
 		this->_chunkedBody.clear();
 		return (true);
 	}
+
+	if (!checkBodySize())
+		return (false);
+
 	if (this->_contentLength > 0)
 	{
 		this->_state.header = false;
