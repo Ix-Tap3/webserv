@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 11:54:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/11/02 13:08:39 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ private:
 	void		VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields);
 	void		VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyTransfertEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
 	bool		isValidHostname(std::string& value);
 	bool		isValidCharHostname(char c);
 	bool		isValidIPv4(std::string value);

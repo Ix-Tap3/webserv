@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:50:31 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/02 12:37:52 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,20 +134,26 @@ struct pollfd	Server::setupServerPoll()
 
 
 // === RUN PART === //
+
+
 bool	Server::run()
 {
 	while (true)
 	{
-		int ret = poll(&_pollFds[0], this->_pollFds.size(), -1);
+		int ret = poll(&_pollFds[0], this->_pollFds.size(), 1000);
 
 		if (ret == -1)
 		{
 			std::cerr << "poll: " << std::strerror(errno) << std::endl;
-			// Add a function to close all the fds
+			for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+				addFdToCloseList(it->fd);
+			clearFds();
 			return (false);
 		}
 		for (size_t i = this->_pollFds.size(); i-- > 0; )
 		{
+			if (isInFdCloseList(this->_pollFds[i].fd))
+				continue ;
 			// If server fd
 			if (isServerSocket(this->_pollFds[i].fd))
 			{
@@ -157,14 +163,22 @@ bool	Server::run()
 				}
 			}
 			// If client fd
-			else 
+			else if (Server::isClientFd(this->_pollFds[i].fd))
 			{
 				if (!watchClientsSocket(i))
 				{
 					return (false);
 				}
 			}
+			else
+			{
+				addFdToCloseList(this->_pollFds[i].fd);
+				std::cout << "Unknown fd encouter in run() fuction" << std::endl;
+			}
+			// If CGI fd
 		}
+		handleInactiveClient();
+		clearFds();
 	}
 	return (true);
 }
@@ -211,7 +225,7 @@ bool	Server::acceptNewClient(int serverFd)
 	this->_pollFds.push_back(newClient);
 	this->_clients.insert(std::make_pair(client_fd, Client(client_fd, &this->_config)));
 
-	std::cout << "Client connected!" << std::endl;
+	std::cout << "Client " << client_fd << " connected!" << std::endl;
 	return (true);
 }
 
@@ -221,6 +235,11 @@ bool	Server::watchClientsSocket(int index)
 	int		client_fd = this->_pollFds[index].fd;
 	Client	*client = &this->_clients[client_fd];
 
+	if (this->_pollFds[index].revents & (POLLERR | POLLHUP | POLLNVAL))
+	{
+		addFdToCloseList(this->_pollFds[index].fd);
+		return (true);
+	}
 	if (this->_pollFds[index].revents & POLLIN)
 	{
 		if (!this->clientPOLLIN(client, client_fd, index))
@@ -243,11 +262,12 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	// Error
 	if (res <= 0)
 	{
-		std::cout << "Client " << clientFd << " disconnected" << std::endl; // test purpose
-		this->removeClient(index);
+		std::cout << "Client closed connection" << std::endl; // test purpose
+		this->addFdToCloseList(this->_pollFds[index].fd);
 		return (true);
 	}
 	// No problem
+	client->setActivityTime();
 	client->appendReceivedData(buff, res);
 	if (client->getContentLength() == -1 && client->hasCompleteHeaders())
 	{
@@ -256,6 +276,17 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 			this->_pollFds[index].events = POLLOUT;
 			return (true);
 		}
+	}
+	if (client->isReadingChunks())
+	{
+		if (client->processChunkedBody())
+		{
+			if (client->getConnectionState())
+				this->_pollFds[index].events = POLLOUT | POLLIN;
+			else
+				this->_pollFds[index].events = POLLOUT;
+		}
+		return (true);
 	}
 	if (client->getContentLength() != -1
 		&& client->getContentLength() <= client->getNbBodyByte())
@@ -271,7 +302,7 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	if (!client->hasSomethingToSend())
 	{
 		if (!client->getConnectionState())
-			this->removeClient(index);
+			this->addFdToCloseList(this->_pollFds[index].fd);
 		else
 			this->_pollFds[index].events = POLLIN;
 		return (true);
@@ -281,20 +312,112 @@ bool	Server::clientPOLLOUT(Client *client, int clientFd, int index)
 	ssize_t	byte_send = send(clientFd, response.c_str(), response.length(), 0);
 	if (byte_send <= 0)
 	{
-		this->removeClient(index);
+		this->addFdToCloseList(this->_pollFds[index].fd);
 		return (true);
 	}
 	
+	client->setActivityTime();
 	client->removeReponseSend(byte_send);
 
 	return (true);
 }
 
-void	Server::removeClient(int index)
+// --- Utils
+void	Server::addFdToCloseList( int fd )
 {
-	int	fd = this->_pollFds[index].fd;
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return ;
+	this->_fdsToClose.push_back(fd);
+}
 
-	close(fd);
-	this->_clients.erase(fd);
-	this->_pollFds.erase(this->_pollFds.begin() + index);
+void	Server::clearFds( void )
+{
+	if (this->_fdsToClose.empty())
+		return ;
+
+	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+	{
+		close(*it);
+		if (isClientFd(*it))
+		{
+			std::cout << "Client " << *it << " disconnected!" << std::endl;
+			this->_clients.erase(*it);
+		}
+	}
+
+	rebuildPollFds();
+
+	this->_fdsToClose.clear();
+}
+
+bool	Server::isClientFd( int fd ) const
+{
+	if (this->_clients.count(fd) > 0)
+		return true;
+	return false;
+}
+
+bool	Server::isInFdCloseList( int fd ) const
+{
+	for (std::vector<int>::const_iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
+		if (*it == fd)
+			return true;
+
+	return false;
+}
+
+void	Server::rebuildPollFds( void )
+{
+	std::vector<struct pollfd>	newPollFds;
+
+	for (std::vector<struct pollfd>::iterator it = this->_pollFds.begin(); it != this->_pollFds.end(); it++)
+		if (!isInFdCloseList(it->fd))
+			newPollFds.push_back(*it);
+
+	this->_pollFds = newPollFds;
+}
+
+void	Server::handleInactiveClient( void )
+{
+	time_t	now = std::time(NULL);
+	double	limit = 60;
+
+	if (MAX_TIMEOUT > 0 && MAX_TIMEOUT <= 60)
+		limit = static_cast<double>(MAX_TIMEOUT);
+
+	for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (std::difftime(now, it->second.getLastActivityTime()) > limit)
+		{
+			if (it->second.hasPendingRequest())
+			{
+				if (it->second.hasSomethingToSend())
+				{
+					addFdToCloseList(it->first);
+					continue ;
+				}
+				int	currentIndex = getClientPosByFd(it->first);
+
+				if (currentIndex == -1)
+				{
+					addFdToCloseList(it->first);
+					continue ;
+				}
+				this->_pollFds[currentIndex].events = POLLOUT;
+				it->second.setActivityTime();
+				it->second.prepareErrorResponse(408);
+			}
+			else
+				addFdToCloseList(it->first);
+		}
+	}
+}
+
+int	Server::getClientPosByFd( int fd ) const
+{
+	for (std::size_t i = 0; i < this->_pollFds.size(); i++)
+		if (this->_pollFds[i].fd == fd)
+			return static_cast<int>(i);
+	return -1;
 }

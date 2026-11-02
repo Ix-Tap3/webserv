@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/30 14:32:21 by anfouger         ###   ########.fr       */
+/*   Updated: 2026/11/02 13:09:15 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,9 @@ public:
 	~HttpRequestHandler();
 
 	// === MAIN FUNCTION === //
-	ResponseData handleRequest(HttpRequest& httpRequest);
-	ResponseData handleError(int statusCode);
+	ResponseData	handleRequest(HttpRequest& httpRequest);
+	ResponseData	handleError(int statusCode);
+	int				getMaxContentLength( std::string target );
 	int		getMaxBodySize(const std::string& target) const;
 
 };
