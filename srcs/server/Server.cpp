@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:17:26 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 15:27:38 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,33 +269,8 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 	// No problem
 	client->setActivityTime();
 	client->appendReceivedData(buff, res);
-	if (client->hasFinishedResponse())
+	if (client->handleReceivedData())
 		this->_pollFds[index].events = POLLOUT;
-	// if (client->getContentLength() == -1 && client->hasCompleteHeaders())
-	// {
-	// 	if (!client->stashHeaders())
-	// 	{
-	// 		this->_pollFds[index].events = POLLOUT;
-	// 		return (true);
-	// 	}
-	// }
-	// if (client->isReadingChunks())
-	// {
-	// 	if (client->processChunkedBody())
-	// 	{
-	// 		if (client->getConnectionState())
-	// 			this->_pollFds[index].events = POLLOUT | POLLIN;
-	// 		else
-	// 			this->_pollFds[index].events = POLLOUT;
-	// 	}
-	// 	return (true);
-	// }
-	// if (client->getContentLength() != -1
-	// 	&& client->getContentLength() <= client->getNbBodyByte())
-	// {
-	// 	client->stashBody();
-	// 	this->_pollFds[index].events = POLLOUT | POLLIN;
-	// }
 	return (true);
 }
 

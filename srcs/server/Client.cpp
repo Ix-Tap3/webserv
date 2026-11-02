@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:18:21 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 15:27:07 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -442,7 +442,7 @@ int	Client::parseContentLength(const std::string &value) const
 	return (static_cast<int>(nb));
 }
 
-bool	Client::hasFinishedResponse()
+bool	Client::handleReceivedData()
 {
 	if (this->_contentLength == -1)
 	{
