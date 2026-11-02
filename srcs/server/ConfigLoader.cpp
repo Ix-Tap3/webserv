@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/19 13:48:56 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/02 19:53:07 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,9 @@
 // --- Constructor
 ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 {
-	if (this->_root.getType() != JSON_OBJECT)
-		throw ConfigException("Config must start with a Json object");
+	if (this->_root.getType() != JSON_OBJECT && this->_root.getType() != JSON_ARRAY)
+		throw ConfigException("Config must start with a Json Array or a Json object");
 
-	std::string	missings;
-
-	missings = this->checkMissingField();
-	if (!missings.empty())
-		throw ConfigException("the following fields are missing in the configuration file: " + missings);
 	this->init_fieldname();
 	this->buildFields();
 }
@@ -36,6 +31,11 @@ ConfigLoader::ConfigLoader	( JsonValue root ): _root(root)
 ServerConfig	ConfigLoader::load( void )
 {
 	ServerConfig	config;
+	std::string	missings;
+
+	missings = this->checkMissingField();
+	if (!missings.empty())
+		throw ConfigException("the following fields are missing in the configuration file: " + missings);
 
 	config.listing_set = false;
 	config.max_body_size = -1;
@@ -46,6 +46,67 @@ ServerConfig	ConfigLoader::load( void )
 	// displayServerConfig(config);
 
 	return config;
+}
+
+bool	ConfigLoader::checkDuplicatedIpPortPair( std::vector<ServerConfig> &serverConfigs ) const
+{
+	for (std::vector<ServerConfig>::iterator it = serverConfigs.begin(); it != serverConfigs.end(); it++)
+	{
+		for (std::vector<ServerConfig>::iterator tmp = it + 1; tmp != serverConfigs.end(); tmp++)
+		{
+			if (tmp->ip == it->ip)
+			{
+				std::size_t	i = 0;
+
+				while (i < tmp->ports.size())
+				{
+					std::size_t	j = 0;
+
+					while ( j < it->ports.size() )
+					{
+						if (tmp->ports[i] == it->ports[j])
+							return false;
+						j++;
+					}
+					i++;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+std::vector<ServerConfig>	ConfigLoader::loadAll( void )
+{
+	std::vector<ServerConfig>	servers;
+	JsonType					type = this->_root.getType();
+
+	if (type == JSON_OBJECT)
+	{
+		ConfigLoader	config(this->_root);
+
+		servers.push_back(config.load());
+	}
+	else if (type == JSON_ARRAY)
+	{
+		JsonArray	*configArray = this->_root.getArray();
+
+		if (this->_root.getArray()->empty())
+			throw ConfigException("Invalid empty server list, please fill it with at least one server configuration");
+
+		for (JsonArray::iterator it = configArray->begin(); it != configArray->end(); it++)
+		{
+			ConfigLoader	config(*it);
+
+			servers.push_back(config.load());
+		}
+	}
+
+	if (!checkDuplicatedIpPortPair(servers))
+		throw ConfigException("Invalid duplicated IP/PORTS pair between servers in configuration file");
+
+	return servers;
 }
 
 void ConfigLoader::init_fieldname(){
@@ -538,6 +599,17 @@ void	ConfigLoader::buildPortsArray( std::vector<int> &portsArray, JsonArray &jso
 			throw ConfigException("Invalid port range in \"ports\" field, please use only integers between 1 and 65 535");
 
 		portsArray.push_back(port);
+	}
+	for (std::vector<int>::iterator it = portsArray.begin(); it != portsArray.end(); it++)
+	{
+		if (it + 1 == portsArray.end())
+			return ;
+
+		for (std::vector<int>::iterator compIt = it + 1; compIt != portsArray.end(); compIt++)
+		{
+			if (*it == *compIt)
+				throw ConfigException("Invalid duplicated port provided inside a same server configuration");
+		}
 	}
 }
 

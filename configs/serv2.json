@@ -1,0 +1,69 @@
+[
+  {
+    "root": "/home/pcaplat/Work/webserv/www/",
+    "hosts": [
+      "webserv.local"
+    ],
+    "ports": [
+      8080,
+      8081
+    ],
+    "max_body_size": 100000,
+    "directory_listing": false,
+    "default_page": "/index.html",
+    "error_pages": {
+      "404": "/errors/404.html",
+      "408": "/errors/408.html",
+      "500": "/errors/500.html"
+    },
+    "locations": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "path": "/upload",
+        "methods": [
+          "GET",
+          "POST",
+          "DELETE"
+        ],
+        "directory_listing": true,
+        "upload": "/home/pcaplat/Work/webserv/www/upload",
+        "max_body_size": 50000000
+      },
+      {
+        "path": "/old",
+        "redir": {
+          "301": "/"
+        }
+      }
+    ]
+  },
+  {
+    "hosts": [
+      "castorland.fr"
+    ],
+    "ports": [
+      9090,
+      9091
+    ],
+    "root": "/home/pcaplat/Work/webserv/castorland",
+    "default_page": "/index.html",
+    "max_body_size": 100000,
+    "directory_listing": false,
+    "error_pages": {
+      "404": "/404.html"
+    },
+    "locations": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      }
+    ]
+  }
+]

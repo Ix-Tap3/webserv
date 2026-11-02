@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/26 11:36:34 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/23 09:49:53 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 19:51:24 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,13 @@ int	main( int ac, char **av )
 		root = parser.parse();
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
-	ServerConfig	data;
+	std::vector<ServerConfig>	data;
 
 	try
 	{
 		ConfigLoader	loader(root);
 
-		data = loader.load();
+		data = loader.loadAll();
 	} catch ( std::exception &e ) { std::cerr << e.what() << std::endl; return 1; }
 
 	std::signal(SIGPIPE, SIG_IGN);
@@ -62,5 +62,6 @@ int	main( int ac, char **av )
 		return (1);
 	if (!server.run())
 		return (1);
+
 	return (0);
 }

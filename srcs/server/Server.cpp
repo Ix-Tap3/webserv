@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:34:42 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 19:47:43 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 
-Server::Server(const ServerConfig &config): _config(config)
+Server::Server(const std::vector<ServerConfig> &configs): _configs(configs)
 {
 }
 
@@ -25,15 +25,18 @@ Server::~Server()
 // === SETUP PART === //
 bool	Server::setup()
 {
-	for (size_t i = 0; i < this->_config.ports.size(); i++)
+	for (std::vector<ServerConfig>::const_iterator config = this->_configs.begin(); config != this->_configs.end(); config++)
 	{
-		if (!setupListener(this->_config.ports[i]))
-			return (false);
+		for (size_t i = 0; i < config->ports.size(); i++)
+		{
+			if (!setupListener(config->ports[i], *config))
+				return (false);
+		}
 	}
 	return (true);
 }
 
-bool	Server::setupListener(int port)
+bool	Server::setupListener(int port, const ServerConfig &config)
 {
 	struct addrinfo hints = {};
 	struct addrinfo *res = NULL;
@@ -43,7 +46,7 @@ bool	Server::setupListener(int port)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	int status = getaddrinfo(this->_config.ip.c_str(), portStr.c_str(), &hints, &res);
+	int status = getaddrinfo(config.ip.c_str(), portStr.c_str(), &hints, &res);
 	if (status != 0)
 	{
 		std::cerr << "getaddrinfo: " << gai_strerror(status) << std::endl;
@@ -64,7 +67,7 @@ bool	Server::setupListener(int port)
 
 	if (!setupBind(res))
 	{
-		std::cerr << "Cannot listen on " << this->_config.ip << ":" << port << std::endl;
+		std::cerr << "Cannot listen on " << config.ip << ":" << port << std::endl;
 		return (false);
 	}
 
@@ -73,9 +76,10 @@ bool	Server::setupListener(int port)
 
 	this->_pollFds.push_back(setupServerPoll());
 	this->_socketFds.push_back(this->_socketFd);
+	this->_configMap[this->_socketFd] = &config;
 
 	freeaddrinfo(res);
-	std::cout << "Listening on " << this->_config.ip << ":" << port << std::endl;
+	std::cout << "Listening on " << config.ip << ":" << port << std::endl;
 	return (true);
 }
 
@@ -223,7 +227,7 @@ bool	Server::acceptNewClient(int serverFd)
 	struct pollfd newClient = {client_fd, POLLIN, 0};
 
 	this->_pollFds.push_back(newClient);
-	this->_clients.insert(std::make_pair(client_fd, Client(client_fd, &this->_config)));
+	this->_clients.insert(std::make_pair(client_fd, Client(client_fd, this->_configMap[serverFd])));
 
 	std::cout << "Client " << client_fd << " connected!" << std::endl;
 	return (true);

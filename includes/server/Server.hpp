@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 11:34:01 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 19:47:38 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,9 @@
 class Server
 {
 private:
-	const ServerConfig			&_config;
+
+	const std::vector<ServerConfig>	&_configs;
+	std::map<int, const ServerConfig *>	_configMap; // int: socketFd, ServerConfig: Associated server configuration
 	int							_socketFd;
 	std::vector<int>			_socketFds;
 	std::vector<struct pollfd>	_pollFds;
@@ -29,7 +31,7 @@ private:
 	std::map<int, Client>		_clients;
 
 	// === SETUP PART === //
-	bool			setupListener(int port);
+	bool			setupListener(int port, const ServerConfig &config);
 	struct pollfd	setupServerPoll();
 	bool			setupListen(struct addrinfo *res);
 	bool			setupBind(struct addrinfo *res);
@@ -54,7 +56,7 @@ private:
 	int		getClientPosByFd(int fd) const;
 
 public:
-	Server(const ServerConfig &config);
+	Server(const std::vector<ServerConfig> &configs);
 	~Server();
 
 	bool	setup();

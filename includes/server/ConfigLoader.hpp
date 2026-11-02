@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/18 16:15:29 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/09 17:22:13 by tseche           ###   ########.fr       */
+/*   Updated: 2026/11/02 17:50:26 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ private:
 	void		checkJsonType( JsonValue &value, std::string expected, std::string field ) const;
 	bool		checkIpFormat( std::string ip ) const;
 	bool		checkPath( std::string path ) const;
+	bool		checkDuplicatedIpPortPair( std::vector<ServerConfig> &ServerConfigs ) const;
 	std::string	checkMissingField( void ) const;
 	
 	class ConfigException:	public std::exception
@@ -59,7 +60,8 @@ private:
 public:
 	ConfigLoader	( JsonValue root );
 
-	ServerConfig	load();
+	std::vector<ServerConfig>	loadAll();
+	ServerConfig				load();
 };
 
 void	displayServerConfig( ServerConfig config );

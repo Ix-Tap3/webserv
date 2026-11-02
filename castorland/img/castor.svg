@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Un castor">
+  <!-- queue -->
+  <ellipse cx="150" cy="150" rx="40" ry="18" fill="#3e2513" transform="rotate(-20 150 150)"/>
+  <path d="M125 140 l45 -10 M130 152 l45 -10 M135 164 l40 -9" stroke="#5a3a22" stroke-width="2"/>
+  <!-- corps -->
+  <ellipse cx="95" cy="130" rx="55" ry="45" fill="#8b5a2b"/>
+  <ellipse cx="90" cy="140" rx="32" ry="28" fill="#b07a45"/>
+  <!-- tête -->
+  <circle cx="90" cy="70" r="40" fill="#8b5a2b"/>
+  <circle cx="58" cy="40" r="10" fill="#6b4226"/>
+  <circle cx="122" cy="40" r="10" fill="#6b4226"/>
+  <!-- yeux -->
+  <circle cx="75" cy="62" r="6" fill="#1a1a1a"/>
+  <circle cx="105" cy="62" r="6" fill="#1a1a1a"/>
+  <circle cx="77" cy="60" r="2" fill="#fff"/>
+  <circle cx="107" cy="60" r="2" fill="#fff"/>
+  <!-- museau -->
+  <ellipse cx="90" cy="85" rx="18" ry="13" fill="#b07a45"/>
+  <ellipse cx="90" cy="78" rx="7" ry="5" fill="#2b1d12"/>
+  <!-- dents orange -->
+  <rect x="83" y="92" width="7" height="12" rx="1" fill="#e8892b" stroke="#2b1d12" stroke-width="1"/>
+  <rect x="90" y="92" width="7" height="12" rx="1" fill="#e8892b" stroke="#2b1d12" stroke-width="1"/>
+  <!-- pattes -->
+  <ellipse cx="62" cy="172" rx="16" ry="8" fill="#3e2513"/>
+  <ellipse cx="120" cy="172" rx="16" ry="8" fill="#3e2513"/>
+</svg>
