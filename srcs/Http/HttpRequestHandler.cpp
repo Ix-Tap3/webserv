@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:46:55 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/30 14:45:38 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,9 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 
 	if (this->_responseData._statusCode >= 400)
 		setErrorPage();
+
+	handleCookie(httpRequest);
+
 	return (this->_responseData);
 }
 
@@ -612,4 +615,126 @@ void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 		this->_responseData._body.clear();
 		this->_responseData._contentLength = 0;
 	}
+}
+void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
+{
+	std::srand(std::time(NULL)); // set the seed for the randomisation
+	initLanguageTable();
+	initAttributsVector();
+
+	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	httpRequest.header._headersFields.begin(); 
+	it != httpRequest.header._headersFields.end(); 
+	++it)
+	{
+		std::string name = Utils::strToMin(it->first);
+		if (name == "cookie") // there's a cookie header
+		{
+			std::string sessionID = getSessionID(it->second);
+			// search for session ID
+			std::map<std::string, std::map<std::string, std::string> >::iterator session = this->_cookiesTable.find(sessionID);
+			if (session == this->_cookiesTable.end())
+				break;
+			
+			// add new cookies if there is
+
+			// assemble cookie
+			this->_responseData._cookie = assembleCookie(sessionID);
+			return ;
+		}
+	}
+	// create new session ID and new cookies
+	std::string sessionID = generateSessionID();
+	this->_cookiesTable[sessionID]["lang"] = getRandomLanguage();
+	this->_cookiesTable[sessionID]["theme"] = "dark";
+
+	// assemble cookie
+	this->_responseData._cookie = assembleCookie(sessionID);
+}
+
+void	HttpRequestHandler::initLanguageTable(void)
+{
+	static const char	*languages[] = {
+		"en", "fr", "de", "es", "it", "pt", "nl", "sv", "da", "no",
+		"fi", "pl", "cs", "sk", "hu", "ro", "bg", "el", "tr", "ru",
+		"uk", "he", "ar", "fa", "hi", "bn", "th", "vi", "id", "ms",
+		"zh", "ja", "ko", "ca", "hr", "sr", "sl", "lt", "lv", "et"
+	};
+
+	this->_languageTable.assign(languages, languages + sizeof(languages) / sizeof(languages[0]));
+}
+
+void	HttpRequestHandler::initAttributsVector(void)
+{
+	static const char	*attributs[] = {"Path=/", "HttpOnly"};
+
+	this->_attributsTable.assign(attributs, attributs + sizeof(attributs) / sizeof(attributs[0]));
+
+}
+
+std::string	HttpRequestHandler::generateSessionID(void)
+{
+	std::string sessionID = "";
+	bool noRepeat = false;
+
+	do
+	{
+		for (size_t i = 0; i < 32; i++)
+		{
+			char r = 97 + std::rand() % (122 - 97 + 1);
+			sessionID += r;
+		}
+		std::map<std::string, std::map<std::string, std::string> >::iterator it = this->_cookiesTable.find(sessionID);
+		if (this->_cookiesTable.end() == it)
+			noRepeat = true;
+	} while (!noRepeat);
+
+	return (sessionID);
+}
+
+std::string	HttpRequestHandler::getRandomLanguage(void)
+{
+	return (this->_languageTable[std::rand() % this->_languageTable.size()]);
+}
+
+std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
+{
+	std::string cookie = "Set-Cookie: sessionID=";
+
+	cookie+= sessionID;
+	cookie+= "; ";
+	for (std::vector<std::string>::iterator it = this->_attributsTable.begin();
+		it != this->_attributsTable.end(); it++)
+	{
+		cookie += *(it);
+		cookie += " ";
+	}
+	cookie += "\r\n";
+	for (std::map<std::string, std::string>::iterator it = 
+		this->_cookiesTable[sessionID].begin();
+		it != this->_cookiesTable[sessionID].end()
+		; it++)
+	{
+		cookie += "Set-Cookie: ";
+		cookie += it->first;
+		cookie += "=";
+		cookie += it->second;
+		cookie += "; ";
+		for (std::vector<std::string>::iterator it = this->_attributsTable.begin();
+			it != this->_attributsTable.end(); it++)
+		{
+			cookie += *(it);
+			cookie += " ";
+		}
+		cookie += "\r\n";
+	}
+	return (cookie);
+}
+
+std::string	HttpRequestHandler::getSessionID(std::string& cookie)
+{
+	size_t start = cookie.find("sessionID=") + 10;
+	size_t end = cookie.find(";", start);
+
+	return (cookie.substr(start, end));
 }

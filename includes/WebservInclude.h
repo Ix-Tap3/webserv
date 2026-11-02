@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 22:46:49 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/10/29 13:55:29 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <cstring>
 # include <cstdlib>
 # include <cstdio>
+# include <ctime>
 
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -73,6 +74,7 @@ struct ResponseData
 	std::string	_body;
 	std::string	_contentType;
 	std::string	_location;
+	std::string _cookie;
 
 	ResponseData(): _statusCode(0), _contentLength(0), _connection(0) {}
 };
