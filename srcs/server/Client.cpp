@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 14:31:42 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 15:18:21 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,11 +281,6 @@ bool	Client::isChunked()
 	return (false);
 }
 
-bool	Client::isReadingChunks() const
-{
-	return (this->_state.chunked);
-}
-
 ChunkStatus	Client::decodeChunks(int &errorCode)
 {
 	while (true)
@@ -445,4 +440,27 @@ int	Client::parseContentLength(const std::string &value) const
 		return (CONTENT_LENGTH_TOO_LARGE);
 
 	return (static_cast<int>(nb));
+}
+
+bool	Client::hasFinishedResponse()
+{
+	if (this->_contentLength == -1)
+	{
+		if (!hasCompleteHeaders())
+			return (false);
+		if (!stashHeaders())
+			return(true);
+
+	}
+
+	if (this->_state.chunked)
+		return (processChunkedBody());
+
+	if (this->_contentLength <= this->_nbBodyByte)
+	{
+		stashBody();
+		return (true);
+	}
+
+	return (false);
 }

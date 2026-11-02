@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 14:17:23 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 15:16:31 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,13 @@ private:
 	ChunkStatus	decodeChunks(int &errorCode);
 	bool		parseChunkSize(const std::string &line, size_t &size) const;
 	void		finishRequest();
+
+	// === RECEIVE DATA === //
+	bool		stashHeaders();
+	bool		hasCompleteHeaders() const;
+	void		stashBody();
+	bool		processChunkedBody();
+
 public:
 
 	Client();
@@ -79,14 +86,10 @@ public:
 	~Client();
 
 	void	printHeader();
+	bool	hasFinishedResponse();
 
 	// === RECEIVE DATA === //
 	void	appendReceivedData(char	*buff, int len);
-	bool	hasCompleteHeaders() const;
-	bool	stashHeaders();
-	void	stashBody();
-	bool	isReadingChunks() const;
-	bool	processChunkedBody();
 
 	// === SEND DATA === //
 	void				appendSendData(std::string data);
