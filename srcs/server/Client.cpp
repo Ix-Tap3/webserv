@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:16:46 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 14:31:42 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,9 @@ bool	Client::checkBodySize()
 bool		Client::extractConnection()
 {
 	bool state = false;
+
+	if (this->_httpRequest.requestLine._version == "HTTP/1.1")
+		state = true;
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
@@ -388,15 +391,17 @@ void	Client::stashBody()
 
 void	Client::finishRequest()
 {
-	std::cout << "[debug] body: " << this->_httpRequest._body.size() << " bytes" << std::endl;
-
 	this->_state.body = false;
 	this->_state.chunked = false;
 	this->_state.header = true;
 	this->_nbBodyByte = 0;
 	this->_contentLength = -1;
 
-	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
+	ResponseData	tmp = this->_httpRequestHandler.handleRequest(this->_httpRequest);
+
+	tmp._connection = this->_state.connection;
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(tmp);
+
 	std::cout << "// === RESPONSE === //" << std::endl; // test purpose
 	std::cout << this->_sendBuffer << std::endl; // test purpose
 }

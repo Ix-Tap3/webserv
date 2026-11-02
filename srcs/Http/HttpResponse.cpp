@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:16:11 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/02 14:17:13 by pcaplat          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ std::string	HttpResponse::createHeaderFields(const ResponseData& responseData)
 
 std::string	HttpResponse::createStatusLine(const ResponseData& responseData)
 {
-	std::string statusLine = "HTTP/1.0 "; // basic initialisation for all
+	std::string statusLine = "HTTP/1.1 "; // basic initialisation for all
 
 	statusLine.append(Utils::intToString(responseData._statusCode)); // put the status code in the status line
 	
