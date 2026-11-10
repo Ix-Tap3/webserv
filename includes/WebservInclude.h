@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 12:50:06 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:07:56 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # define CYAN "\033[1;36m"
 # define WHITE "\033[1;37m"
 # define MAX_TIMEOUT 5 // in second for std::difftime()
+# define CGI_TIMEOUT 10 // in second, max execution time of a CGI script
 
 # include <map>
 # include <iostream>
@@ -65,6 +66,17 @@ struct HttpRequest
 	std::string	_body;
 };
 
+struct CgiInfo
+{
+	bool		_active;		// true si la requete doit etre executee par un CGI
+	std::string	_interpreter;	// ex: /bin/bash
+	std::string	_scriptPath;	// chemin absolu du script
+	std::string	_scriptName;	// chemin du script dans l'URL (ex: /cgi-bin/hello.sh)
+	std::string	_query;			// ce qu'il y a apres le '?' dans l'URL
+
+	CgiInfo(): _active(false) {}
+};
+
 struct ResponseData
 {
 	int			_statusCode;
@@ -73,6 +85,8 @@ struct ResponseData
 	std::string	_body;
 	std::string	_contentType;
 	std::string	_location;
+	std::string	_extraHeaders;	// headers supplementaires deja formates "Nom: valeur\r\n"
+	CgiInfo		_cgi;
 
 	ResponseData(): _statusCode(0), _contentLength(0), _connection(0) {}
 };
