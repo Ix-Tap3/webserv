@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:33:42 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:20:15 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "../../includes/Http/HttpParser.hpp"
 # include "../../includes/Http/HttpRequestHandler.hpp"
 # include "../../includes/Http/HttpResponse.hpp"
+# include "../../includes/cgis/CgiHandler.hpp"
 # include <ctime>
 # include <limits>
 
@@ -28,6 +29,7 @@ struct State
 	bool	header;
 	bool	body;
 	bool	connection;
+	bool	cgi;
 };
 
 class Client
@@ -50,6 +52,7 @@ private:
 	HttpParser	_parser;
 	HttpRequestHandler _httpRequestHandler;
 	HttpResponse		_httpResponseMaker;
+	CgiHandler			_cgi;
 
 	int			extractContentLength();
 	bool		extractConnection();
@@ -91,6 +94,12 @@ public:
 
 	// === ERRORS === //
 	void	prepareErrorResponse( int code );
+
+	// === CGI === //
+	bool		isCgiRunning() const;
+	CgiHandler&	getCgi();
+	void		finishCgi();
+	void		cancelCgi();
 };
 
 #endif

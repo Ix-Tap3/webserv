@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/10 16:14:43 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/10 16:18:41 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ Client::Client()
 	this->_state.header = true;
 	this->_state.body = false;
 	this->_state.connection = true;
+	this->_state.cgi = false;
 	this->_nbBodyByte = 0;
 	this->_lastActivity = std::time(NULL);
 }
@@ -47,6 +48,7 @@ Client::Client(int fd, const ServerConfig *config): _httpRequestHandler(config)
 	this->_state.header = true;
 	this->_state.body = false;
 	this->_state.connection = true;
+	this->_state.cgi = false;
 	this->_nbBodyByte = 0;
 	this->_lastActivity = std::time(NULL);
 }
@@ -247,7 +249,18 @@ void	Client::stashBody()
 	this->_nbBodyByte = 0;
 	this->_contentLength = -1;
 
-	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(this->_httpRequestHandler.handleRequest(this->_httpRequest));
+	ResponseData	tmp = this->_httpRequestHandler.handleRequest(this->_httpRequest);
+
+	if (tmp._cgi._active)
+	{
+		if (this->_cgi.start(this->_httpRequest, tmp._cgi))
+		{
+			this->_state.cgi = true;
+			return ;
+		}
+		tmp = this->_httpRequestHandler.handleError(500);
+	}
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(tmp);
 }
 
 //this->_httpRequestHandler.handleRequest(this->_httpRequest)
@@ -287,4 +300,37 @@ int	Client::parseContentLength(const std::string &value) const
 		return (CONTENT_LENGTH_TOO_LARGE);
 
 	return (static_cast<int>(nb));
+}
+
+//======================//
+// ======== CGI ======= //
+//======================//
+bool	Client::isCgiRunning() const
+{
+	return (this->_state.cgi);
+}
+
+CgiHandler&	Client::getCgi()
+{
+	return (this->_cgi);
+}
+
+void	Client::finishCgi()
+{
+	this->_cgi.stop();
+	this->_state.cgi = false;
+
+	ResponseData	res = this->_cgi.buildResponse();
+
+	if (res._statusCode == 502)
+		res = this->_httpRequestHandler.handleError(502);
+	res._connection = this->_state.connection;
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(res);
+	this->setActivityTime();
+}
+
+void	Client::cancelCgi()
+{
+	this->_cgi.stop();
+	this->_state.cgi = false;
 }
