@@ -6,7 +6,7 @@
 /*   By: marudlof < marudlof@student.42angouleme.f  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/10 15:53:04 by marudlof          #+#    #+#             */
-/*   Updated: 2026/11/10 16:14:24 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/10 16:51:47 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,10 +95,9 @@ void	CgiHandler::execChild(int inPipe[2], int outPipe[2], const HttpRequest& req
 
 	if (dup2(inPipe[0], STDIN_FILENO) == -1 || dup2(outPipe[1], STDOUT_FILENO) == -1)
 		std::exit(1);
-	close(inPipe[0]);
-	close(inPipe[1]);
-	close(outPipe[0]);
-	close(outPipe[1]);
+
+	for (int fd = 3; fd < CGI_MAX_FD; fd++)
+		close(fd);
 
 	std::string	dir = info._scriptPath.substr(0, info._scriptPath.find_last_of('/'));
 
