@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/10 16:29:41 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/10 16:47:53 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,7 @@ bool	Server::run()
 			}
 		}
 		handleInactiveClient();
+		handleCgiTimeout();
 		clearFds();
 	}
 	return (true);
@@ -326,6 +327,18 @@ void	Server::clearFds( void )
 {
 	if (this->_fdsToClose.empty())
 		return ;
+
+	// Client qui part pendant son CGI : on tue le script et on ferme ses pipes
+	for (size_t i = 0; i < this->_fdsToClose.size(); i++)
+	{
+		int	fd = this->_fdsToClose[i];
+
+		if (isClientFd(fd) && this->_clients[fd].isCgiRunning())
+		{
+			closeCgiFds(this->_clients[fd]);
+			this->_clients[fd].cancelCgi();
+		}
+	}
 
 	for (std::vector<int>::iterator it = this->_fdsToClose.begin(); it != this->_fdsToClose.end(); it++)
 	{
@@ -522,4 +535,13 @@ void	Server::endCgi(int clientFd, int errorCode)
 
 	if (index != -1)
 		this->_pollFds[index].events = POLLOUT;
+}
+
+void	Server::handleCgiTimeout(void)
+{
+	for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second.isCgiRunning() && it->second.getCgi().isTimedOut())
+			endCgi(it->first, 504);
+	}
 }
