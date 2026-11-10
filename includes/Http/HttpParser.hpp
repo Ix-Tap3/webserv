@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 16:28:16 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:14:05 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,12 +33,12 @@ private:
 	void		ParseHeaders(void);
 	void		VerifyHeaderName(std::string name);
 	void		VerifyHeaderValue(std::string value);
-	void		VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	void		VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	void		VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields);
-	void		VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	void		VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	void		VerifyTransfertEncoding(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	void		VerifyKnownHeaders(HeaderList::iterator& headerFields, std::string& name);
+	void		VerifyContentLength(HeaderList::iterator& headerFields, std::string& name);
+	void		VerifyConnection(HeaderList::iterator& headerFields);
+	void		VerifyHost(HeaderList::iterator& headerFields, std::string& name);
+	void		VerifyContentType(HeaderList::iterator& headerFields, std::string& name);
+	void		VerifyTransfertEncoding(HeaderList::iterator& headerFields, std::string& name);
 	bool		isValidHostname(std::string& value);
 	bool		isValidCharHostname(char c);
 	bool		isValidIPv4(std::string value);
@@ -48,8 +48,8 @@ private:
 	bool		isValidPort(std::string& value, int i);
 	bool		isValidCharValue(char c);
 	bool		isValidToken(const std::string& str);
-	bool		isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	bool		isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	bool		isWrongDupplicate(HeaderList::iterator& headerFields, std::string& name);
+	bool		isDupplicate(HeaderList::iterator& headerFields, std::string& name);
 
 public:
 	HttpParser();

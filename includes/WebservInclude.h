@@ -54,9 +54,11 @@ struct RequestLine
 	std::string _version;
 };
 
+typedef std::vector<std::pair<std::string, std::string> >	HeaderList;
+
 struct Header
 {
-	std::vector<std::pair<std::string, std::string> > _headersFields;
+	HeaderList	_headersFields;
 };
 
 struct HttpRequest

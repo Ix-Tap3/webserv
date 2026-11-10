@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:34:55 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:14:43 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	Client::printHeader()
 	std::cout << "Version: " << this->_httpRequest.requestLine._version << std::endl;
 
 	std::cout << "// === HEADERS FIELDS === //" << std::endl;
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -127,7 +127,7 @@ bool	Client::hasCompleteHeaders() const
 //======================//
 int		Client::extractContentLength()
 {
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -142,7 +142,7 @@ int		Client::extractContentLength()
 bool		Client::extractConnection()
 {
 	bool state = false;
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)

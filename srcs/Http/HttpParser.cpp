@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:12:24 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 16:29:08 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:14:15 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ HttpRequest	HttpParser::ParseHttpRequest(std::string& header)
 
 	DataSorting(header);
 	this->_httpRequest.requestLine = ParseRequestLine(this->_httpRequest.requestLine._raw_requestLine);
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -180,7 +180,7 @@ void		HttpParser::VerifyVersion(std::string version)
 // ============== //
 void	HttpParser::ParseHeaders(void)
 {
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -207,7 +207,7 @@ void	HttpParser::VerifyHeaderName(std::string name)
 	}
 }
 
-void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void	HttpParser::VerifyKnownHeaders(HeaderList::iterator& headerFields, std::string& name)
 {
 	if (name == "content-length")
 		VerifyContentLength(headerFields, name);
@@ -222,7 +222,7 @@ void	HttpParser::VerifyKnownHeaders(std::vector<std::pair<std::string, std::stri
 		VerifyContentType(headerFields, name);
 }
 
-void	HttpParser::VerifyTransfertEncoding(std::vector<std::pair<std::string, std::string> >::iterator &headerFields, std::string &name)
+void	HttpParser::VerifyTransfertEncoding(HeaderList::iterator &headerFields, std::string &name)
 {
 	std::string	value = Utils::strToMin(headerFields->second);
 	Utils::DeleteUselessSpace(value);
@@ -231,7 +231,7 @@ void	HttpParser::VerifyTransfertEncoding(std::vector<std::pair<std::string, std:
 		throw HttpException(501, RED "The server doesn't handle '" + value + "' encoding" RESET);
 	if (isWrongDupplicate(headerFields, name))
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
-	for (std::vector<std::pair<std::string, std::string>>::iterator it = this->_httpRequest.header._headersFields.begin(); it != this->_httpRequest.header._headersFields.end(); it++)
+	for (HeaderList::iterator it = this->_httpRequest.header._headersFields.begin(); it != this->_httpRequest.header._headersFields.end(); it++)
 	{
 		std::string	fieldName = Utils::strToMin(it->first);
 		Utils::DeleteUselessSpace(fieldName);
@@ -240,7 +240,7 @@ void	HttpParser::VerifyTransfertEncoding(std::vector<std::pair<std::string, std:
 	}
 }
 
-void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void		HttpParser::VerifyContentLength(HeaderList::iterator& headerFields, std::string& name)
 {
 	if (headerFields->second.empty())
 		throw HttpException(400, RED "Content-Length header fields value is empty" RESET);
@@ -254,7 +254,7 @@ void		HttpParser::VerifyContentLength(std::vector<std::pair<std::string, std::st
 	
 }
 
-void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::string> >::iterator& headerFields)
+void		HttpParser::VerifyConnection(HeaderList::iterator& headerFields)
 {
 	std::vector<std::string> value = Utils::strSplit(headerFields->second, ',');
 	for (std::vector<std::string>::iterator it = value.begin(); it != value.end() ; it++)
@@ -271,7 +271,7 @@ void		HttpParser::VerifyConnection(std::vector<std::pair<std::string, std::strin
 	}
 }
 
-void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void		HttpParser::VerifyHost(HeaderList::iterator& headerFields, std::string& name)
 {
 	if (headerFields->second.empty())
 		throw HttpException(400, RED "The value of this header cannot be empty: " YELLOW + headerFields->first + RESET);
@@ -295,7 +295,7 @@ void		HttpParser::VerifyHost(std::vector<std::pair<std::string, std::string> >::
 			throw HttpException(400, RED "Value of Host (hostname) isn't acceptable: " YELLOW + headerFields->second + RESET);		
 	}
 }
-void HttpParser::VerifyContentType(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+void HttpParser::VerifyContentType(HeaderList::iterator& headerFields, std::string& name)
 {
 	if (isDupplicate(headerFields, name))
 		throw HttpException(400, RED "Non authorize double headers appears twice: " YELLOW + headerFields->first + RESET);
@@ -376,9 +376,9 @@ bool HttpParser::isValidToken(const std::string& str)
     return true;
 }
 
-bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+bool		HttpParser::isWrongDupplicate(HeaderList::iterator& headerFields, std::string& name)
 {
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -394,9 +394,9 @@ bool		HttpParser::isWrongDupplicate(std::vector<std::pair<std::string, std::stri
 	return (false);
 }
 
-bool		HttpParser::isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name)
+bool		HttpParser::isDupplicate(HeaderList::iterator& headerFields, std::string& name)
 {
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
