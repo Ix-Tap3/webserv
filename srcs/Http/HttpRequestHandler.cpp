@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:22:25 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:36:15 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 	const std::string&	method = httpRequest.requestLine._method;
 	std::string&		target = httpRequest.requestLine._target;
 
-	getRequestTarget(target);
+	std::string	query = getRequestTarget(target);
 	if (target.find("..") != std::string::npos)
 		return (errorResponse(403));
 
@@ -103,6 +103,9 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 		return (errorResponse(405));
 	if (httpRequest._body.size() > static_cast<size_t>(this->_location->max_body_size))
 		return (errorResponse(413));
+
+	if ((method == "GET" || method == "POST") && isCgiRequest(target, query))
+		return (this->_responseData);
 
 	if (method == "GET")
 		handleGet(httpRequest);
@@ -338,4 +341,27 @@ void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 {
 	(void)httpRequest;
+}
+
+// === CGI === //
+bool	HttpRequestHandler::isCgiRequest(const std::string& target, const std::string& query)
+{
+	std::map<std::string, std::string>::const_iterator	it;
+
+	it = this->_config->cgis.find(getExtension(target));
+	if (it == this->_config->cgis.end())
+		return (false);
+
+	std::string	path = this->_location->root + target;
+	struct stat	st;
+
+	if (stat(path.c_str(), &st) == -1 || !S_ISREG(st.st_mode))
+		return (false);
+
+	this->_responseData._cgi._active = true;
+	this->_responseData._cgi._interpreter = it->second;
+	this->_responseData._cgi._scriptPath = path;
+	this->_responseData._cgi._scriptName = target;
+	this->_responseData._cgi._query = query;
+	return (true);
 }

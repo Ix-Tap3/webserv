@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/25 15:16:26 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:36:21 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ private:
 	void createListing(const std::string& target, const std::string& path);
 	// === POST === //
 	void handlePost(HttpRequest& httpRequest);
+	// === CGI === //
+	bool	isCgiRequest(const std::string& target, const std::string& query);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
 public:
