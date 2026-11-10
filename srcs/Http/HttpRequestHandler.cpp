@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:13:08 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 12:55:42 by anfouger         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -717,6 +717,8 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 		it != this->_attributsTable.end(); it++)
 	{
 		cookie += *(it);
+		if (it + 1 != this->_attributsTable.end())
+        		cookie += "; ";
 		cookie += " ";
 	}
 	cookie += "\r\n";
@@ -734,6 +736,8 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 			it != this->_attributsTable.end(); it++)
 		{
 			cookie += *(it);
+			if (it + 1 != this->_attributsTable.end())
+        		cookie += "; ";
 			cookie += " ";
 		}
 		cookie += "\r\n";
