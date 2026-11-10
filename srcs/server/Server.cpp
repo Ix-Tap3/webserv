@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 13:09:27 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:29:41 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,12 +170,14 @@ bool	Server::run()
 					return (false);
 				}
 			}
+			// If CGI fd
+			else if (isCgiFd(this->_pollFds[i].fd))
+				watchCgiFd(i);
 			else
 			{
 				addFdToCloseList(this->_pollFds[i].fd);
 				std::cout << "Unknown fd encouter in run() fuction" << std::endl;
 			}
-			// If CGI fd
 		}
 		handleInactiveClient();
 		clearFds();
@@ -281,7 +283,7 @@ bool	Server::clientPOLLIN(Client *client, int clientFd, int index)
 		&& client->getContentLength() <= client->getNbBodyByte())
 	{
 		client->stashBody();
-		this->_pollFds[index].events = POLLOUT | POLLIN;
+		dispatchResponse(client, index);
 	}
 	return (true);
 }
@@ -377,6 +379,8 @@ void	Server::handleInactiveClient( void )
 
 	for (std::map<int, Client>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
+		if (it->second.isCgiRunning())
+			continue ;
 		if (std::difftime(now, it->second.getLastActivityTime()) > limit)
 		{
 			if (it->second.hasPendingRequest())
@@ -409,4 +413,113 @@ int	Server::getClientPosByFd( int fd ) const
 		if (this->_pollFds[i].fd == fd)
 			return static_cast<int>(i);
 	return -1;
+}
+
+void	Server::dispatchResponse(Client *client, int index)
+{
+	if (client->isCgiRunning())
+		registerCgi(client, index);
+	else
+		this->_pollFds[index].events = POLLOUT | POLLIN;
+}
+
+// === CGI === //
+bool	Server::isCgiFd(int fd) const
+{
+	return (this->_cgisFds.count(fd) > 0);
+}
+
+void	Server::registerCgi(Client *client, int clientIndex)
+{
+	CgiHandler&	cgi = client->getCgi();
+	int			clientFd = client->getFd();
+
+	this->_pollFds[clientIndex].events = 0;
+
+	struct pollfd	out = {
+		cgi.getOutFd(),
+		POLLIN,
+		0
+	};
+
+	this->_pollFds.push_back(out);
+	this->_cgisFds[cgi.getOutFd()] = clientFd;
+
+	if (cgi.getInFd() != -1)
+	{
+		struct pollfd	in = {
+			cgi.getInFd(),
+			POLLOUT,
+			0
+		};
+
+		this->_pollFds.push_back(in);
+		this->_cgisFds[cgi.getInFd()] = clientFd;
+	}
+}
+
+void	Server::watchCgiFd(int index)
+{
+	int			fd = this->_pollFds[index].fd;
+	short		revents = this->_pollFds[index].revents;
+	int			clientFd = this->_cgisFds[fd];
+	CgiHandler&	cgi = this->_clients[clientFd].getCgi();
+	int			ret = -1;
+
+	if (revents == 0)
+		return ;
+
+	// stdin du script : on envoie un morceau du body
+	if (fd == cgi.getInFd())
+	{
+		if (revents & POLLOUT)
+			ret = cgi.writeBody();
+		if (ret != 0)
+			closeCgiFd(fd);
+		return ;
+	}
+
+	// stdout du script : on lit un morceau de la sortie
+	if (revents & (POLLIN | POLLHUP))
+		ret = cgi.readOutput();
+	if (ret == 1)
+		endCgi(clientFd, 0);
+	else if (ret == -1)
+		endCgi(clientFd, 502);
+}
+
+void	Server::closeCgiFd(int fd)
+{
+	this->_clients[this->_cgisFds[fd]].getCgi().forgetFd(fd);
+	this->_cgisFds.erase(fd);
+	addFdToCloseList(fd);
+}
+
+void	Server::closeCgiFds(Client &client)
+{
+	CgiHandler&	cgi = client.getCgi();
+
+	if (cgi.getInFd() != -1)
+		closeCgiFd(cgi.getInFd());
+	if (cgi.getOutFd() != -1)
+		closeCgiFd(cgi.getOutFd());
+}
+
+void	Server::endCgi(int clientFd, int errorCode)
+{
+	Client&	client = this->_clients[clientFd];
+
+	closeCgiFds(client);
+	if (errorCode == 0)
+		client.finishCgi();
+	else
+	{
+		client.cancelCgi();
+		client.prepareErrorResponse(errorCode);
+	}
+
+	int	index = getClientPosByFd(clientFd);
+
+	if (index != -1)
+		this->_pollFds[index].events = POLLOUT;
 }

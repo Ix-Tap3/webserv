@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/10/23 11:34:01 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/10 16:27:42 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,14 @@ private:
 	void	rebuildPollFds( void );
 	void	handleInactiveClient( void );
 	int		getClientPosByFd(int fd) const;
+	void	dispatchResponse(Client *client, int index);
+	// CGI //
+	bool	isCgiFd(int fd) const;
+	void	registerCgi(Client *client, int clientIndex);
+	void	watchCgiFd(int index);
+	void	closeCgiFd(int fd);
+	void	closeCgiFds(Client &client);
+	void	endCgi(int clientFd, int errorCode);
 
 public:
 	Server(const ServerConfig &config);
