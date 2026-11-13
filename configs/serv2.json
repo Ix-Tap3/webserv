@@ -14,13 +14,26 @@
     "error_pages": {
       "404": "/errors/404.html",
       "408": "/errors/408.html",
-      "500": "/errors/500.html"
+      "500": "/errors/500.html",
+      "504": "/errors/504.html"
+    },
+    "cgis": {
+      ".php": "/usr/bin/php-cgi",
+      ".py": "/usr/bin/python3",
+      ".sh": "/bin/bash"
     },
     "locations": [
       {
         "path": "/",
         "methods": [
           "GET"
+        ]
+      },
+      {
+        "path": "/cgi-bin",
+        "methods": [
+          "GET",
+          "POST"
         ]
       },
       {
@@ -50,7 +63,7 @@
       9090,
       9091
     ],
-    "root": "/home/pcaplat/Work/webserv/castorland",
+    "root": "/home/marudlof/cursus/SCHOOL/webserv/castorland",
     "default_page": "/index.html",
     "max_body_size": 100000,
     "directory_listing": false,
