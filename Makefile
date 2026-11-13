@@ -9,13 +9,15 @@ INCLUDES = -I includes \
 		   -I includes/server \
 		   -I includes/Http \
 		   -I includes/Utils \
-		   -I includes/json
+		   -I includes/json \
+		   -I includes/cgis
 
 SRCS_DIR = srcs
 JSON_DIR = $(SRCS_DIR)/json
 SERV_DIR = $(SRCS_DIR)/server
 HTTP_DIR = $(SRCS_DIR)/Http
 UTILS_DIR = $(SRCS_DIR)/Utils
+CGI_DIR = $(SRCS_DIR)/cgis
 
 SRCS = main.cpp \
 	$(HTTP_DIR)/HttpParser.cpp \
@@ -25,6 +27,7 @@ SRCS = main.cpp \
 	$(SERV_DIR)/Server.cpp \
 	$(SERV_DIR)/Client.cpp \
 	$(SERV_DIR)/ConfigLoader.cpp \
+	$(CGI_DIR)/CgiHandler.cpp \
 	$(UTILS_DIR)/Utils.cpp \
 	$(JSON_DIR)/JsonLexer.cpp \
 	$(JSON_DIR)/JsonValue.cpp \

@@ -6,16 +6,16 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 20:58:53 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 19:47:38 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:55:14 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <WebservInclude.h>
-# include <Client.hpp>
-# include <configs.h>
+# include "../WebservInclude.h"
+# include "../server/Client.hpp"
+# include "../server/configs.h"
 
 class Server
 {
@@ -54,6 +54,15 @@ private:
 	void	rebuildPollFds( void );
 	void	handleInactiveClient( void );
 	int		getClientPosByFd(int fd) const;
+	void	dispatchResponse(Client *client, int index);
+	// CGI //
+	bool	isCgiFd(int fd) const;
+	void	registerCgi(Client *client, int clientIndex);
+	void	watchCgiFd(int index);
+	void	closeCgiFd(int fd);
+	void	closeCgiFds(Client &client);
+	void	endCgi(int clientFd, int errorCode);
+	void	handleCgiTimeout(void);
 
 public:
 	Server(const std::vector<ServerConfig> &configs);

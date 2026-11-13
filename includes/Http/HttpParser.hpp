@@ -6,15 +6,15 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/02 18:11:08 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:08:39 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:52:40 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPPARSER_HPP
 # define HTTPPARSER_HPP
-# include "../../includes/WebservInclude.h"
-# include "../../includes/Http/HttpException.hpp"
-# include "../../includes/Utils/Utils.hpp"
+# include "../WebservInclude.h"
+# include "../Http/HttpException.hpp"
+# include "../Utils/Utils.hpp"
 
 class HttpParser
 {
@@ -49,8 +49,8 @@ private:
 	bool		isValidPort(std::string& value, int i);
 	bool		isValidCharValue(char c);
 	bool		isValidToken(const std::string& str);
-	bool		isWrongDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
-	bool		isDupplicate(std::vector<std::pair<std::string, std::string> >::iterator& headerFields, std::string& name);
+	bool		isWrongDupplicate(HeaderList::iterator& headerFields, std::string& name);
+	bool		isDupplicate(HeaderList::iterator& headerFields, std::string& name);
 
 public:
 	HttpParser();

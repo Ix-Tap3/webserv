@@ -6,16 +6,16 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:09:15 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:48:07 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HTTPREQUESTHANDLER_HPP
 # define HTTPREQUESTHANDLER_HPP
 
-# include <WebservInclude.h>
-# include <Utils.hpp>
-# include <configs.h>
+# include "../WebservInclude.h"
+# include "../Utils/Utils.hpp"
+# include "../server/configs.h"
 
 struct MultipartPart
 {
@@ -62,6 +62,8 @@ private:
 	void	setUploadSuccess(const std::string& filename);
 	void	handleRawPost(HttpRequest& httpRequest);
 	void	handleMultipart(const std::string& body, const std::string& contentType);
+	// === CGI === //
+	bool	isCgiRequest(const std::string& target, const std::string& query);
 	// === DELETE === //
 	void handleDelete(HttpRequest& httpRequest);
 	

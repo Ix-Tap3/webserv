@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:26:27 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:51:41 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,12 @@
 # define CONTENT_LENGTH_TOO_LARGE	-2
 # define MAX_CHUNK_LINE				4096
 
-# include "../../includes/WebservInclude.h"
-# include "../../includes/Utils/Utils.hpp"
-
-# include "../../includes/Http/HttpParser.hpp"
-# include "../../includes/Http/HttpRequestHandler.hpp"
-# include "../../includes/Http/HttpResponse.hpp"
+# include "../WebservInclude.h"
+# include "../Utils/Utils.hpp"
+# include "../Http/HttpParser.hpp"
+# include "../Http/HttpRequestHandler.hpp"
+# include "../Http/HttpResponse.hpp"
+# include "../cgis/CgiHandler.hpp"
 # include <ctime>
 # include <limits>
 
@@ -30,6 +30,7 @@ struct State
 	bool	body;
 	bool	connection;
 	bool	chunked;
+	bool	cgi;
 };
 
 enum ChunkStatus
@@ -61,6 +62,7 @@ private:
 	HttpParser	_parser;
 	HttpRequestHandler _httpRequestHandler;
 	HttpResponse		_httpResponseMaker;
+	CgiHandler			_cgi;
 
 	int			extractContentLength();
 	bool		checkBodySize();
@@ -112,6 +114,12 @@ public:
 
 	// === ERRORS === //
 	void	prepareErrorResponse( int code );
+
+	// === CGI === //
+	bool		isCgiRunning() const;
+	CgiHandler&	getCgi();
+	void		finishCgi();
+	void		cancelCgi();
 };
 
 #endif

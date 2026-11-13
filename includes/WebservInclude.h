@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 13:09:55 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:46:52 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # define CYAN "\033[1;36m"
 # define WHITE "\033[1;37m"
 # define MAX_TIMEOUT 5 // in second for std::difftime()
+# define CGI_TIMEOUT 10 // in second, max execution time of a CGI script
+# define CGI_MAX_FD 1024 // fds >= 3 and < CGI_MAX_FD are closed in the CGI child
 
 # include <map>
 # include <iostream>
@@ -55,9 +57,11 @@ struct RequestLine
 	std::string _version;
 };
 
+typedef std::vector<std::pair<std::string, std::string> >	HeaderList;
+
 struct Header
 {
-	std::vector<std::pair<std::string, std::string> > _headersFields;
+	HeaderList	_headersFields;
 };
 
 struct HttpRequest
@@ -65,6 +69,17 @@ struct HttpRequest
 	RequestLine requestLine;
 	Header		header;
 	std::string	_body;
+};
+
+struct CgiInfo
+{
+	bool		_active;		// true si la requete doit etre executee par un CGI
+	std::string	_interpreter;	// ex: /bin/bash
+	std::string	_scriptPath;	// chemin absolu du script
+	std::string	_scriptName;	// chemin du script dans l'URL (ex: /cgi-bin/hello.sh)
+	std::string	_query;			// ce qu'il y a apres le '?' dans l'URL
+
+	CgiInfo(): _active(false) {}
 };
 
 struct ResponseData
@@ -76,7 +91,8 @@ struct ResponseData
 	std::string	_contentType;
 	std::string	_location;
 	std::string _cookie;
-
+	std::string	_extraHeaders;	// headers supplementaires deja formates "Nom: valeur\r\n"
+	CgiInfo		_cgi;
 	ResponseData(): _statusCode(0), _contentLength(0), _connection(0) {}
 };
 
