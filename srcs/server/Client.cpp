@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 15:50:03 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 15:27:07 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:59:09 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	Client::printHeader()
 	std::cout << "Version: " << this->_httpRequest.requestLine._version << std::endl;
 
 	std::cout << "// === HEADERS FIELDS === //" << std::endl;
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -38,6 +38,7 @@ Client::Client()
 	this->_state.connection = true;
 	this->_state.chunked = false;
 	this->_maxBodySize = 0;
+	this->_state.cgi = false;
 	this->_nbBodyByte = 0;
 	this->_lastActivity = std::time(NULL);
 }
@@ -51,6 +52,7 @@ Client::Client(int fd, const ServerConfig *config): _httpRequestHandler(config)
 	this->_state.connection = true;
 	this->_state.chunked = false;
 	this->_maxBodySize = 0;
+	this->_state.cgi = false;
 	this->_nbBodyByte = 0;
 	this->_lastActivity = std::time(NULL);
 }
@@ -131,7 +133,7 @@ bool	Client::hasCompleteHeaders() const
 //======================//
 int		Client::extractContentLength()
 {
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -159,10 +161,9 @@ bool	Client::checkBodySize()
 bool		Client::extractConnection()
 {
 	bool state = false;
-
 	if (this->_httpRequest.requestLine._version == "HTTP/1.1")
 		state = true;
-	for (std::vector<std::pair<std::string, std::string> >::iterator it =
+	for (HeaderList::iterator it =
 		this->_httpRequest.header._headersFields.begin(); 
 		it != this->_httpRequest.header._headersFields.end(); 
 		++it)
@@ -395,6 +396,16 @@ void	Client::finishRequest()
 	ResponseData	tmp = this->_httpRequestHandler.handleRequest(this->_httpRequest);
 
 	tmp._connection = this->_state.connection;
+	if (tmp._cgi._active)
+	{
+		if (this->_cgi.start(this->_httpRequest, tmp._cgi))
+		{
+			this->_state.cgi = true;
+			return ;
+		}
+		tmp = this->_httpRequestHandler.handleError(500);
+		tmp._connection = this->_state.connection;
+	}
 	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(tmp);
 
 	std::cout << "// === RESPONSE === //" << std::endl; // test purpose
@@ -463,4 +474,37 @@ bool	Client::handleReceivedData()
 	}
 
 	return (false);
+}
+
+//======================//
+// ======== CGI ======= //
+//======================//
+bool	Client::isCgiRunning() const
+{
+	return (this->_state.cgi);
+}
+
+CgiHandler&	Client::getCgi()
+{
+	return (this->_cgi);
+}
+
+void	Client::finishCgi()
+{
+	this->_cgi.stop();
+	this->_state.cgi = false;
+
+	ResponseData	res = this->_cgi.buildResponse();
+
+	if (res._statusCode == 502)
+		res = this->_httpRequestHandler.handleError(502);
+	res._connection = this->_state.connection;
+	this->_sendBuffer = this->_httpResponseMaker.CreateHttpResponse(res);
+	this->setActivityTime();
+}
+
+void	Client::cancelCgi()
+{
+	this->_cgi.stop();
+	this->_state.cgi = false;
 }

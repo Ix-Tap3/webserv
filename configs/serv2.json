@@ -1,6 +1,6 @@
 [
   {
-    "root": "/home/pcaplat/Work/webserv/www/",
+    "root": "/home/marudlof/cursus/SCHOOL/webserv/www/",
     "hosts": [
       "webserv.local"
     ],
@@ -31,7 +31,7 @@
           "DELETE"
         ],
         "directory_listing": true,
-        "upload": "/home/pcaplat/Work/webserv/www/upload",
+        "upload": "/home/marudlof/cursus/SCHOOL/webserv/www/upload",
         "max_body_size": 50000000
       },
       {

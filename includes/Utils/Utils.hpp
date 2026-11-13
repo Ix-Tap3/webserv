@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Utils.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marudlof <marudlof@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/13 17:53:13 by marudlof          #+#    #+#             */
+/*   Updated: 2026/11/13 17:53:30 by marudlof         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef UTILS_HPP
 # define UTILS_HPP
 
-# include "../../includes/WebservInclude.h"
+# include "../WebservInclude.h"
 
 namespace Utils
 {

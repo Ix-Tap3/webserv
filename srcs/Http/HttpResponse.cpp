@@ -6,11 +6,11 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:38:47 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/02 14:17:13 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/13 17:57:05 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <HttpResponse.hpp>
+#include "../../includes/Http/HttpResponse.hpp"
 
 HttpResponse::HttpResponse()
 {
@@ -49,6 +49,7 @@ void	HttpResponse::initReasonPhraseTable(void)
 	this->_reasonPhraseTable[501] = "Not Implemented";
 	this->_reasonPhraseTable[502] = "Bad Gateway";
 	this->_reasonPhraseTable[503] = "Service Unavailable";
+	this->_reasonPhraseTable[504] = "Gateway Timeout";
 }
 
 HttpResponse::~HttpResponse()
@@ -101,8 +102,8 @@ std::string	HttpResponse::createHeaderFields(const ResponseData& responseData)
 	else
 		headerFields.append("close");
 	headerFields.append("\r\n");
-
 	headerFields.append(responseData._cookie);
+	headerFields.append(responseData._extraHeaders);
 
 	return (headerFields);
 }

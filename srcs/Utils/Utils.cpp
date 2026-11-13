@@ -1,4 +1,16 @@
-#include <Utils.hpp>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Utils.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marudlof <marudlof@student.42angouleme.fr  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/13 17:57:10 by marudlof          #+#    #+#             */
+/*   Updated: 2026/11/13 17:57:26 by marudlof         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../includes/Utils/Utils.hpp"
 
 std::vector<std::string> Utils::strSplit(const std::string &s, char delim)
 {
