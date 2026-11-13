@@ -8,13 +8,14 @@
     "localhost",
     "webserv.local"
   ],
-  "root": "/home/pcaplat/Work/webserv/www/",
+  "root": "/home/pcaplat/Documents/code/cpp/webserv/www/",
   "default_page": "/index.html",
   "directory_listing": false,
   "error_pages": {
     "404": "/errors/404.html",
     "408": "/errors/408.html",
-    "500": "/errors/500.html"
+    "500": "/errors/500.html",
+	"504": "/errors/504.html"
   },
   "max_body_size": 10000000,
   "cgis": {
@@ -37,7 +38,7 @@
         "DELETE"
       ],
       "directory_listing": true,
-      "upload": "/home/marudlof/cursus/SCHOOL/webserv/www/upload",
+      "upload": "/home/pcaplat/Documents/code/cpp/webserv/www/upload",
       "max_body_size": 50000000
     },
     {
