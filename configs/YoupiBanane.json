@@ -1,0 +1,28 @@
+{
+	"root": "/home/pcaplat/Documents/code/cpp/webserv/YoupiBanane",
+	"default_page": "/youpi.bad_extension",
+	"ports": [ 8080 ],
+	"hosts": [ "localhost" ],
+	"max_body_size": 20000000,
+	"cgis" : {
+		".bla": "/home/pcaplat/Documents/code/cpp/webserv/cgi_tester"
+	},
+	"locations": [
+		{
+			"path": "/",
+			"methods": [ "GET" ]
+		},
+		{
+			"path": "/post_body",
+			"methods": [ "POST" ],
+			"max_body_size": 100
+		},
+		{
+			"path": "/directory",
+			"root": "/home/pcaplat/Documents/code/cpp/webserv/YoupiBanane",
+			"methods": [ "GET", "POST" ],
+			"default_page": "/youpi.bad_extension",
+			"max_body_size": 20000000
+		}
+	]
+}
