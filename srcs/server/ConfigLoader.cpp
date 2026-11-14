@@ -261,6 +261,7 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 		config.max_body_size = -1;
 		config.listing_set = false;
 		config.redirect_code = -1;
+		config.is_alias = false;
 
 		if (itArr->getType() != JSON_OBJECT)
 			throw ConfigException("Entries in \"locations\" field must be Json objects");
@@ -401,6 +402,8 @@ void	ConfigLoader::fillLocationsConfig( ServerConfig &config ) const
 			it->directory_listing = config.directory_listing;
 		if (it->root.empty())
 			it->root = config.root;
+		else
+			it->is_alias = true;
 		if (it->default_page.empty())
 			it->default_page = config.default_page;
 		if (it->methods.empty())

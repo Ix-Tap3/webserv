@@ -89,6 +89,7 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 	if (target.find("..") != std::string::npos)
 		return (errorResponse(403));
 
+	std::cout << "target: " << target << std::endl;
 	this->_location = findLocation(target);
 	if (this->_location == NULL)
 		return (errorResponse(404));
@@ -243,8 +244,13 @@ ResponseData	HttpRequestHandler::errorResponse(int statusCode)
 void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 {
 	const std::string&	target = httpRequest.requestLine._target;
-	std::string			path = this->_location->root + target;
+	std::string			path = this->_location->root;
 	struct stat			st;
+
+	if (!this->_location->is_alias)
+		path += target;
+
+	std::cout << "path: " << path << std::endl;
 
 	if (access(path.c_str(), F_OK) == -1)
 	{
@@ -271,6 +277,7 @@ void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 
 void HttpRequestHandler::handleDirectory(const std::string& target, const std::string& path)
 {
+	std::cout << "DEBUG: " << path << ", " << target << std::endl;
 	if (target[target.size() - 1] != '/')
 	{
 		this->_responseData._statusCode = 301;
@@ -278,7 +285,13 @@ void HttpRequestHandler::handleDirectory(const std::string& target, const std::s
 		return ;
 	}
 
-	std::string	index = path.substr(0, path.size() - 1) + this->_location->default_page;
+	std::string	index;
+
+	if (path[path.size() - 1] == '/')
+		index = path.substr(0, path.size() - 1) + this->_location->default_page;
+	else
+		index = path.substr(0, path.size()) + this->_location->default_page;
+	std::cout << "[index]: " << path.substr(0, path.size() - 1) << std::endl;
 	if (access(index.c_str(), R_OK) == 0 && readFile(index))
 	{
 		this->_responseData._statusCode = 200;
@@ -289,7 +302,7 @@ void HttpRequestHandler::handleDirectory(const std::string& target, const std::s
 		createListing(target, path);
 		return ;
 	}
-	this->_responseData._statusCode = 403;
+	this->_responseData._statusCode = 404;
 }
 
 static std::string	htmlEscape(const std::string& str)

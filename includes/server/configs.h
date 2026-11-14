@@ -23,6 +23,7 @@ struct	LocationConfig
 	int									redirect_code; // -1 = not set, can be unset, have to be set if redirect_path is set
 	bool								directory_listing; // inherited from server by default
 	bool								listing_set;
+	bool								is_alias;
 	std::string							redirect_path; // empty = not set, can be unset, have to be set if redirect_code is set
 	std::string							root; // empty = not set, inherited from server by default
 	std::string							default_page; // inherited from server by default
