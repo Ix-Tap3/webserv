@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/14 21:22:46 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:52:01 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,9 @@ std::string HttpRequestHandler::getExtension(const std::string& target)
 	size_t pos_extension = target.find_last_of('.');
 	size_t pos_slash = target.find_last_of('/');
 	if (pos_extension == std::string::npos
-		|| (pos_slash != std::string::npos && pos_extension < pos_slash))
+			|| (pos_slash != std::string::npos && pos_extension < pos_slash))
 		return (extension);
-	
+
 	extension = target.substr(pos_extension, target.size() - 1);
 	return (extension);
 }
@@ -147,14 +147,14 @@ const LocationConfig	*HttpRequestHandler::findLocation(const std::string& target
 	const LocationConfig	*best = NULL;
 
 	for (std::vector<LocationConfig>::const_iterator it = this->_config->locations.begin();
-		it != this->_config->locations.end(); ++it)
+			it != this->_config->locations.end(); ++it)
 	{
 		const std::string&	path = it->path;
 
 		if (target.compare(0, path.size(), path) != 0)
 			continue ;
 		if (target.size() != path.size() && path[path.size() - 1] != '/'
-			&& target[path.size()] != '/')
+				&& target[path.size()] != '/')
 			continue ;
 		if (best == NULL || path.size() > best->path.size())
 			best = &(*it);
@@ -175,7 +175,7 @@ int	HttpRequestHandler::getMaxContentLength( std::string target )
 bool	HttpRequestHandler::isMethodAllowed(const std::string& method) const
 {
 	for (std::vector<std::string>::const_iterator it = this->_location->methods.begin();
-		it != this->_location->methods.end(); ++it)
+			it != this->_location->methods.end(); ++it)
 	{
 		if (*it == method)
 			return (true);
@@ -239,11 +239,24 @@ ResponseData	HttpRequestHandler::errorResponse(int statusCode)
 	return (this->_responseData);
 }
 
+// === PATH === //
+std::string	HttpRequestHandler::buildPath(const std::string& target) const
+{
+	if (!this->_location->root_set)
+		return (this->_location->root + target);
+
+	std::string	rest = target.substr(this->_location->path.size());
+
+	if (rest.empty() || rest[0] != '/')
+		rest = "/" + rest;
+	return (this->_location->root + rest);
+}
+
 // === GET === //
 void HttpRequestHandler::handleGet(HttpRequest& httpRequest)
 {
 	const std::string&	target = httpRequest.requestLine._target;
-	std::string			path = this->_location->root + target;
+	std::string			path = buildPath(target);
 	struct stat			st;
 
 	if (access(path.c_str(), F_OK) == -1)
@@ -417,7 +430,7 @@ std::string	HttpRequestHandler::extractBoundary(const std::string& contentType) 
 }
 
 bool	HttpRequestHandler::parseMultipart(const std::string& body, const std::string& delim,
-			std::vector<MultipartPart>& parts) const
+		std::vector<MultipartPart>& parts) const
 {
 	size_t	pos = body.find(delim);
 	if (pos == std::string::npos)
@@ -596,9 +609,9 @@ void	HttpRequestHandler::handleMultipart(const std::string& body, const std::str
 std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::string& name) const
 {
 	for (std::vector<std::pair<std::string, std::string> >::const_iterator it =
-		req.header._headersFields.begin();
-		it != req.header._headersFields.end();
-		++it)
+			req.header._headersFields.begin();
+			it != req.header._headersFields.end();
+			++it)
 	{
 		std::string fieldName = it->first;
 		if (Utils::strToMin(fieldName) == name)
@@ -610,7 +623,7 @@ std::string	HttpRequestHandler::getHeader(const HttpRequest& req, const std::str
 // === DELETE === //
 void HttpRequestHandler::handleDelete(HttpRequest& httpRequest)
 {
-	std::string	path = this->_location->root + httpRequest.requestLine._target;
+	std::string	path = buildPath(httpRequest.requestLine._target);
 	struct stat	st;
 
 	if (stat(path.c_str(), &st) == -1)
@@ -638,9 +651,9 @@ void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 	initAttributsVector();
 
 	for (std::vector<std::pair<std::string, std::string> >::iterator it =
-	httpRequest.header._headersFields.begin(); 
-	it != httpRequest.header._headersFields.end(); 
-	++it)
+			httpRequest.header._headersFields.begin(); 
+			it != httpRequest.header._headersFields.end(); 
+			++it)
 	{
 		std::string name = Utils::strToMin(it->first);
 		if (name == "cookie") // there's a cookie header
@@ -650,7 +663,7 @@ void	HttpRequestHandler::handleCookie(HttpRequest& httpRequest)
 			std::map<std::string, std::map<std::string, std::string> >::iterator session = this->_cookiesTable.find(sessionID);
 			if (session == this->_cookiesTable.end())
 				break;
-			
+
 			// add new cookies if there is
 
 			// assemble cookie
@@ -719,18 +732,18 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 	cookie+= sessionID;
 	cookie+= "; ";
 	for (std::vector<std::string>::iterator it = this->_attributsTable.begin();
-		it != this->_attributsTable.end(); it++)
+			it != this->_attributsTable.end(); it++)
 	{
 		cookie += *(it);
 		if (it + 1 != this->_attributsTable.end())
-        		cookie += "; ";
+			cookie += "; ";
 		cookie += " ";
 	}
 	cookie += "\r\n";
 	for (std::map<std::string, std::string>::iterator it = 
-		this->_cookiesTable[sessionID].begin();
-		it != this->_cookiesTable[sessionID].end()
-		; it++)
+			this->_cookiesTable[sessionID].begin();
+			it != this->_cookiesTable[sessionID].end()
+			; it++)
 	{
 		cookie += "Set-Cookie: ";
 		cookie += it->first;
@@ -738,11 +751,11 @@ std::string	HttpRequestHandler::assembleCookie(std::string& sessionID)
 		cookie += it->second;
 		cookie += "; ";
 		for (std::vector<std::string>::iterator it = this->_attributsTable.begin();
-			it != this->_attributsTable.end(); it++)
+				it != this->_attributsTable.end(); it++)
 		{
 			cookie += *(it);
 			if (it + 1 != this->_attributsTable.end())
-        		cookie += "; ";
+				cookie += "; ";
 			cookie += " ";
 		}
 		cookie += "\r\n";
@@ -767,7 +780,7 @@ bool	HttpRequestHandler::isCgiRequest(const std::string& target, const std::stri
 	if (it == this->_config->cgis.end())
 		return (false);
 
-	std::string	path = this->_location->root + target;
+	std::string	path = buildPath(target);
 	struct stat	st;
 
 	if (stat(path.c_str(), &st) == 0 && !S_ISREG(st.st_mode))

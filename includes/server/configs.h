@@ -6,7 +6,7 @@
 /*   By: pcaplat <pcaplat@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 09:59:58 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/10/05 18:20:46 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/14 21:49:42 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ struct	LocationConfig
 	int									redirect_code; // -1 = not set, can be unset, have to be set if redirect_path is set
 	bool								directory_listing; // inherited from server by default
 	bool								listing_set;
+	bool								root_set; // true if root is set in the location itself
 	std::string							redirect_path; // empty = not set, can be unset, have to be set if redirect_code is set
 	std::string							root; // empty = not set, inherited from server by default
 	std::string							default_page; // inherited from server by default

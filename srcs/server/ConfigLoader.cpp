@@ -6,7 +6,7 @@
 /*   By: tseche <tseche@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/19 16:14:33 by pcaplat           #+#    #+#             */
-/*   Updated: 2026/11/02 19:53:07 by pcaplat          ###   ########.fr       */
+/*   Updated: 2026/11/14 21:53:24 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ void	ConfigLoader::buildDefaultPage( std::string &input, std::string &output, st
 void	ConfigLoader::parseServer( ServerConfig &config )
 {
 	JsonObj			*obj = this->_root.getObject();
-	
+
 	for (JsonObjIterator it = obj->begin(); it != obj->end(); it++)
 	{
 		ConfigFields::iterator	field = this->_fields.find(it->first);
@@ -195,7 +195,7 @@ void	ConfigLoader::parseServer( ServerConfig &config )
 				break ;
 			case PORTS:
 				checkJsonType(it->second, "array", "ports");
-				
+
 				this->buildPortsArray(config.ports, *it->second.getArray());
 				break ;
 			case HOSTS:
@@ -260,6 +260,7 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 
 		config.max_body_size = -1;
 		config.listing_set = false;
+		config.root_set = false;
 		config.redirect_code = -1;
 
 		if (itArr->getType() != JSON_OBJECT)
@@ -288,6 +289,7 @@ void	ConfigLoader::parseLocations( std::vector<LocationConfig> &locations) const
 				case ROOT:
 					checkJsonType(itObj->second, "string", "root");
 					buildRoot(*itObj->second.getString(), config.root, "server");
+					config.root_set = true;
 					break ;
 				case DEFAULT_PAGE:
 					checkJsonType(itObj->second, "string", "default_page");
@@ -476,7 +478,7 @@ std::string	ConfigLoader::checkMissingField( void ) const
 void	ConfigLoader::checkJsonType( JsonValue &value, std::string expected, std::string field ) const
 {
 	bool	isValid = true;
-	
+
 	switch (value.getType())
 	{
 		case JSON_STRING:
@@ -539,7 +541,7 @@ bool	ConfigLoader::checkIpFormat( std::string ip ) const
 
 			ss << sub;
 			ss >> nb;
-			
+
 			if (nb > 255)
 				return false;
 
@@ -643,7 +645,7 @@ void	ConfigLoader::buildCgiMap( std::map<std::string, std::string> &cgiMap, Json
 			throw ConfigException("Keys in \"cgis\" field must be a file extension and start with a dot");
 		if (it->second.getType() != JSON_STRING)
 			throw ConfigException("Invalid Cgis Format, please use Json string as key and Json string as value in \"cgis\" field");
-		
+
 		std::string	path = *it->second.getString();
 
 		if (!this->checkPath( path ))
@@ -731,7 +733,7 @@ void	displayServerConfig( ServerConfig config )
 		std::cout << "true" << std::endl;
 	else
 		std::cout << "false" << std::endl;
-	
+
 	std::cout << "server locations: " << std::endl;
 	int	idx = 1;
 	for (std::vector<LocationConfig>::iterator it = config.locations.begin(); it != config.locations.end(); it++)

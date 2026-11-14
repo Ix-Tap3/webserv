@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:31 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/13 17:48:07 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:48:41 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,70 +25,80 @@ struct MultipartPart
 
 class HttpRequestHandler
 {
-private:
-	ResponseData	_responseData;
-	std::map<std::string, std::string> _typeTable;
-	const ServerConfig		*_config;
-	const LocationConfig	*_location;
+	private:
+		ResponseData	_responseData;
+		std::map<std::string, std::string> _typeTable;
+		const ServerConfig		*_config;
+		const LocationConfig	*_location;
 
-	std::string	getRequestTarget(std::string& target);
-	std::string	getExtension(const std::string& target);
+		std::string	getRequestTarget(std::string& target);
+		std::string	getExtension(const std::string& target);
 
-	// === INIT === //
-	void	initTypeTable(void);
-	// === LOCATION === //
-	const LocationConfig	*findLocation(const std::string& target) const;
-	bool	isMethodAllowed(const std::string& method) const;
-	// === FILES === //
-	bool	readFile(const std::string& path);
-	void	setErrorPage(void);
-	ResponseData	errorResponse(int statusCode);
-	// === GET === //
-	void handleGet(HttpRequest& httpRequest);
-	void handleDirectory(const std::string& target, const std::string& path);
-	void createListing(const std::string& target, const std::string& path);
-	// === POST === //
-	void handlePost(HttpRequest& httpRequest);
-	std::string	getHeader(const HttpRequest& req, const std::string& name) const;
-	bool	isUploadDirUsable(const std::string& dir) const;
-	bool	isMultipart(const std::string& contentType) const;
-	std::string	extractBoundary(const std::string& contentType) const;
-	bool	parseMultipart(const std::string& body, const std::string& delim,
+		// === INIT === //
+		void	initTypeTable(void);
+
+		// === LOCATION === //
+		const LocationConfig	*findLocation(const std::string& target) const;
+		bool	isMethodAllowed(const std::string& method) const;
+
+		// === FILES === //
+		bool	readFile(const std::string& path);
+		void	setErrorPage(void);
+		ResponseData	errorResponse(int statusCode);
+
+		// === GET === //
+		void handleGet(HttpRequest& httpRequest);
+		void handleDirectory(const std::string& target, const std::string& path);
+		void createListing(const std::string& target, const std::string& path);
+
+		// === POST === //
+		void handlePost(HttpRequest& httpRequest);
+		std::string	getHeader(const HttpRequest& req, const std::string& name) const;
+		bool	isUploadDirUsable(const std::string& dir) const;
+		bool	isMultipart(const std::string& contentType) const;
+		std::string	extractBoundary(const std::string& contentType) const;
+		bool	parseMultipart(const std::string& body, const std::string& delim,
 				std::vector<MultipartPart>& parts) const;
-	std::string	extractFilename(const std::string& partHeaders) const;
-	std::string	sanitizeFilename(const std::string& raw) const;
-	bool	writeFile(const std::string& path, const std::string& data) const;
-	int		handlePart(const MultipartPart& part, std::string& savedName);
-	void	setUploadSuccess(const std::string& filename);
-	void	handleRawPost(HttpRequest& httpRequest);
-	void	handleMultipart(const std::string& body, const std::string& contentType);
-	// === CGI === //
-	bool	isCgiRequest(const std::string& target, const std::string& query);
-	// === DELETE === //
-	void handleDelete(HttpRequest& httpRequest);
-	
-	// === COOKIE === //
-	std::map<std::string, std::map<std::string, std::string> > _cookiesTable;
-	std::vector<std::string> _languageTable;
-	std::vector<std::string> _attributsTable;
-	
-	void	handleCookie(HttpRequest& httpRequest);
-	void	initLanguageTable(void);
-	void	initAttributsVector(void);
-	std::string	generateSessionID(void);
-	std::string getRandomLanguage(void);
-	std::string	assembleCookie(std::string& sessionID);
-	std::string	getSessionID(std::string& cookie);
-public:
-	HttpRequestHandler();
-	HttpRequestHandler(const ServerConfig *config);
-	~HttpRequestHandler();
+		std::string	extractFilename(const std::string& partHeaders) const;
+		std::string	sanitizeFilename(const std::string& raw) const;
+		bool	writeFile(const std::string& path, const std::string& data) const;
+		int		handlePart(const MultipartPart& part, std::string& savedName);
+		void	setUploadSuccess(const std::string& filename);
+		void	handleRawPost(HttpRequest& httpRequest);
+		void	handleMultipart(const std::string& body, const std::string& contentType);
 
-	// === MAIN FUNCTION === //
-	ResponseData	handleRequest(HttpRequest& httpRequest);
-	ResponseData	handleError(int statusCode);
-	int				getMaxContentLength( std::string target );
-	int		getMaxBodySize(const std::string& target) const;
+		// === PATH === //
+		std::string	buildPath(const std::string& target) const;
+
+		// === CGI === //
+		bool	isCgiRequest(const std::string& target, const std::string& query);
+
+		// === DELETE === //
+		void handleDelete(HttpRequest& httpRequest);
+
+		// === COOKIE === //
+		std::map<std::string, std::map<std::string, std::string> > _cookiesTable;
+		std::vector<std::string> _languageTable;
+		std::vector<std::string> _attributsTable;
+
+		void	handleCookie(HttpRequest& httpRequest);
+		void	initLanguageTable(void);
+		void	initAttributsVector(void);
+		std::string	generateSessionID(void);
+		std::string getRandomLanguage(void);
+		std::string	assembleCookie(std::string& sessionID);
+		std::string	getSessionID(std::string& cookie);
+
+	public:
+		HttpRequestHandler();
+		HttpRequestHandler(const ServerConfig *config);
+		~HttpRequestHandler();
+
+		// === MAIN FUNCTION === //
+		ResponseData	handleRequest(HttpRequest& httpRequest);
+		ResponseData	handleError(int statusCode);
+		int				getMaxContentLength( std::string target );
+		int		getMaxBodySize(const std::string& target) const;
 
 };
 #endif
