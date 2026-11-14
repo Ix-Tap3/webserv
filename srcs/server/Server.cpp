@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 21:06:27 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/13 18:00:04 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:23:01 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ bool			Server::setupBind(struct addrinfo *res)
 
 bool			Server::setupListen(struct addrinfo *res)
 {
-	int res_listen = listen(this->_socketFd, 10);
+	int res_listen = listen(this->_socketFd, SOMAXCONN);
 	if (res_listen == -1)
 	{
 		std::cerr << "listen: " << std::strerror(errno) << std::endl;

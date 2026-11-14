@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/13 17:45:47 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:22:46 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,7 +289,7 @@ void HttpRequestHandler::handleDirectory(const std::string& target, const std::s
 		createListing(target, path);
 		return ;
 	}
-	this->_responseData._statusCode = 403;
+	this->_responseData._statusCode = 404;
 }
 
 static std::string	htmlEscape(const std::string& str)
@@ -349,7 +349,9 @@ void HttpRequestHandler::handlePost(HttpRequest& httpRequest)
 {
 	if (this->_location->upload.empty())
 	{
-		this->_responseData._statusCode = 403; // plus tard : CGI
+		this->_responseData._statusCode = 200;
+		this->_responseData._body.clear();
+		this->_responseData._contentLength = 0;
 		return ;
 	}
 	if (!isUploadDirUsable(this->_location->upload))
@@ -768,7 +770,7 @@ bool	HttpRequestHandler::isCgiRequest(const std::string& target, const std::stri
 	std::string	path = this->_location->root + target;
 	struct stat	st;
 
-	if (stat(path.c_str(), &st) == -1 || !S_ISREG(st.st_mode))
+	if (stat(path.c_str(), &st) == 0 && !S_ISREG(st.st_mode))
 		return (false);
 
 	this->_responseData._cgi._active = true;

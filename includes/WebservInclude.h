@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/29 18:01:12 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/13 17:46:52 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:22:36 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 # define CYAN "\033[1;36m"
 # define WHITE "\033[1;37m"
 # define MAX_TIMEOUT 5 // in second for std::difftime()
-# define CGI_TIMEOUT 10 // in second, max execution time of a CGI script
+# define CGI_TIMEOUT 60 // in second, max execution time of a CGI script
 # define CGI_MAX_FD 1024 // fds >= 3 and < CGI_MAX_FD are closed in the CGI child
 
 # include <map>

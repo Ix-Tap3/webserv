@@ -6,7 +6,7 @@
 /*   By: marudlof < marudlof@student.42angouleme.f  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/10 15:53:04 by marudlof          #+#    #+#             */
-/*   Updated: 2026/11/10 16:51:47 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/14 21:22:53 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,10 @@ std::vector<std::string>	CgiHandler::buildEnv(const HttpRequest& req, const CgiI
 	env.push_back("SCRIPT_NAME=" + info._scriptName);
 	env.push_back("SCRIPT_FILENAME=" + info._scriptPath);
 	env.push_back("PATH_INFO=" + info._scriptName);
+	if (info._query.empty())
+		env.push_back("REQUEST_URI=" + info._scriptName);
+	else
+		env.push_back("REQUEST_URI=" + info._scriptName + "?" + info._query);
 	env.push_back("CONTENT_LENGTH=" + Utils::intToString(req._body.size()));
 
 	for (HeaderList::const_iterator it =
