@@ -1,0 +1,166 @@
+:root {
+  --bg: #14171c;
+  --panel: #1c2027;
+  --panel-2: #22272f;
+  --line: #2d333d;
+  --text: #d9dee7;
+  --dim: #8791a1;
+  --ok: #6fcf97;
+  --warn: #f2c94c;
+  --err: #eb5757;
+  --accent: #56b6c2;
+  --ink: #0b1013;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  min-height: 100vh;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
+code { color: var(--accent); }
+
+/* ---------- Navigation ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(20, 23, 28, .92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-inner {
+  max-width: 960px; margin: 0 auto; padding: 12px 20px;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.brand { font-weight: 700; font-size: 1.15rem; color: var(--text); }
+.brand span { color: var(--accent); }
+.brand:hover { text-decoration: none; }
+.nav-links { display: flex; gap: 4px; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.nav-links a {
+  display: block; padding: 4px 12px; border-radius: 4px;
+  color: var(--dim); font-size: .92rem;
+}
+.nav-links a:hover { color: var(--text); background: var(--panel); text-decoration: none; }
+.nav-links a[aria-current="page"] { color: var(--ink); background: var(--accent); }
+.nav-status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--dim); font-size: .85rem; }
+
+.dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--ok);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+/* ---------- Layout ---------- */
+main { max-width: 960px; margin: 0 auto; padding: 40px 20px 24px; }
+h1 { font-size: 2.4rem; margin: 0; letter-spacing: -0.02em; line-height: 1.15; }
+h1 span { color: var(--accent); }
+h2 { font-size: 1.05rem; margin: 44px 0 12px; font-weight: 600; }
+h2 small { color: var(--dim); font-weight: 400; font-size: .85rem; margin-left: 8px; }
+.sub { color: var(--dim); margin: 6px 0 28px; max-width: 640px; }
+
+footer {
+  max-width: 960px; margin: 24px auto 0; padding: 20px 20px 40px;
+  color: var(--dim); font-size: .85rem;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  color: var(--text);
+  transition: border-color .15s, transform .15s;
+}
+a.card:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-2px); }
+.card h3 { margin: 0 0 6px; font-size: 1rem; }
+.card p { margin: 0; color: var(--dim); font-size: .88rem; }
+.card .tag { color: var(--accent); font-size: .8rem; display: block; margin-bottom: 8px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+/* ---------- Forms & buttons ---------- */
+input, select, textarea, button {
+  font: inherit; font-size: .9rem;
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px;
+}
+textarea { width: 100%; resize: vertical; min-height: 70px; }
+input[type=file] { background: none; border: none; padding: 0; color: var(--dim); }
+button { background: var(--accent); color: var(--ink); border-color: var(--accent); cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+button.ghost { background: transparent; color: var(--dim); border-color: var(--line); }
+button.ghost:hover { color: var(--text); border-color: var(--dim); }
+button.danger { background: transparent; color: var(--err); border-color: var(--err); padding: 2px 10px; }
+button.danger:hover { background: var(--err); color: var(--ink); }
+.row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.row > .grow { flex: 1; min-width: 0; }
+
+/* ---------- Console (raw server response) ---------- */
+.term {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.term .bar {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 10px 14px; border-bottom: 1px solid var(--line);
+}
+.term .bar input { flex: 1; min-width: 140px; }
+.term .title { color: var(--dim); font-size: .85rem; }
+.term pre {
+  margin: 0; padding: 16px; min-height: 200px; max-height: 460px; overflow: auto;
+  white-space: pre-wrap; word-break: break-word;
+  font: inherit; font-size: .85rem; line-height: 1.5;
+}
+.ok { color: var(--ok); } .warn { color: var(--warn); } .err { color: var(--err); }
+.dim { color: var(--dim); }
+
+/* ---------- Lists ---------- */
+.list { margin: 0; padding: 0; list-style: none; }
+.list li {
+  padding: 10px 0; border-bottom: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+}
+.list li:last-child { border-bottom: none; }
+.list .name { overflow-wrap: anywhere; }
+.list .actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.list .desc { color: var(--dim); font-size: .85rem; display: block; }
+
+.badge {
+  display: inline-block; font-size: .72rem; padding: 0 6px; border-radius: 3px;
+  border: 1px solid var(--line); color: var(--dim); margin-left: 6px; vertical-align: middle;
+}
+.badge.py { color: #7aa2f7; border-color: #7aa2f7; }
+.badge.php { color: #bb9af7; border-color: #bb9af7; }
+.badge.sh { color: var(--ok); border-color: var(--ok); }
+
+/* ---------- Two columns (CGI page) ---------- */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.split .sticky { position: sticky; top: 72px; }
+@media (max-width: 820px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .split .sticky { position: static; }
+  .nav-status { display: none; }
+}
+@media (max-width: 480px) {
+  h1 { font-size: 1.9rem; }
+  .list li { flex-direction: column; align-items: flex-start; }
+}

@@ -3,64 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Upload</title>
-<style>
-  :root {
-    --bg: #14171c;
-    --panel: #1c2027;
-    --line: #2d333d;
-    --text: #d9dee7;
-    --dim: #8791a1;
-    --accent: #56b6c2;
-    --warn: #f2c94c;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    padding: 48px 20px;
-  }
-  main { width: 100%; max-width: 720px; }
-  h1 { font-size: 2rem; margin: 0; }
-  .sub { color: var(--dim); margin: 4px 0 28px; }
-  form {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-  }
-  input[type=file] { flex: 1; min-width: 0; color: var(--dim); font: inherit; font-size: .9rem; }
-  button {
-    font: inherit; font-size: .9rem;
-    background: var(--accent); color: #0b1013;
-    border: 1px solid var(--accent); border-radius: 4px; padding: 6px 14px; cursor: pointer;
-  }
-  :focus-visible { outline: 2px solid var(--warn); outline-offset: 2px; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  footer { margin-top: 40px; color: var(--dim); font-size: .85rem; }
-</style>
+<title>Upload · webserv</title>
+<link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">web<span>serv</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/upload.html" aria-current="page">Upload</a></li>
+      <li><a href="/cgi.html">CGI</a></li>
+    </ul>
+    <div class="nav-status"><span class="dot"></span>online</div>
+  </div>
+</nav>
+
 <main>
   <h1>Upload</h1>
-  <p class="sub">POST a file to <code>/upload</code>. Max size: 50 MB.</p>
+  <p class="sub">Files are sent with <code>POST /upload</code> (multipart), listed through the directory listing of <code>GET /upload/</code> and removed with <code>DELETE /upload/&lt;name&gt;</code>. Max size: 50 MB.</p>
 
-  <form action="/upload" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" aria-label="File to upload" required>
-    <button type="submit">Send</button>
+  <form id="form" class="panel row" action="/upload" method="POST" enctype="multipart/form-data">
+    <input class="grow" type="file" name="file" aria-label="File to upload" required>
+    <button type="submit">Upload</button>
   </form>
 
-  <footer><a href="/">&larr; Back to home</a></footer>
+  <h2 class="row" style="justify-content: space-between">
+    <span>Uploaded files <small id="count"></small></span>
+    <button class="ghost" id="refresh" type="button">Refresh</button>
+  </h2>
+  <div class="panel"><ul class="list" id="files"><li class="dim">Loading...</li></ul></div>
+
+  <h2>Server response <small>last request</small></h2>
+  <div class="term">
+    <pre id="out"><span class="dim">Upload or delete a file to see the raw response here.</span></pre>
+  </div>
 </main>
+
+<footer>webserv · <a href="/upload/">raw listing</a> · <a href="/">Home</a></footer>
+
+<script src="/js/console.js"></script>
+<script>
+  const UPLOAD = '/upload/';
+  const listEl = document.getElementById('files');
+  const countEl = document.getElementById('count');
+  const out = document.getElementById('out');
+  const form = document.getElementById('form');
+
+  function emptyRow(text) {
+    listEl.innerHTML = '';
+    countEl.textContent = '';
+    const li = document.createElement('li');
+    li.className = 'dim';
+    li.textContent = text;
+    listEl.appendChild(li);
+  }
+
+  // Reads the server's directory listing (GET /upload/) and keeps regular files only.
+  async function loadFiles() {
+    let res;
+    try {
+      res = await fetch(UPLOAD);
+    } catch (e) {
+      emptyRow('Could not reach the server.');
+      return;
+    }
+    if (!res.ok) {
+      emptyRow('Listing failed: ' + res.status + ' ' + res.statusText);
+      return;
+    }
+    const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+    // href is percent-encoded by the server, the link text is the real file name
+    const files = [];
+    doc.querySelectorAll('li a').forEach(function (a) {
+      const href = a.getAttribute('href');
+      if (href && href.slice(-1) !== '/')
+        files.push({ href: href, name: a.textContent });
+    });
+    files.sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+    if (files.length === 0) {
+      emptyRow('No files uploaded yet.');
+      return;
+    }
+    countEl.textContent = '(' + files.length + ')';
+    listEl.innerHTML = '';
+    files.forEach(function (file) {
+      const name = file.name;
+      const url = UPLOAD + file.href;
+      const li = document.createElement('li');
+      const link = document.createElement('a');
+      link.className = 'name';
+      link.href = url;
+      link.target = '_blank';
+      link.textContent = name;
+
+      const actions = document.createElement('span');
+      actions.className = 'actions';
+      const btn = document.createElement('button');
+      btn.className = 'danger';
+      btn.type = 'button';
+      btn.textContent = 'Delete';
+      btn.setAttribute('aria-label', 'Delete ' + name);
+      btn.addEventListener('click', function () { deleteFile(name, url, btn); });
+      actions.appendChild(btn);
+
+      li.appendChild(link);
+      li.appendChild(actions);
+      listEl.appendChild(li);
+    });
+  }
+
+  async function deleteFile(name, url, btn) {
+    if (!confirm('Delete ' + name + ' ?'))
+      return;
+    btn.disabled = true;
+    await runRequest(out, { method: 'DELETE', path: url });
+    loadFiles();
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    await runRequest(out, { method: 'POST', path: form.action, body: new FormData(form) });
+    form.reset();
+    loadFiles();
+  });
+
+  document.getElementById('refresh').addEventListener('click', loadFiles);
+  loadFiles();
+</script>
 </body>
 </html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CGI · webserv</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="/">web<span>serv</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/upload.html">Upload</a></li>
+      <li><a href="/cgi.html" aria-current="page">CGI</a></li>
+    </ul>
+    <div class="nav-status"><span class="dot"></span>online</div>
+  </div>
+</nav>
+
+<main>
+  <h1>CGI</h1>
+  <p class="sub">Scripts in <code>/cgi-bin</code> are run by extension: <code>.py</code> with python3, <code>.php</code> with php-cgi, <code>.sh</code> with bash. <b>Run</b> shows the raw response on the right, <b>Open</b> shows the rendered page in a new tab.</p>
+
+  <div class="split">
+    <div>
+      <h2 style="margin-top: 0">Forms <small>GET query string vs POST body</small></h2>
+      <form id="form-name" class="panel">
+        <div class="row">
+          <input class="grow" id="name" name="name" placeholder="your name" value="webserv" aria-label="Name">
+          <select id="form-lang" aria-label="Script">
+            <option value="/cgi-bin/form.py">form.py</option>
+            <option value="/cgi-bin/form.php">form.php</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <button type="button" data-send="GET">Send GET</button>
+          <button type="button" data-send="POST">Send POST</button>
+        </div>
+      </form>
+
+      <h2>POST body <small>read from stdin</small></h2>
+      <div class="panel">
+        <textarea id="body" aria-label="Request body">hello=webserv&amp;project=42</textarea>
+        <div class="row" style="margin-top: 12px">
+          <button type="button" data-post="/cgi-bin/post.py">post.py</button>
+          <button type="button" data-post="/cgi-bin/post.php">post.php</button>
+          <button type="button" data-post="/cgi-bin/post.sh">post.sh</button>
+        </div>
+      </div>
+
+      <div id="groups"></div>
+    </div>
+
+    <div class="sticky">
+      <div class="term">
+        <div class="bar"><span class="title" id="term-title">response</span></div>
+        <pre id="out"><span class="dim">Run a script to see the raw response here.</span></pre>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>webserv · <a href="/">Home</a> · <a href="/upload.html">Upload</a></footer>
+
+<script src="/js/console.js"></script>
+<script>
+  const out = document.getElementById('out');
+  const termTitle = document.getElementById('term-title');
+
+  const GROUPS = [
+    { title: 'Hello', hint: 'method, query string, working directory', scripts: [
+      ['/cgi-bin/hello.py?lang=python', 'Hello from Python'],
+      ['/cgi-bin/hello.php?lang=php', 'Hello from PHP'],
+      ['/cgi-bin/hello.sh?lang=bash', 'Hello from bash'],
+    ]},
+    { title: 'Environment', hint: 'variables passed to the script', scripts: [
+      ['/cgi-bin/env.py', 'CGI environment (Python)'],
+      ['/cgi-bin/env.php', '$_SERVER (PHP)'],
+      ['/cgi-bin/info.php', 'phpinfo()'],
+    ]},
+    { title: 'State', hint: 'run several times, the counter goes up', scripts: [
+      ['/cgi-bin/cookie.py', 'Cookie visit counter'],
+      ['/cgi-bin/session.php', 'PHP session'],
+    ]},
+    { title: 'Headers from the script', hint: 'Status, Location, custom headers', scripts: [
+      ['/cgi-bin/status.py', 'Status: 418 I\'m a teapot'],
+      ['/cgi-bin/status.php', 'Status: 403 Forbidden'],
+      ['/cgi-bin/status.sh', 'Status: 404 Not Found'],
+      ['/cgi-bin/redirect.py', '302 to /index.html'],
+      ['/cgi-bin/redirect.php', '302 to /index.html'],
+    ]},
+    { title: 'Big output', hint: '10 MB response', scripts: [
+      ['/cgi-bin/big.py', '10 MB of text'],
+    ]},
+    { title: 'Errors', hint: 'the server must stay up', scripts: [
+      ['/cgi-bin/crash.py', 'Python exception'],
+      ['/cgi-bin/crash.php', 'Undefined function'],
+      ['/cgi-bin/syntax_error.php', 'PHP syntax error'],
+      ['/cgi-bin/broken.sh', 'No CGI headers'],
+      ['/cgi-bin/missing.py', 'Script does not exist'],
+    ]},
+    { title: 'Timeouts', hint: 'killed by the server after ~60 s, expect 504', scripts: [
+      ['/cgi-bin/infinite.py', 'Infinite loop'],
+      ['/cgi-bin/sleep.py', 'sleep(90)'],
+      ['/cgi-bin/sleep.php', 'sleep(90)'],
+      ['/cgi-bin/sleep.sh', 'sleep 90'],
+    ]},
+  ];
+
+  function run(opts) {
+    termTitle.textContent = opts.method + ' ' + opts.path;
+    runRequest(out, opts);
+  }
+
+  function extension(path) {
+    const file = path.split('?')[0];
+    return file.slice(file.lastIndexOf('.') + 1);
+  }
+
+  function render() {
+    const root = document.getElementById('groups');
+    GROUPS.forEach(function (group) {
+      const h2 = document.createElement('h2');
+      h2.textContent = group.title + ' ';
+      const small = document.createElement('small');
+      small.textContent = group.hint;
+      h2.appendChild(small);
+
+      const panel = document.createElement('div');
+      panel.className = 'panel';
+      const ul = document.createElement('ul');
+      ul.className = 'list';
+
+      group.scripts.forEach(function (s) {
+        const path = s[0];
+        const li = document.createElement('li');
+
+        const info = document.createElement('span');
+        info.className = 'name';
+        const name = document.createElement('span');
+        name.textContent = path.split('?')[0].replace('/cgi-bin/', '');
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + extension(path);
+        badge.textContent = extension(path);
+        const desc = document.createElement('span');
+        desc.className = 'desc';
+        desc.textContent = s[1];
+        info.appendChild(name);
+        info.appendChild(badge);
+        info.appendChild(desc);
+
+        const actions = document.createElement('span');
+        actions.className = 'actions';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = 'Run';
+        btn.addEventListener('click', function () { run({ method: 'GET', path: path }); });
+        const open = document.createElement('a');
+        open.href = path;
+        open.target = '_blank';
+        open.textContent = 'Open ↗';
+        actions.appendChild(btn);
+        actions.appendChild(open);
+
+        li.appendChild(info);
+        li.appendChild(actions);
+        ul.appendChild(li);
+      });
+
+      panel.appendChild(ul);
+      root.appendChild(h2);
+      root.appendChild(panel);
+    });
+  }
+
+  document.querySelectorAll('[data-send]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const script = document.getElementById('form-lang').value;
+      const query = 'name=' + encodeURIComponent(document.getElementById('name').value);
+      if (btn.dataset.send === 'GET')
+        run({ method: 'GET', path: script + '?' + query });
+      else
+        run({ method: 'POST', path: script, body: query, contentType: 'application/x-www-form-urlencoded' });
+    });
+  });
+
+  document.querySelectorAll('[data-post]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      run({ method: 'POST', path: btn.dataset.post, body: document.getElementById('body').value,
+        contentType: 'application/x-www-form-urlencoded' });
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
