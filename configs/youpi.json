@@ -1,0 +1,41 @@
+[
+  {
+    "root": "/home/marudlof/cursus/SCHOOL/webserv/YoupiBanane",
+    "hosts": [
+      "localhost"
+    ],
+    "ports": [
+      8080
+    ],
+    "max_body_size": 200000000,
+    "directory_listing": false,
+    "default_page": "/youpi.bad_extension",
+    "cgis": {
+      ".bla": "/home/marudlof/cursus/SCHOOL/webserv/cgi_tester"
+    },
+    "locations": [
+      {
+        "path": "/",
+        "methods": [
+          "GET"
+        ]
+      },
+      {
+        "path": "/post_body",
+        "methods": [
+          "POST"
+        ],
+        "max_body_size": 100
+      },
+      {
+        "path": "/directory",
+        "root": "/home/marudlof/cursus/SCHOOL/webserv/YoupiBanane",
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "default_page": "/youpi.bad_extension"
+      }
+    ]
+  }
+]

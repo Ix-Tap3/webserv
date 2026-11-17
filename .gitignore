@@ -1,9 +1,5 @@
-tests_server.md
 objs/
 *.o
 webserv
 .vscode/
 *.d
-YoupiBanane/
-cgi_tester
-tester
