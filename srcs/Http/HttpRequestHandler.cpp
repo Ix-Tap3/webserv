@@ -6,7 +6,7 @@
 /*   By: anfouger <anfouger@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 18:25:22 by anfouger          #+#    #+#             */
-/*   Updated: 2026/11/14 21:52:01 by marudlof         ###   ########.fr       */
+/*   Updated: 2026/11/17 16:46:18 by marudlof         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <cctype>
 
 // === INIT === //
 
@@ -74,6 +75,47 @@ std::string HttpRequestHandler::getExtension(const std::string& target)
 	return (extension);
 }
 
+static int	hexValue(char c)
+{
+	if (c >= '0' && c <= '9')
+		return (c - '0');
+	if (c >= 'a' && c <= 'f')
+		return (c - 'a' + 10);
+	if (c >= 'A' && c <= 'F')
+		return (c - 'A' + 10);
+	return (-1);
+}
+
+static bool	urlDecode(std::string& str)
+{
+	std::string		res;
+	unsigned char	c;
+	int				high;
+	int				low;
+
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		if (str[i] != '%')
+		{
+			res += str[i];
+			continue ;
+		}
+		if (i + 2 >= str.size())
+			return (false);
+		high = hexValue(str[i + 1]);
+		low = hexValue(str[i + 2]);
+		if (high == -1 || low == -1)
+			return (false);
+		c = static_cast<unsigned char>(high * 16 + low);
+		if (c < 0x20 || c == 0x7F)
+			return (false);
+		res += static_cast<char>(c);
+		i += 2;
+	}
+	str = res;
+	return (true);
+}
+
 // === MAIN FUNCTION === //
 ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 {
@@ -86,6 +128,8 @@ ResponseData HttpRequestHandler::handleRequest(HttpRequest& httpRequest)
 	std::string&		target = httpRequest.requestLine._target;
 
 	std::string	query = getRequestTarget(target);
+	if (!urlDecode(target))
+		return (errorResponse(400));
 	if (target.find("..") != std::string::npos)
 		return (errorResponse(403));
 
@@ -325,6 +369,26 @@ static std::string	htmlEscape(const std::string& str)
 	return (res);
 }
 
+static std::string	urlEncode(const std::string& str)
+{
+	const char	*hex = "0123456789ABCDEF";
+	std::string	res;
+
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		unsigned char	c = static_cast<unsigned char>(str[i]);
+		if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~' || c == '/')
+			res += str[i];
+		else
+		{
+			res += '%';
+			res += hex[c >> 4];
+			res += hex[c & 15];
+		}
+	}
+	return (res);
+}
+
 void HttpRequestHandler::createListing(const std::string& target, const std::string& path)
 {
 	DIR	*dir = opendir(path.c_str());
@@ -347,7 +411,7 @@ void HttpRequestHandler::createListing(const std::string& target, const std::str
 			continue ;
 		if (entry->d_type == DT_DIR)
 			name += "/";
-		body += "<li><a href=\"" + htmlEscape(name) + "\">" + htmlEscape(name) + "</a></li>\n";
+		body += "<li><a href=\"" + urlEncode(name) + "\">" + htmlEscape(name) + "</a></li>\n";
 	}
 	closedir(dir);
 	body += "</ul>\n</body>\n</html>\n";
