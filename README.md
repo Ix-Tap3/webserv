@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by pcaplat, marudlof and afouger.*
+*This project has been created as part of the 42 curriculum by pcaplat, marudlof and anfouger.*
 
 # Webserv
 
